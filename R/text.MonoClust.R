@@ -14,3 +14,4 @@ text.MonoClust <- function(x,abbrev,which,...){
 			legend(mean(max(x$frame$loc),min(x$frame$loc)),.9,paste(nums,names,sep=" = "),bty='n')
 	}
 }
+# test
