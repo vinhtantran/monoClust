@@ -2,9 +2,9 @@ Package: monoClust
 Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: GPL-3
+Author: Tan Tran, Brian McGuire, Mark Greenwood
+Maintainer: Tan Tran <tan.tran@msu.montana.edu>
+Description: This package is designed to run the Monothetic Clustering on a data set.
+License: GPL-3 | file LICENSE
 LazyData: TRUE
 Depends: cluster, vegan
