@@ -19,7 +19,7 @@ MonoClust(toclust, variables = NULL, distmethod = NULL, labels = as.character(1:
 the data set
 }
   \item{variables}{
-list of variables selected for clustering procedure. It could be a list of variable indices, or a list of variable names.
+list of variables selected for clustering procedure. It could be a vector of variable indices, or a vector of variable names.
 }
   \item{distmethod}{
 distance method to use with the data set. The default value is the Euclidean distance for quantitative variables and the ... distance for categorical variables.

@@ -9,7 +9,7 @@ MonoClust <-function(toclust, variables = NULL, distmethod=NULL, labels=as.chara
 
   ## Tan, 5/27/16, argument checking (variables)
   if (!is.null(variables)) {
-    if (!is.list(variables)) {
+    if (!is.vector(variables)) {
       cat("variables need to be a list of variable names or indices.")
       return(0)
     }
