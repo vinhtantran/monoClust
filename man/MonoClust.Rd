@@ -8,7 +8,7 @@ MonoClust is the main function of the package.
 MonoClust creates a MonoClust object after partitioning the data set using MonoClust clustering.
 }
 \usage{
-MonoClust(toclust, distmethod = NULL, labels = as.character(1:length(toclust[, 1])),
+MonoClust(toclust, variables = NULL, distmethod = NULL, labels = as.character(1:length(toclust[, 1])),
           digits = options("digits")$digits, nclusters = nrow(toclust),
           minbucket = round(minsplit/3), minsplit = 5,
           corders = 2, alpha = 0.05, perm.test = FALSE)
@@ -17,6 +17,9 @@ MonoClust(toclust, distmethod = NULL, labels = as.character(1:length(toclust[, 1
 \arguments{
   \item{toclust}{
 the data set
+}
+  \item{variables}{
+list of variables selected for clustering procedure. It could be a list of variable indices, or a list of variable names.
 }
   \item{distmethod}{
 distance method to use with the data set. The default value is the Euclidean distance for quantitative variables and the ... distance for categorical variables.
