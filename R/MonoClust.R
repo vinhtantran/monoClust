@@ -180,7 +180,7 @@ MonoClust <-function(toclust, variables = NULL, distmethod=NULL, labels=as.chara
   split.order <- 1
   ## This loop runs until we have nclusters, have exhausted our observations or run into our minbucket/minsplit restrictions.
   while(sum(.Cluster_frame$var=="<leaf>") < nclusters){
-    check <- checkem(toclust,cuts,distmats,catnames,weights,minsplit, minbucket, split.order)
+    check <- checkem(toclust,cuts,distmats,catnames,variables,weights,minsplit, minbucket, split.order)
     split.order <- split.order + 1
     if(check==0){break}
   }
@@ -468,7 +468,7 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
 ## so we should use this property to not do an exhaustive check, but to check the center the 25% and 75% and then search more selectively from there.
 ## This is a fairly simple discrete optimization problem and could reduce computation time .
 
-FindSplit <- function(frame,row,Data,Cuts,Dist,weights, minsplit, minbucket){
+FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minbucket){
 
   bycol<-numeric()
   number<-frame[row,1]
@@ -485,12 +485,16 @@ FindSplit <- function(frame,row,Data,Cuts,Dist,weights, minsplit, minbucket){
   }
 
   ## Subset the data and cut matricies
-  Datamems<-Data[mems,]
-  Cutsmems<-Cuts[mems,]
+  # MODIFY: Tan, 7/3/16, add search space limit
+  # Datamems<-Data[mems,]
+  # Cutsmems<-Cuts[mems,]
+  Datamems<-Data[mems, variables]
+  Cutsmems<-Cuts[mems, variables]
 
   ##For each possible cut, calculate the inertia. This is where using a discrete optimization
   ## algorithm would help a lot.
   for(i in 1:ncol(Datamems)){
+
 
     Data_col<-Datamems[,i]
     Cuts_col<-Cutsmems[,i]
@@ -548,16 +552,12 @@ FindSplit <- function(frame,row,Data,Cuts,Dist,weights, minsplit, minbucket){
   .Cluster_frame<<-frame
 }
 
-checkem<-function(Data,Cuts,Dist,catnames,weights, minsplit, minbucket, split.order = 0){
+checkem<-function(Data,Cuts,Dist,catnames,variables,weights, minsplit, minbucket, split.order = 0){
 
   ## Current terminal nodes
   candidates<-which(.Cluster_frame$var == '<leaf>' & is.na(.Cluster_frame$bipartsplitrow))
   ## Split the best one. Return to Nada which never gets output.
-  # Nada <- sapply(candidates,function(x)FindSplit(.Cluster_frame,x,Data,Cuts,Dist,warn))
-  Nada <- sapply(candidates,function(x)FindSplit(.Cluster_frame,x,Data,Cuts,Dist,weights, minsplit, minbucket)) # Tan, 9/24, typo?
-  #Mark, 9/25, if we were using weights, it would have needed. In PULS, I also pass minsplit and minbucket here. Is there danger in passing warn?
-  # 1. "warn" variable doesn't exist, and 2. If there is warning on the way, we need to return them, not transfer them deeper. That's why Brian puts it in globalenv
-
+  Nada <- sapply(candidates,function(x)FindSplit(.Cluster_frame,x,Data,Cuts,Dist,variables,weights, minsplit, minbucket))
   ## See which ones are left.
   candidates2 <- which(.Cluster_frame$var == '<leaf>' & .Cluster_frame$bipartsplitrow != 0)
   ## If nothing's left, stop running.
