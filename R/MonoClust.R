@@ -18,6 +18,9 @@ MonoClust <-function(toclust, variables = NULL, distmethod=NULL, labels=as.chara
       cat("undefined variables selected.")
       return(0)
     }
+  } else
+  {
+    variables <- 1:ncol(data.frame(toclust))
   }
 
 
@@ -488,8 +491,8 @@ FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minb
   # MODIFY: Tan, 7/3/16, add search space limit
   # Datamems<-Data[mems,]
   # Cutsmems<-Cuts[mems,]
-  Datamems<-Data[mems, variables]
-  Cutsmems<-Cuts[mems, variables]
+  Datamems<-data.frame(Data[mems, variables])
+  Cutsmems<-data.frame(Cuts[mems, variables])
 
   ##For each possible cut, calculate the inertia. This is where using a discrete optimization
   ## algorithm would help a lot.
@@ -543,7 +546,7 @@ FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minb
 
     ## Update our frame
     frame[row,7] <- split[1]
-    frame[row,8] <- split[2]
+    frame[row,8] <- variables[split[2]]
     frame[row,9] <- inertiadel
   } else  # Otherwise, stop as a leaf
     frame[row,7] <- 0

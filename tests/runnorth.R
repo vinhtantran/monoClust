@@ -186,7 +186,10 @@ str(IceExtentRB)
 
 #########
 data(ruspini)
-ruspini <- cbind(ruspini, z = round(rnorm(75, 10, 3)))
-out <- MonoClust(ruspini, variables = 1:2, nclusters=4)
+ruspini <- cbind(ruspini, z = ruspini$y)
+out <- MonoClust(ruspini, nclusters=4)
+out <- MonoClust(ruspini, variables = 2:3, nclusters=4)
+out <- MonoClust(ruspini, variables = c(1, 3), nclusters=4)
+ruspini
 
-out
+out <- MonoClust(ruspini, variables = 2, nclusters=4)
