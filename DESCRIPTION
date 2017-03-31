@@ -7,4 +7,4 @@ Maintainer: Tan Tran <tan.tran@msu.montana.edu>
 Description: This package is designed to run the Monothetic Clustering on a data set.
 License: GPL-3 | file LICENSE
 LazyData: TRUE
-Depends: cluster, vegan
+Depends: cluster, permute, vegan
