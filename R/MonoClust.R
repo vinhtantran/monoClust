@@ -1,4 +1,4 @@
-MonoClust <-function(toclust, variables = NULL, distmethod=NULL, labels=as.character(1:length(toclust[,1])), digits=options('digits')$digits,nclusters=nrow(toclust), minbucket=round(minsplit/3), minsplit=5, corders = 2, alpha=0.05, perm.test = FALSE){
+MonoClust <-function(toclust, is.dist = FALSE, variables = NULL, distmethod=NULL, labels=as.character(1:length(toclust[,1])), digits=options('digits')$digits,nclusters=nrow(toclust), minbucket=round(minsplit/3), minsplit=5, corders = 2, alpha=0.05, perm.test = FALSE){
 
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad parameters are transfered
   ## Ensure that important options make sense
@@ -28,6 +28,10 @@ MonoClust <-function(toclust, variables = NULL, distmethod=NULL, labels=as.chara
   assign(".MonoClustwarn",0,envir = .GlobalEnv)
   ## Right now, each observation has equal weight. This could be made into an option.
   weights <- rep(1,nrow(toclust))
+  
+  if (!is.dist) {
+  
+  
   ## Categorical Variable Ordering
   quali_ordered<-NULL
 
@@ -169,6 +173,10 @@ MonoClust <-function(toclust, variables = NULL, distmethod=NULL, labels=as.chara
   ## daisy function.
   distmat0 <- 	daisy(toclust0)
   distmats<-as.matrix(distmat0)
+  } else { # If the input matrix is already a distance matrix
+    dismats <- toclust
+  }
+  
   members<-1:nobs
 
 
