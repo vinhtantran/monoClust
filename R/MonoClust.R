@@ -20,7 +20,7 @@ MonoClust <-function(toclust, is.dist = FALSE, variables = NULL, distmethod=NULL
     }
   } else
   {
-    variables <- 1:ncol(data.frame(toclust))
+    variables <- 1:ncol(toclust)
   }
 
 
