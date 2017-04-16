@@ -1,4 +1,9 @@
-MonoClust <-function(toclust, cir.var = NULL, variables = NULL, distmethod=NULL, labels=as.character(1:length(toclust[,1])), digits=options('digits')$digits,nclusters=nrow(toclust), minbucket=round(minsplit/3), minsplit=5, corders = 2, alpha=0.05, perm.test = FALSE){
+MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
+                     distmethod=NULL, labels=as.character(1:length(toclust[,1])),
+                     digits=options('digits')$digits,nclusters=nrow(toclust),
+                     minbucket=round(minsplit/3), minsplit=5, corders = 2,
+                     alpha=0.05, perm.test = FALSE,
+                     ran=0){ # Tan 4/16 Added to control recursive call
 
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad parameters are transfered
   ## Ensure that important options make sense
@@ -21,7 +26,7 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL, distmethod=NULL,
   } else  {
     variables <- 1:ncol(toclust)
   }
-  
+
   ## Tan, 4/10/17, argument checking (circular variables)
   if (!is.null(cir.var)) {
     if (!is.vector(cir.var)) {
@@ -40,8 +45,8 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL, distmethod=NULL,
   assign(".MonoClustwarn",0,envir = .GlobalEnv)
   ## Right now, each observation has equal weight. This could be made into an option.
   weights <- rep(1,nrow(toclust))
-  
-  
+
+
   ## Categorical Variable Ordering
   quali_ordered<-NULL
 
@@ -144,6 +149,33 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL, distmethod=NULL,
     sapply(col,function(x) ifelse(x==max(col),x+1,min(col[which(col-x > 0)])))
   }
 
+  nextvalue <- findclosest(aspect)
+  bestcircsplit <- NULL
+  ## Tan 4/16/17, discreetly find the first split for the circular variable to nail the the first split
+  if (!is.null(cir.var) && (ran==0)) {
+    variable <- toclust[,cir.var]
+    minvalue <- min(variable)
+    min.inertia <- 9999
+    # Check all starting value to find the best split
+    # The best split will be recorded in output with the pivot is hour
+    while (minvalue < max(variable)) {
+      variable.shift <- cshift(variable, -minvalue)
+      out <- MonoClust(data.frame(variable.shift), cir.var = 1, nclusters=2, ran=1)
+      cut <- out$frame$cut[1]
+      int <- inertia(out$Dist[which(out$Membership == 2),which(out$Membership == 2)]) +
+        inertia(out$Dist[which(out$Membership == 3),which(out$Membership == 3)])
+      if (min.inertia > int) {
+        min.inertia <- int
+        bestcircsplit <- list(hour = minvalue, minute=ifelse((cut+minvalue) < 360, cut+minvalue, cut+minvalue-360), intertia = int)
+      }
+      minvalue <- as.numeric(nextvalue[which(variable == minvalue)])
+    }
+
+    # Shift the circular variable to the hour pivot, will shift back later
+    toclust[,cir.var] <- cshift(variable, -bestcircsplit$hour)
+  }
+
+
   if(quanttog){cuts_quant<-apply(data.frame(toclust[,quantis]),2,findclosest)}
 
   cuts<-toclust
@@ -184,13 +216,12 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL, distmethod=NULL,
     distmat0 <- distmat1 + distmat2
   } else
     distmat0 <- daisy(toclust0, metric = distmethod)
-  
+
   distmats<-as.matrix(distmat0)
-  
+
   members<-1:nobs
 
-
-  ## Set up a vector containing each observation's membership. Put into global environment, but this will be deleted at the end
+    ## Set up a vector containing each observation's membership. Put into global environment, but this will be deleted at the end
   ## of this function. Using global environment allows us to modify things recursively as we partition clusters.
   assign(".Cloc",rep(1,nobs), envir = .GlobalEnv)
 
@@ -628,7 +659,8 @@ med <- function(members,Dist){
 #     result
 # }
 
-
+# Calculate distance matrix for circular variable, based on Gower's distance
+# Written by Garland Will
 circd <- function(x) {
   #Assumes x is just a single variable
   dist1<-matrix(0,nrow=length(x),ncol=length(x))
@@ -638,4 +670,13 @@ circd <- function(x) {
     }
   }
   return(as.dist(dist1))
+}
+
+# Tan Added 4/16/17
+# Small function to shift a circular value or variable
+cshift <- function(variable, shift) {
+  variable.shifted <- variable + shift
+  variable.shifted <- ifelse(variable.shifted >= 0, variable.shifted, variable.shifted + 360)
+  variable.shifted <- ifelse(variable.shifted < 360, variable.shifted, variable.shifted - 360)
+  variable.shifted
 }
