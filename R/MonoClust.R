@@ -1,4 +1,4 @@
-MonoClust <-function(toclust, is.dist = FALSE, variables = NULL, distmethod=NULL, labels=as.character(1:length(toclust[,1])), digits=options('digits')$digits,nclusters=nrow(toclust), minbucket=round(minsplit/3), minsplit=5, corders = 2, alpha=0.05, perm.test = FALSE){
+MonoClust <-function(toclust, cir.var = NULL, variables = NULL, distmethod=NULL, labels=as.character(1:length(toclust[,1])), digits=options('digits')$digits,nclusters=nrow(toclust), minbucket=round(minsplit/3), minsplit=5, corders = 2, alpha=0.05, perm.test = FALSE){
 
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad parameters are transfered
   ## Ensure that important options make sense
@@ -18,9 +18,21 @@ MonoClust <-function(toclust, is.dist = FALSE, variables = NULL, distmethod=NULL
       cat("undefined variables selected.")
       return(0)
     }
-  } else
-  {
+  } else  {
     variables <- 1:ncol(toclust)
+  }
+  
+  ## Tan, 4/10/17, argument checking (circular variables)
+  if (!is.null(cir.var)) {
+    if (!is.vector(cir.var)) {
+      cat("circular variables need to be a list of variable names or indices.")
+      return(0)
+    }
+    toclust1 <- toclust[cir.var]
+    if (!is.data.frame(toclust1)) {
+      cat("undefined variables selected.")
+      return(0)
+    }
   }
 
 
@@ -28,8 +40,6 @@ MonoClust <-function(toclust, is.dist = FALSE, variables = NULL, distmethod=NULL
   assign(".MonoClustwarn",0,envir = .GlobalEnv)
   ## Right now, each observation has equal weight. This could be made into an option.
   weights <- rep(1,nrow(toclust))
-  
-  if (!is.dist) {
   
   
   ## Categorical Variable Ordering
@@ -134,7 +144,7 @@ MonoClust <-function(toclust, is.dist = FALSE, variables = NULL, distmethod=NULL
     sapply(col,function(x) ifelse(x==max(col),x+1,min(col[which(col-x > 0)])))
   }
 
-  if(quanttog){cuts_quant<-apply(toclust[,quantis],2,findclosest)}
+  if(quanttog){cuts_quant<-apply(data.frame(toclust[,quantis]),2,findclosest)}
 
   cuts<-toclust
   if(qualtog){cuts[,c(which(factors),extracols)]<-cuts_quali}
@@ -167,15 +177,15 @@ MonoClust <-function(toclust, is.dist = FALSE, variables = NULL, distmethod=NULL
 
   colnames(cuts)<-colnames(toclust)
 
-  ## Create distance matrix with daisy function
-  ## Right now this only works with daisy this should be changed if we want the user
-  ## option distmethods to work. This is a simple change, just an added argument to the
-  ## daisy function.
-  distmat0 <- 	daisy(toclust0)
+  ## Tan 4/10/17, add metric argument to daisy and circular distance
+  if (!is.null(cir.var)) {
+    distmat1 <- ifelse(ncol(toclust0[,-cir.var])!=0, daisy(toclust0[,-cir.var], metric = distmethod), 0)
+    distmat2 <- circd(toclust0[,cir.var])
+    distmat0 <- distmat1 + distmat2
+  } else
+    distmat0 <- daisy(toclust0, metric = distmethod)
+  
   distmats<-as.matrix(distmat0)
-  } else { # If the input matrix is already a distance matrix
-    dismats <- toclust
-  }
   
   members<-1:nobs
 
@@ -281,11 +291,11 @@ find.centroid <- function(toclust, qualtog, quanttog) {
   leaf <- .Cluster_frame[.Cluster_frame$var == "<leaf>", "number"]
   centroid.list <- as.numeric()
   for (i in leaf) {
-    cluster <- toclust[.Cloc == i,]
+    cluster <- matrix(toclust[.Cloc == i,])
     centroid <- apply(cluster, 2, mean)
     centroid.list <- rbind(centroid.list, c(i, centroid))
   }
-  colnames(centroid.list)[1] <- "cname"
+  colnames(centroid.list) <- c("cname", rep("", ncol(centroid.list)-1))
   centroid.list
 }
 
@@ -363,7 +373,7 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   mems   <- which(.Cloc == number)
   split  <- c(.Cluster_frame$bipartsplitrow[splitrow],.Cluster_frame$bipartsplitcol[splitrow])
 
-  Datamems<-Data[mems,]
+  Datamems<-data.frame(Data[mems,])
   Cutsmems<-Cuts[mems,]
 
 
@@ -617,3 +627,15 @@ med <- function(members,Dist){
 #     result <- adonis(dist.mat.twogroup ~ fmem2)
 #     result
 # }
+
+
+circd <- function(x) {
+  #Assumes x is just a single variable
+  dist1<-matrix(0,nrow=length(x),ncol=length(x))
+  for (i in (1:(length(x)-1))) {
+    for (j in i:length(x)) {
+      dist1[j,i]=min(abs(x[i]-x[j]), (360 - abs(x[i]-x[j])))/180
+    }
+  }
+  return(as.dist(dist1))
+}

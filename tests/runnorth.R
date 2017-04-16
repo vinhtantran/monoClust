@@ -193,3 +193,26 @@ out <- MonoClust(ruspini, variables = c(1, 3), nclusters=4)
 ruspini
 
 out <- MonoClust(ruspini, variables = 2, nclusters=4)
+
+#### 4/5
+sourceDir <- function(path, trace = TRUE, ...) {
+  for (nm in list.files(path, pattern = "\\.R$")) {
+    if(trace) cat(nm,":")
+    source(paste(path, "/", nm, sep = ""), ...)
+    if(trace) cat("\n")
+  }
+}
+
+sourceDir("../../R", trace=F)
+source("../R/print.MonoClust.R")
+source("../R/labels.MonoClust.R")
+source("../R/PCAmixcode.R")
+source("../R/plots.R")
+source("../R/text.MonoClust.R")
+source("../R/plot.MonoClust.R")
+source("../R/predict.MonoClust.R")
+source("../R/MonoClust.R")
+source("../R/cv.test.mse.R")
+source("../R/cv.test.R")
+source("../R/cv.plot.R")
+source("../R/perm.test.R")
