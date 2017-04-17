@@ -63,6 +63,11 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
     distmethod<-'gower'
   }
 
+  ## Tan 4/16/17, if there is a circular variable in the data set, use Gower's distance unless otherwise specified.
+  if(!is.null(cir.var) && is.null(distmethod)){
+    distmethod<-'gower'
+  }
+
   ## For now, impute missing values so we have no missing data
   ## Emit warning that values were imputed.
 
@@ -149,8 +154,8 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
     sapply(col,function(x) ifelse(x==max(col),x+1,min(col[which(col-x > 0)])))
   }
 
-  nextvalue <- findclosest(aspect)
-  bestcircsplit <- NULL
+  nextvalue <- findclosest(toclust[,cir.var])
+  bestcircsplit <- list(hour = 0, minute = 0, inertia = 0)
   ## Tan 4/16/17, discreetly find the first split for the circular variable to nail the the first split
   if (!is.null(cir.var) && (ran==0)) {
     variable <- toclust[,cir.var]
@@ -211,9 +216,14 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
 
   ## Tan 4/10/17, add metric argument to daisy and circular distance
   if (!is.null(cir.var)) {
-    distmat1 <- ifelse(ncol(toclust0[,-cir.var])!=0, daisy(toclust0[,-cir.var], metric = distmethod), 0)
+    # I have to split because R coerce the distance matrix to one value when using ifelse with a 0.
+    if (ncol(toclust0[,-cir.var])!=0) {
+      distmat1 <- daisy(toclust0[,-cir.var], metric = distmethod) * dim(toclust0[,-cir.var])[2]
+    } else {
+      distmat1 <- 0
+    }
     distmat2 <- circd(toclust0[,cir.var])
-    distmat0 <- distmat1 + distmat2
+    distmat0 <- (distmat1 + distmat2) / dim(toclust0)[2]
   } else
     distmat0 <- daisy(toclust0, metric = distmethod)
 
@@ -272,6 +282,11 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
   # vars<-rep(var[splits],each=2)
   # labsnum <- c('root',paste(vars,ineq,level,sep=' '))
 
+  ## Tan, 4/16/17
+  ## Modify the Cluster_frame to shift the circular variable's cut back to the original values
+  .Cluster_frame2[which(.Cluster_frame2$var == colnames(toclust)[cir.var]), "cut"] <-
+    cshift(.Cluster_frame2[which(.Cluster_frame2$var == colnames(toclust)[cir.var]), "cut"],  bestcircsplit$hour)
+
   ## MODIFY: Tan, 12/14. Change input of getlevels. If getlevels doesn't see the whole structure of output, we can't
   ## set correct left and right node labels. See new getlevels function for more details.
   # labs<-c('root',sapply(splits,getlevels,cats = cat_splits,varnames=var, frame=.Cluster_frame2,catnames=catnames,quali_ordered=quali_ordered))
@@ -302,7 +317,8 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
   rpartobj<-list("frame"=.Cluster_frame2,"labels"=labs,"labelsnum" = labs, "functions"=dendfxns,"qualordered"=quali_ordered, Membership =.Cloc, Dist=distmats, Catnames=catnames,
                  terms = Terms, # 12/9/14. Tan: add terms to keep track of variables name, in order to check the new data set
                  centroids = centroids, # 12/15. Tan: add centroids info, for prediction of quantitative
-                 medoids = medoids # 4/22/15. Tan: add medoids info
+                 medoids = medoids, # 4/22/15. Tan: add medoids info
+                 circularroot = list(var = cir.var, cut = bestcircsplit$hour) # 4/16/17. Tan: add the starting cut for circular variable
   )
   class(rpartobj)<-c("MonoClust","rpart")
 
