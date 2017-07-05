@@ -338,7 +338,7 @@ find.centroid <- function(toclust, qualtog, quanttog) {
   leaf <- .Cluster_frame[.Cluster_frame$var == "<leaf>", "number"]
   centroid.list <- as.numeric()
   for (i in leaf) {
-    cluster <- matrix(toclust[.Cloc == i,])
+    cluster <- as.matrix(toclust[.Cloc == i,])
     centroid <- apply(cluster, 2, mean)
     centroid.list <- rbind(centroid.list, c(i, centroid))
   }
