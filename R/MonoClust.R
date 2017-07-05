@@ -173,7 +173,7 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
         min.inertia <- int
         bestcircsplit <- list(hour = minvalue, minute=ifelse((cut+minvalue) < 360, cut+minvalue, cut+minvalue-360), intertia = int)
       }
-      minvalue <- as.numeric(nextvalue[which(variable == minvalue)])
+      minvalue <- as.numeric(nextvalue[which(variable == minvalue)])[1]
     }
 
     # Shift the circular variable to the hour pivot, will shift back later
@@ -597,7 +597,7 @@ FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minb
   ind <- matrix(ind[!ind[,3] == FALSE,], ncol=3)
 
   ## If multiple splits produce the same inertia change output a warning.
-  if(nrow(ind) > 1 & .MonoClustwarn==0){.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
+  #if(nrow(ind) > 1 & .MonoClustwarn==0){.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
 
   # If there is some row that satisfies minbucket
   if (nrow(ind) != 0) {
