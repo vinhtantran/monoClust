@@ -343,7 +343,7 @@ find.centroid <- function(toclust, qualtog, quanttog) {
     centroid <- apply(cluster, 2, mean)
     centroid.list[[i]] <- c(leaf[i], centroid)
   }
-  centroid.list <- bind_rows(centroid.list)
+  centroid.list <- data.frame(matrix(unlist(centroid.list), nrow=length(leaf), byrow = T))
   colnames(centroid.list) <- c("cname", rep("", ncol(centroid.list)-1))
   centroid.list
 }
