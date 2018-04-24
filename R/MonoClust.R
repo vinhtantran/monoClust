@@ -1,3 +1,30 @@
+#' Title Monothetic Clustering MonoClust creates a MonoClust object after
+#' partitioning the data set using MonoClust clustering.
+#' @param toclust the data set
+#' @param cir.var the index or name of the circular variable in the data set.
+#'   Default is NULL
+#' @param variables list of variables selected for clustering procedure. It
+#'   could be a vector of variable indices, or a vector of variable names.
+#' @param distmethod distance method to use with the data set. The default value
+#'   is the Euclidean distance for quantitative variables and the ... distance
+#'   for categorical variables.
+#' @param labels define names of variables.
+#' @param digits significant numbers shown in the result.
+#' @param nclusters number of clusters created.
+#' @param minbucket the minimum number of observations in any terminal <leaf>
+#'   node. If only one of minbucket or minsplit is specified, the code either
+#'   sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.
+#' @param minsplit the minimum number of observations that must exist in a node
+#'   in order for a split to be attempted.
+#' @param corders Blank
+#' @param alpha This value goes with the permutation test
+#' @param perm.test Whether or not to make a permutation test while clustering.
+#' @param ran This parameter should never be used
+#'
+#' @return Blank
+#' @export
+#'
+#' @examples blank
 MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
                      distmethod=NULL, labels=as.character(1:length(toclust[,1])),
                      digits=options('digits')$digits,nclusters=nrow(toclust),
