@@ -44,9 +44,9 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
                      alpha=0.05, perm.test = FALSE,
                      ran=0){ # Tan 4/16 Added to control recursive call
 
-  if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
-                                                          ".Cluster_frame"),
-                                                        add = FALSE)
+  #if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
+  #                                                        ".Cluster_frame"),
+  #                                                      add = FALSE)
 
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad parameters are transfered
   ## Ensure that important options make sense
@@ -65,6 +65,9 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
     if (!is.data.frame(toclust1)) {
       cat("undefined variables selected.")
       return(0)
+    }
+    if (!(variables %in% colnames(toclust))) {
+      variables <- which(colnames(toclust) == variables)
     }
   } else  {
     variables <- 1:ncol(toclust)
@@ -583,9 +586,9 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
 
 FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minbucket){
 
-  if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
-                                                          ".Cluster_frame"),
-                                                        add = FALSE)
+  #if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
+  #                                                        ".Cluster_frame"),
+  #                                                      add = FALSE)
 
   bycol<-numeric()
   number<-frame[row,1]

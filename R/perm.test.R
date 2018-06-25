@@ -24,9 +24,9 @@
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                       method = 1){
 
-  if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Jump_Table",
-                                                          ".Data"),
-                                                        add = FALSE)
+  # if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Jump_Table",
+  #                                                        ".Data"),
+  #                                                      add = FALSE)
 
   if (!inherits(object, "rpart")) stop("Not a legitimate \"rpart\" object")
 
@@ -78,15 +78,16 @@ recursive.walk <- function(current, members, auto.pick, sig.val, method) {
 
   data.temp <- .Data
 
+  members.L <- members[which(.Data[members, split.var] < split.value)]
+  members.R <- setdiff(members, members.L)
+  fmem2 <- factor(c(rep(1, length(members.L)), rep(2, length(members.R))))
+
   if (method == 1) {
     # Method 1: shuffling the membership
     data.temp[,split.var] <- NULL
     distmat.reduced <- as.matrix(daisy(data.frame(data.temp)))
-    members.L <- members[which(.Data[members, split.var] < split.value)]
-    members.R <- setdiff(members, members.L)
-
     dist.mat.twogroup <- distmat.reduced[c(members.L, members.R),c(members.L, members.R)]
-    fmem2 <- factor(c(rep(1, length(members.L)), rep(2, length(members.R))))
+
     result <- adonis(dist.mat.twogroup ~ fmem2)
     pvalue.adj <- (as.numeric(row.names(.Jump_Table[current,])) %/% 2 + 1) * result$aov.tab[1,6]
   } else if (method == 2) {
@@ -141,3 +142,65 @@ recursive.walk <- function(current, members, auto.pick, sig.val, method) {
   # Right
   recursive.walk(.Jump_Table$right[current], members.R, auto.pick, sig.val)
 }
+
+#' ####################################################
+#' Copy directly from adonis function
+#' Modified to stop at the F.stat
+#' ####################################################
+F.stat <- function(formula, data = NULL, permutations = 999, method = "bray",
+                   strata = NULL, contr.unordered = "contr.sum", contr.ordered = "contr.poly",
+                   parallel = getOption("mc.cores"), ...)
+{
+  TOL <- 1e-07
+  lhs <- formula[[2]]
+  lhs <- eval(lhs, data, parent.frame())
+  formula[[2]] <- NULL
+  rhs.frame <- model.frame(formula, data, drop.unused.levels = TRUE)
+  op.c <- options()$contrasts
+  options(contrasts = c(contr.unordered, contr.ordered))
+  rhs <- model.matrix(formula, rhs.frame)
+  options(contrasts = op.c)
+  grps <- attr(rhs, "assign")
+  qrhs <- qr(rhs)
+  rhs <- rhs[, qrhs$pivot, drop = FALSE]
+  rhs <- rhs[, 1:qrhs$rank, drop = FALSE]
+  grps <- grps[qrhs$pivot][1:qrhs$rank]
+  u.grps <- unique(grps)
+  nterms <- length(u.grps) - 1
+  if (nterms < 1)
+    stop("right-hand-side of formula has no usable terms")
+  H.s <- lapply(2:length(u.grps), function(j) {
+    Xj <- rhs[, grps %in% u.grps[1:j]]
+    qrX <- qr(Xj, tol = TOL)
+    Q <- qr.Q(qrX)
+    tcrossprod(Q[, 1:qrX$rank])
+  })
+  if (inherits(lhs, "dist")) {
+    if (any(lhs < -TOL))
+      stop("dissimilarities must be non-negative")
+    dmat <- as.matrix(lhs^2)
+  }
+  else if ((is.matrix(lhs) || is.data.frame(lhs)) && isSymmetric(unname(as.matrix(lhs)))) {
+    dmat <- as.matrix(lhs^2)
+    lhs <- as.dist(lhs)
+  }
+  else {
+    dist.lhs <- as.matrix(vegdist(lhs, method = method,
+                                  ...))
+    dmat <- dist.lhs^2
+  }
+  n <- nrow(dmat)
+  G <- -sweep(dmat, 1, rowMeans(dmat))/2
+  SS.Exp.comb <- sapply(H.s, function(hat) sum(G * t(hat)))
+  SS.Exp.each <- c(SS.Exp.comb - c(0, SS.Exp.comb[-nterms]))
+  H.snterm <- H.s[[nterms]]
+  tIH.snterm <- t(diag(n) - H.snterm)
+
+  SS.Res <- sum(G * tIH.snterm)
+  df.Exp <- sapply(u.grps[-1], function(i) sum(grps == i))
+  df.Res <- n - qrhs$rank
+
+  F.Mod <- (SS.Exp.each/df.Exp)/(SS.Res/df.Res)
+  return(F.Mod)
+}
+#' END COPY ########################################################
