@@ -96,6 +96,7 @@ recursive.walk <- function(current, members, auto.pick, sig.val, method) {
 
     f.stat.obs <- F.stat(dist.mat.twogroup ~ fmem2)
 
+    f.stat.rep.c <- numeric(REP)
     # Shuffling
     for (k in 1:REP) {
       shuffled.splitting.var <- sample(data.temp[,split.var],
@@ -117,6 +118,7 @@ recursive.walk <- function(current, members, auto.pick, sig.val, method) {
 
     f.stat.obs <- F.stat(dist.mat.twogroup ~ fmem2)
 
+    f.stat.rep.u <- numeric(REP)
     # Shuffling
     for (k in 1:REP) {
       shuffled.splitting.var <- sample(data.temp[,split.var],
