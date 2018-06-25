@@ -25,7 +25,8 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                       method = 1){
 
   if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Jump_Table",
-                                                          ".Data"))
+                                                          ".Data"),
+                                                        add = FALSE)
 
   if (!inherits(object, "rpart")) stop("Not a legitimate \"rpart\" object")
 
