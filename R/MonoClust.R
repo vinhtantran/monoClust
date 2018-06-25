@@ -66,7 +66,7 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
       cat("undefined variables selected.")
       return(0)
     }
-    if (!(variables %in% colnames(toclust))) {
+    if (variables %in% colnames(toclust)) {
       variables <- which(colnames(toclust) == variables)
     }
   } else  {
