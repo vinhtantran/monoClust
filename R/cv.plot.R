@@ -1,13 +1,25 @@
+#' Plot the Mean Square Error with error bar for +/- 1 Standard Error
+#'
+#' @param cptable The output of cv.test or cv.test.mse
+#' @param main Title of the plot
+#' @param ylab Text shown on the y-axis
+#' @param ... more args
+#'
+#' @return A plot
+#' @import graphics
+#' @export
+#'
+#' @examples Blank
 cv.plot <- function(cptable, main = "MSE for CV of monothetic clustering", ylab = "MSE +/- 1 SE", ...) {
     plot(1:9, cp.table[,1], type="l", lty=2,
-         ylim=c(0, max(cp.table[,1] + cp.table[,2])), 
+         ylim=c(0, max(cp.table[,1] + cp.table[,2])),
          main = main,
          ylab = ylab,
          xlab = "Number of clusters",
          ...)
-    
+
     error.bar(1:9, cp.table[,1], cp.table[,2], col="red")
-    
+
 }
 
 # From Monkey's Uncle blog at http://monkeysuncle.stanford.edu/?p=485

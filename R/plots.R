@@ -1,4 +1,20 @@
-
+#' Plot the splitting tree. Inherited from rpart::plot.rpart
+#'
+#' @param x MonoClust object
+#' @param uniform see Documentation of rpart package
+#' @param branch see Documentation of rpart package
+#' @param compress see Documentation of rpart package
+#' @param nspace see Documentation of rpart package
+#' @param margin see Documentation of rpart package
+#' @param minbranch see Documentation of rpart package
+#' @param bar see Documentation of rpart package
+#' @param ... more args
+#'
+#' @return Plot of tree
+#' @importFrom grDevices dev.cur
+#' @export
+#'
+#' @examples Blank
 plot.rpart=function (x, uniform = FALSE, branch = 1, compress = FALSE, nspace,
                      margin = 0, minbranch = 0.3, bar = 0.03,...)
 {

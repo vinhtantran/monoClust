@@ -18,10 +18,11 @@
 #'   should match the unique values in membership.
 #'
 #' @return A PCP plot with an ellipse for circular variable
+#' @importFrom grDevices adjustcolor
 #' @export
 #'
 #' @examples Blank
-plot.pcp.circ <- function(data, cir.var = NULL, membership = NULL, order = NULL, col = NULL, zero="east", nslabel=TRUE, rotation="counter", meds=NULL) {
+pcp.circ.plot <- function(data, cir.var = NULL, membership = NULL, order = NULL, col = NULL, zero="east", nslabel=TRUE, rotation="counter", meds=NULL) {
 
   direction <- c("east", "north", "west", "south")
   shift <- c(0, 90, 180, 270)

@@ -45,6 +45,9 @@ in order for a split to be attempted.}
 
 \item{ran}{This parameter should never be used}
 }
+\value{
+MonoClust object
+}
 \description{
 Title Monothetic Clustering MonoClust creates a MonoClust object after
 partitioning the data set using MonoClust clustering.

@@ -1,3 +1,13 @@
+#' Arctic Sea Ice Extend
+#'
+#' @name arctic
+#' @docType data
+#' @author National Snow & Ice Data Center
+#' @references \url{http://nsidc.org/}
+#' @keywords data
+NULL
+
+
 #' Title Monothetic Clustering MonoClust creates a MonoClust object after
 #' partitioning the data set using MonoClust clustering.
 #' @param toclust the data set
@@ -21,7 +31,9 @@
 #' @param perm.test Whether or not to make a permutation test while clustering.
 #' @param ran This parameter should never be used
 #'
-#' @return Blank
+#' @import stats
+#' @import utils
+#' @return MonoClust object
 #' @export
 #'
 #' @examples blank
@@ -31,6 +43,9 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
                      minbucket=round(minsplit/3), minsplit=5, corders = 2,
                      alpha=0.05, perm.test = FALSE,
                      ran=0){ # Tan 4/16 Added to control recursive call
+
+  if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
+                                                          ".Cluster_frame"))
 
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad parameters are transfered
   ## Ensure that important options make sense
@@ -99,12 +114,12 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
   ## Emit warning that values were imputed.
 
   if(sum(is.na(toclust))){
-    imputed<-mice(toclust)
+    imputed<-mice::mice(toclust)
     cat("\nData contain missing values mice() used for imputation")
     cat("\nSee mice() help page for more details")
     cat("\nMissing cells per column:")
     print(imputed$nmis)
-    toclust<-complete(imputed)
+    toclust<-mice::complete(imputed)
   }
 
   toclust0 <- toclust
@@ -136,7 +151,7 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
     names(catrepvarlevel)<-rep(catnames,numbyvar)
 
     ## Use PCAmix with quantitative varibales the non-factors and qualitative variables the factors.
-    PCA<-PCAmix(X.quanti=toclust[,!factors],X.quali=toclust[,factors],graph=FALSE)
+    PCA<-PCAmixdata::PCAmix(X.quanti=toclust[,!factors],X.quali=toclust[,factors],graph=FALSE)
 
     ## Set up variables to be filled in the loop
     ## This method seems a bit odd, but PCAmix looks at all levels of all variables simultaneously,
@@ -245,14 +260,14 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
   if (!is.null(cir.var)) {
     # I have to split because R coerce the distance matrix to one value when using ifelse with a 0.
     if (ncol(toclust0[,-cir.var])!=0) {
-      distmat1 <- daisy(toclust0[,-cir.var], metric = distmethod) * dim(toclust0[,-cir.var])[2]
+      distmat1 <- cluster::daisy(toclust0[,-cir.var], metric = distmethod) * dim(toclust0[,-cir.var])[2]
     } else {
       distmat1 <- 0
     }
     distmat2 <- circd(toclust0[,cir.var])
     distmat0 <- (distmat1 + distmat2) / dim(toclust0)[2]
   } else
-    distmat0 <- daisy(toclust0, metric = distmethod)
+    distmat0 <- cluster::daisy(toclust0, metric = distmethod)
 
   distmats<-as.matrix(distmat0)
 
@@ -566,6 +581,9 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
 ## This is a fairly simple discrete optimization problem and could reduce computation time .
 
 FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minbucket){
+
+  if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
+                                                          ".Cluster_frame"))
 
   bycol<-numeric()
   number<-frame[row,1]
