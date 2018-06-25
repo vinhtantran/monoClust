@@ -45,7 +45,8 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
                      ran=0){ # Tan 4/16 Added to control recursive call
 
   if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
-                                                          ".Cluster_frame"))
+                                                          ".Cluster_frame"),
+                                                        add = FALSE)
 
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad parameters are transfered
   ## Ensure that important options make sense
@@ -583,7 +584,8 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
 FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minbucket){
 
   if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
-                                                          ".Cluster_frame"))
+                                                          ".Cluster_frame"),
+                                                        add = FALSE)
 
   bycol<-numeric()
   number<-frame[row,1]
