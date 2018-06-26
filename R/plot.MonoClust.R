@@ -1,3 +1,17 @@
+#' Plot MonoClust splitting rule tree
+#'
+#' @param x MonoClust object
+#' @param margin Margins to the border of the graphics machine
+#' @param which Fill in later
+#' @param abbrev Whether abbreviations of labels are used
+#' @param text Fill in later
+#' @param cols Whether to use color or not
+#' @param ... Other args
+#'
+#' @return Plot of splitting rule
+#' @export
+#'
+#' @examples NULL
 plot.MonoClust<-function(x,margin,which,abbrev=4,text=TRUE,cols=NULL,...){
     ## This function sets some defaults and changes things a bit, but is mostly a
     ## wrapper for our slightly modified version of rpart's plot function (see plots.R).

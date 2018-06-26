@@ -1,3 +1,15 @@
+#' Print the result of MonoClust clustering
+#'
+#' @param x MonoClust result object
+#' @param abbrev whether print the abbreviated version of labels
+#' @param spaces spaces between 2 tree levels
+#' @param digits number of digits shown on the tree
+#' @param ... other args, sending to labels function
+#'
+#' @return The print result
+#' @export
+#'
+#' @examples NULL
 print.MonoClust <- function (x, abbrev=0,  spaces = 2, digits = options('digits')$digits,
                              ...)
 {
