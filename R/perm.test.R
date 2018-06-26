@@ -14,6 +14,7 @@
 #' option is ignored if auto.pick is FALSE.
 #' @param method Can be chosen between 1 (default), 2, or 3. See description
 #' above the details.
+#' @param rep Number of permutations to calculate test statistic.
 #'
 #' @return The same MonoClust object with an updated frame with one extra
 #' column (p-value), and the numofclusters chosen if auto.pick is TRUE
@@ -22,7 +23,7 @@
 #'
 #' @examples EMPTY
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
-                      method = 1){
+                      method = 1, rep = 1000){
 
   # if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Jump_Table",
   #                                                        ".Data"),
@@ -72,7 +73,8 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
       paste(members.R, collapse=",")
 
     p.value <- test.split(current, members, members.L, members.R, auto.pick,
-                          method, data, split.var, jump.table$node[current])
+                          method, data, split.var, jump.table$node[current],
+                          rep)
     jump.table$p.value[current] <- ifelse(p.value > 1, 1, p.value)
 
     if (auto.pick && (p.value > sig.val)) {
@@ -101,8 +103,8 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
 
 test.split <- function(current, members, members.L, members.R,
                        auto.pick, method, fulldata, split.var,
-                       node) {
-  REP <- 100
+                       node, rep) {
+  REP <- rep
 
   # Membership is consecutive because the distance matrix will be moved around
   # with members.L and members.R put next to each other.
@@ -138,7 +140,12 @@ test.split <- function(current, members, members.L, members.R,
                                            variables = split.var)
       dist.mat.rep.c <- cluster.rep.constrained$Dist
       fmem2.rep.c <- cluster.rep.constrained$Membership
-      f.stat.rep.c[k] <- F.stat(dist.mat.rep.c ~ fmem2.rep.c)
+
+      # If no split is made because of minbucket, cluster membership will have
+      # 1 in it. In that case, F-stat = 0
+      f.stat.rep.c[k] <- ifelse(1 %in% fmem2.rep.c,
+                                0,
+                                F.stat(dist.mat.rep.c ~ fmem2.rep.c))
     }
 
     pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.c >= f.stat.obs) / REP
