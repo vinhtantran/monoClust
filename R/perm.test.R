@@ -167,7 +167,11 @@ test.split <- function(current, members, members.L, members.R,
       cluster.rep.unconstrained <- MonoClust(toclust = currentdata, nclusters = 2)
       dist.mat.rep.u <- cluster.rep.unconstrained$Dist
       fmem2.rep.u <- cluster.rep.unconstrained$Membership
-      f.stat.rep.u[k] <- F.stat(dist.mat.rep.u ~ fmem2.rep.u)
+      # If no split is made because of minbucket, cluster membership will have
+      # 1 in it. In that case, F-stat = 0
+      f.stat.rep.u[k] <- ifelse(1 %in% fmem2.rep.u,
+                                0,
+                                F.stat(dist.mat.rep.u ~ fmem2.rep.u))
     }
 
     pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.u >= f.stat.obs) / REP
