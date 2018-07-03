@@ -55,6 +55,7 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
   # Now tracing the tree to find the cluster
   # Trace along the split order, quit when reaching the end or if auto.pick,
   # stop when p value > sig.val
+  last.split <- max(na.omit(jump.table$split.order)) + 1
   for (i in 1:max(na.omit(jump.table$split.order))) {
     current <- which(jump.table$split.order == i)
 
