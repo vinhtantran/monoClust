@@ -73,9 +73,11 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
     jump.table$members[jump.table$right[current]] <-
       paste(members.R, collapse=",")
 
-    p.value <- test.split(current, members, members.L, members.R, auto.pick,
+    p.value.unadj <- test.split(current, members, members.L, members.R, auto.pick,
                           method, data, split.var, jump.table$node[current],
                           rep)
+    p.value <- p.value.unadj * i
+
     jump.table$p.value[current] <- ifelse(p.value > 1, 1, p.value)
 
     if (auto.pick && (p.value > sig.val)) {
@@ -121,7 +123,9 @@ test.split <- function(current, members, members.L, members.R,
     dist.mat.twogroup <- distmat.reduced[c(members.L, members.R),c(members.L, members.R)]
 
     result <- adonis(dist.mat.twogroup ~ fmem2)
-    pvalue.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
+
+    # pvalue.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
+    pvalue.adj <- result$aov.tab[1,6]
   } else if (method == 2) {
     # Method 2: shuffling the splitting variable, split again on that variable
     currentdata <- fulldata[c(members.L, members.R), ]
@@ -149,7 +153,8 @@ test.split <- function(current, members, members.L, members.R,
                                 F.stat(dist.mat.rep.c ~ fmem2.rep.c))
     }
 
-    pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.c >= f.stat.obs) / REP
+    # pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.c >= f.stat.obs) / REP
+    pvalue.adj <- sum(f.stat.rep.c >= f.stat.obs) / REP
   } else if (method == 3) {
     # Method 3: shuffling the splitting variable, clustering on all variables
     currentdata <- fulldata[c(members.L, members.R), ]
@@ -175,7 +180,8 @@ test.split <- function(current, members, members.L, members.R,
                                 F.stat(dist.mat.rep.u ~ fmem2.rep.u))
     }
 
-    pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.u >= f.stat.obs) / REP
+    # pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.u >= f.stat.obs) / REP
+    pvalue.adj <- sum(f.stat.rep.u >= f.stat.obs) / REP
   }
 
   return(pvalue.adj)
