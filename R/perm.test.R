@@ -80,9 +80,13 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
 
     jump.table$p.value[current] <- ifelse(p.value > 1, 1, p.value)
 
-    if (auto.pick && (p.value > sig.val)) {
-      last.split <- i
-      break
+    if (auto.pick) {
+      if (p.value > sig.val) {
+        last.split <- i
+        break
+      } else if (i == max(na.omit(jump.table$split.order))) {
+        last.split <- i + 1
+      }
     }
   }
 
