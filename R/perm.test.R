@@ -134,8 +134,9 @@ test.split <- function(current, members, members.L, members.R,
     # Method 2: shuffling the splitting variable, split again on that variable
     currentdata <- fulldata[c(members.L, members.R), ]
     # Remove the split.var out of calculation of distance
-    currentdata[,split.var] <- NULL
-    dist.mat.twogroup <- as.matrix(daisy(data.frame(currentdata)))
+    obs.data <- currentdata
+    obs.data[,split.var] <- NULL
+    dist.mat.twogroup <- as.matrix(daisy(data.frame(obs.data)))
 
     f.stat.obs <- F.stat(dist.mat.twogroup ~ fmem2)
 
@@ -165,8 +166,9 @@ test.split <- function(current, members, members.L, members.R,
     # Method 3: shuffling the splitting variable, clustering on all variables
     currentdata <- fulldata[c(members.L, members.R), ]
     # Remove the split.var out of calculation of distance
-    currentdata[,split.var] <- NULL
-    dist.mat.twogroup <- as.matrix(daisy(data.frame(currentdata)))
+    obs.data <- currentdata
+    obs.data[,split.var] <- NULL
+    dist.mat.twogroup <- as.matrix(daisy(data.frame(obs.data)))
 
     f.stat.obs <- F.stat(dist.mat.twogroup ~ fmem2)
 
