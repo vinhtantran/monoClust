@@ -15,15 +15,17 @@
 #' @param method Can be chosen between 1 (default), 2, or 3. See description
 #' above the details.
 #' @param rep Number of permutations to calculate test statistic.
+#' @param stat Statistic to use, choosing between "F" (default), "AW".
 #'
 #' @return The same MonoClust object with an updated frame with one extra
 #' column (p-value), and the numofclusters chosen if auto.pick is TRUE
 #' @importFrom cluster daisy
+#' @importFrom fpc cluster.stats
 #' @export
 #'
 #' @examples EMPTY
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
-                      method = 1, rep = 1000){
+                      method = 1, rep = 1000, stat = "F"){
 
   # if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Jump_Table",
   #                                                        ".Data"),
@@ -75,7 +77,7 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
 
     p.value.unadj <- test.split(current, members, members.L, members.R, auto.pick,
                           method, data, split.var, jump.table$node[current],
-                          rep)
+                          rep, stat)
     p.value <- p.value.unadj * i
 
     jump.table$p.value[current] <- ifelse(p.value > 1, 1, p.value)
@@ -110,12 +112,12 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
 
 test.split <- function(current, members, members.L, members.R,
                        auto.pick, method, fulldata, split.var,
-                       node, rep) {
+                       node, rep, stat) {
   REP <- rep
 
   # Membership is consecutive because the distance matrix will be moved around
   # with members.L and members.R put next to each other.
-  fmem2 <- factor(c(rep(1, length(members.L)), rep(2, length(members.R))))
+  fmem2 <- c(rep(1, length(members.L)), rep(2, length(members.R)))
 
   if (method == 1) {
     # Method 1: shuffling the membership
@@ -133,16 +135,24 @@ test.split <- function(current, members, members.L, members.R,
   } else if (method == 2) {
     # Method 2: shuffling the splitting variable, split again on that variable
     currentdata <- fulldata[c(members.L, members.R), ]
-    # Remove the split.var out of calculation of distance
-    obs.data <- currentdata
-    obs.data[,split.var] <- NULL
-    dist.mat.twogroup <- as.matrix(daisy(data.frame(obs.data)))
 
-    f.stat.obs <- F.stat(dist.mat.twogroup ~ fmem2)
+    if (stat == "F") {
+      # Remove the split.var out of calculation of distance
+      obs.data <- currentdata
+      obs.data[,split.var] <- NULL
+      dist.mat.twogroup <- as.matrix(daisy(data.frame(obs.data)))
 
-    f.stat.rep.c <- numeric(REP)
+      stat.obs <- F.stat(dist.mat.twogroup ~ fmem2)
+    } else if (stat == "AW") {
+      dist.mat.twogroup <- as.matrix(daisy(data.frame(currentdata)))
+
+      stat.obs <- cluster.stats(dist.mat.twogroup, fmem2)$avg.silwidth
+    }
+    stat.rep.c <- numeric(REP)
+
     # Shuffling
     for (k in 1:REP) {
+      # print(k)
       shuffled.splitting.var <- sample(currentdata[,split.var],
                                        size = nrow(currentdata),
                                        replace = FALSE)
@@ -153,15 +163,21 @@ test.split <- function(current, members, members.L, members.R,
       dist.mat.rep.c <- cluster.rep.constrained$Dist
       fmem2.rep.c <- cluster.rep.constrained$Membership
 
-      # If no split is made because of minbucket, cluster membership will have
-      # 1 in it. In that case, F-stat = 0
-      f.stat.rep.c[k] <- ifelse(1 %in% fmem2.rep.c,
+      if (stat == "F") {
+        # If no split is made because of minbucket, cluster membership will have
+        # 1 in it. In that case, F-stat = 0
+        stat.rep.c[k] <- ifelse(1 %in% fmem2.rep.c,
                                 0,
                                 F.stat(dist.mat.rep.c ~ fmem2.rep.c))
+      } else if (stat == "AW") {
+        stat.rep.c[k] <- ifelse(1 %in% fmem2.rep.c,
+                                0,
+                                cluster.stats(dist.mat.rep.c, fmem2.rep.c)$avg.silwidth)
+      }
     }
 
     # pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.c >= f.stat.obs) / REP
-    pvalue.adj <- sum(f.stat.rep.c >= f.stat.obs) / REP
+    pvalue.adj <- sum(stat.rep.c >= stat.obs) / REP
   } else if (method == 3) {
     # Method 3: shuffling the splitting variable, clustering on all variables
     currentdata <- fulldata[c(members.L, members.R), ]
@@ -175,6 +191,7 @@ test.split <- function(current, members, members.L, members.R,
     f.stat.rep.u <- numeric(REP)
     # Shuffling
     for (k in 1:REP) {
+      print(k)
       shuffled.splitting.var <- sample(currentdata[,split.var],
                                        size = nrow(currentdata),
                                        replace = FALSE)
