@@ -45,9 +45,10 @@ cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
                 SSEi=c(SSEi, sum((test.set-predict(train.tree, test.set)[,-1])^2))
             }
             SSET=rbind(SSET,c(mean(SSEi), sd(SSEi)))
-            colnames(SSET) <- c("MSE", "Std. Dev.")
-            rownames(SSET) <- seq(minnodes, maxnodes, 1)
+
         }
+        colnames(SSET) <- c("MSE", "Std. Dev.")
+        rownames(SSET) <- seq(minnodes, maxnodes, 1)
     }
 
     SSET
