@@ -1,3 +1,16 @@
+#' k-fold Cross validation test on a monothetic clustering result.
+#'
+#' @param data data set
+#' @param fold number of folds (k)
+#' @param minnodes the minimum number of clusters to be checked
+#' @param maxnodes the maximum number of clusters to be checked
+#' @param ...
+#'
+#' @return A list of sum of squares of difference between the predicted and true
+#' values
+#' @export
+#'
+#' @examples NULL
 cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
 
     SSET=numeric(0)

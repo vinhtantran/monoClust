@@ -4,8 +4,9 @@
 \alias{plot.rpart}
 \title{Plot the splitting tree. Inherited from rpart::plot.rpart}
 \usage{
-\method{plot}{rpart}(x, uniform = FALSE, branch = 1, compress = FALSE,
-  nspace, margin = 0, minbranch = 0.3, bar = 0.03, ...)
+\method{plot}{rpart}(x, uniform = FALSE, branch = 1,
+  compress = FALSE, nspace, margin = 0, minbranch = 0.3,
+  bar = 0.03, ...)
 }
 \arguments{
 \item{x}{MonoClust object}

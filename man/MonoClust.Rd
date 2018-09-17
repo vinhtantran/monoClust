@@ -5,8 +5,8 @@
 \title{Title Monothetic Clustering MonoClust creates a MonoClust object after
 partitioning the data set using MonoClust clustering.}
 \usage{
-MonoClust(toclust, cir.var = NULL, variables = NULL, distmethod = NULL,
-  labels = as.character(1:length(toclust[, 1])),
+MonoClust(toclust, cir.var = NULL, variables = NULL,
+  distmethod = NULL, labels = as.character(1:length(toclust[, 1])),
   digits = options("digits")$digits, nclusters = nrow(toclust),
   minbucket = round(minsplit/3), minsplit = 5, corders = 2,
   alpha = 0.05, perm.test = FALSE, ran = 0)
