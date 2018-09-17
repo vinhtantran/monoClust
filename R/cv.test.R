@@ -46,6 +46,7 @@ cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
             }
             SSET=rbind(SSET,c(mean(SSEi), sd(SSEi)))
             colnames(SSET) <- c("MSE", "Std. Dev.")
+            rownames(SSET) <- seq(minnodes, maxnodes, 1)
         }
     }
 
