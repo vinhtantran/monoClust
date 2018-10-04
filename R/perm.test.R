@@ -80,7 +80,7 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                           rep, stat)
     p.value <- p.value.unadj * i
 
-    jump.table$p.value[current] <- ifelse(p.value > 1, 1, p.value)
+    jump.table$p.value[current] <- ifelse(p.value > 1, 1, ceiling(p.value*rep)/rep)
 
     if (auto.pick) {
       if (p.value > sig.val) {
