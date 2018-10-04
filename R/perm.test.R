@@ -25,7 +25,7 @@
 #'
 #' @examples EMPTY
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
-                      method = 1, rep = 1000, stat = "F"){
+                      method = 1, rep = 10000, stat = "F"){
 
   # if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Jump_Table",
   #                                                        ".Data"),
@@ -128,7 +128,7 @@ test.split <- function(current, members, members.L, members.R,
     # A distance matrix with observations left and right put in order
     dist.mat.twogroup <- distmat.reduced[c(members.L, members.R),c(members.L, members.R)]
 
-    result <- adonis(dist.mat.twogroup ~ fmem2)
+    result <- adonis(dist.mat.twogroup ~ fmem2, permutations = REP)
 
     # pvalue.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
     pvalue.adj <- result$aov.tab[1,6]
