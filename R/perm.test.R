@@ -1,3 +1,5 @@
+#' Permutation test on monothetic tree
+#'
 #' Testing the significance of each monothetic clustering split by permutation
 #' methods. The original method (method 1) shuffles the observations between two
 #' groups without the splitting variable. The new methods shuffle the values in
@@ -21,6 +23,7 @@
 #' column (p-value), and the numofclusters chosen if auto.pick is TRUE
 #' @importFrom cluster daisy
 #' @importFrom fpc cluster.stats
+#' @importFrom permute shuffleSet how
 #' @export
 #'
 #' @examples EMPTY
@@ -120,10 +123,10 @@ test.split <- function(current, members, members.L, members.R,
   fmem2 <- c(rep(1, length(members.L)), rep(2, length(members.R)))
 
   if (method == 1) {
-    # Method 1: shuffling the membership
+    # Method 1: shuffling the membership, not used splitting variable
     data.temp <- fulldata
     data.temp[,split.var] <- NULL
-    distmat.reduced <- as.matrix(daisy(data.frame(data.temp)))
+    distmat.reduced <- as.matrix(cluster::daisy(data.frame(data.temp)))
 
     # A distance matrix with observations left and right put in order
     dist.mat.twogroup <- distmat.reduced[c(members.L, members.R),c(members.L, members.R)]
@@ -131,87 +134,71 @@ test.split <- function(current, members, members.L, members.R,
     result <- adonis(dist.mat.twogroup ~ fmem2, permutations = REP)
 
     # pvalue.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
-    pvalue.adj <- result$aov.tab[1,6]
-  } else if (method == 2) {
-    # Method 2: shuffling the splitting variable, split again on that variable
+    pvalue <- result$aov.tab[1,6]
+  } else if (method == 2 | method == 3) {
+    # Method 2, 3: shuffling the splitting variable
+    # split again on that variable (method 2) or
+    # split on all variables (method 3)
     currentdata <- fulldata[c(members.L, members.R), ]
 
+    # Find the observed statistic
     if (stat == "F") {
       # Remove the split.var out of calculation of distance
       obs.data <- currentdata
-      obs.data[,split.var] <- NULL
-      dist.mat.twogroup <- as.matrix(daisy(data.frame(obs.data)))
+      # obs.data[,split.var] <- NULL
+      dist.mat.twogroup <- as.matrix(cluster::daisy(data.frame(obs.data)))
 
       stat.obs <- F.stat(dist.mat.twogroup ~ fmem2)
     } else if (stat == "AW") {
-      dist.mat.twogroup <- as.matrix(daisy(data.frame(currentdata)))
+      dist.mat.twogroup <- as.matrix(cluster::daisy(data.frame(currentdata)))
 
-      stat.obs <- cluster.stats(dist.mat.twogroup, fmem2)$avg.silwidth
+      stat.obs <- fpc::cluster.stats(dist.mat.twogroup, fmem2)$avg.silwidth
     }
-    stat.rep.c <- numeric(REP)
 
+    # Find the referenced distribution
+    # Create permuted matrix
+    perm <- permute::shuffleSet(nrow(currentdata), control = permute::how(nperm = REP))
+    # The number of permutations may be smaller than REP
+    permutations <- nrow(perm)
+
+    stat.rep <- numeric(permutations)
     # Shuffling
-    for (k in 1:REP) {
-      # print(k)
-      shuffled.splitting.var <- sample(currentdata[,split.var],
-                                       size = nrow(currentdata),
-                                       replace = FALSE)
-      currentdata[,split.var] <- shuffled.splitting.var
 
-      cluster.rep.constrained <- MonoClust(toclust = currentdata, nclusters = 2,
-                                           variables = split.var)
-      dist.mat.rep.c <- cluster.rep.constrained$Dist
-      fmem2.rep.c <- cluster.rep.constrained$Membership
+    for (k in 1:permutations) {
+      # print(k)
+      currentdata[,split.var] <- currentdata[perm[k,], split.var]
+
+      if (method == 2) {
+        cluster.rep <- MonoClust(toclust = currentdata,
+                                 nclusters = 2,
+                                 variables = split.var)
+      } else if (method == 3) {
+        cluster.rep <-MonoClust(toclust = currentdata,
+                                nclusters = 2)
+      }
+
+      dist.mat.rep <- cluster.rep$Dist
+      fmem2.rep <- cluster.rep$Membership
 
       if (stat == "F") {
         # If no split is made because of minbucket, cluster membership will have
         # 1 in it. In that case, F-stat = 0
-        stat.rep.c[k] <- ifelse(1 %in% fmem2.rep.c,
+        stat.rep[k] <- ifelse(1 %in% fmem2.rep,
                                 0,
-                                F.stat(dist.mat.rep.c ~ fmem2.rep.c))
+                                F.stat(dist.mat.rep ~ fmem2.rep))
       } else if (stat == "AW") {
-        stat.rep.c[k] <- ifelse(1 %in% fmem2.rep.c,
+        stat.rep[k] <- ifelse(1 %in% fmem2.rep,
                                 0,
-                                cluster.stats(dist.mat.rep.c, fmem2.rep.c)$avg.silwidth)
+                                fpc::cluster.stats(dist.mat.rep,
+                                                   fmem2.rep)$avg.silwidth)
       }
     }
 
     # pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.c >= f.stat.obs) / REP
-    pvalue.adj <- sum(stat.rep.c >= stat.obs) / REP
-  } else if (method == 3) {
-    # Method 3: shuffling the splitting variable, clustering on all variables
-    currentdata <- fulldata[c(members.L, members.R), ]
-    # Remove the split.var out of calculation of distance
-    obs.data <- currentdata
-    obs.data[,split.var] <- NULL
-    dist.mat.twogroup <- as.matrix(daisy(data.frame(obs.data)))
-
-    f.stat.obs <- F.stat(dist.mat.twogroup ~ fmem2)
-
-    f.stat.rep.u <- numeric(REP)
-    # Shuffling
-    for (k in 1:REP) {
-      print(k)
-      shuffled.splitting.var <- sample(currentdata[,split.var],
-                                       size = nrow(currentdata),
-                                       replace = FALSE)
-      currentdata[,split.var] <- shuffled.splitting.var
-
-      cluster.rep.unconstrained <- MonoClust(toclust = currentdata, nclusters = 2)
-      dist.mat.rep.u <- cluster.rep.unconstrained$Dist
-      fmem2.rep.u <- cluster.rep.unconstrained$Membership
-      # If no split is made because of minbucket, cluster membership will have
-      # 1 in it. In that case, F-stat = 0
-      f.stat.rep.u[k] <- ifelse(1 %in% fmem2.rep.u,
-                                0,
-                                F.stat(dist.mat.rep.u ~ fmem2.rep.u))
-    }
-
-    # pvalue.adj <- (node %/% 2 + 1) * sum(f.stat.rep.u >= f.stat.obs) / REP
-    pvalue.adj <- sum(f.stat.rep.u >= f.stat.obs) / REP
+    pvalue <- (sum(stat.rep >= stat.obs) + 1 - sqrt(.Machine$double.eps))/ (permutations + 1)
   }
 
-  return(pvalue.adj)
+  return(pvalue)
 }
 
 

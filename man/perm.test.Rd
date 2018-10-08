@@ -2,15 +2,10 @@
 % Please edit documentation in R/perm.test.R
 \name{perm.test}
 \alias{perm.test}
-\title{Testing the significance of each monothetic clustering split by permutation
-methods. The original method (method 1) shuffles the observations between two
-groups without the splitting variable. The new methods shuffle the values in
-the splitting variable to create a new data set, then it either splits again
-on that variable (method 2) or use all variables as the splitting candidates
-(method 3).}
+\title{Permutation test on monothetic tree}
 \usage{
 perm.test(object, data, auto.pick = FALSE, sig.val = 0.05,
-  method = 1, rep = 1000, stat = "F")
+  method = 1, rep = 10000, stat = "F")
 }
 \arguments{
 \item{object}{The MonoClust object as the result of the clustering.}
