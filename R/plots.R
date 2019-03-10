@@ -200,7 +200,7 @@ text.rpart=function (x, splits = TRUE, which = 4, label = "var", FUN = text,
                      all.leaves = FALSE, pretty = NULL, digits = getOption("digits") -
                          2, tadj = 0.65, stats = TRUE, use.n = TRUE, bars = TRUE,
                      legend = FALSE, xadj = 1, yadj = 1, bord = FALSE, big.pts = FALSE, abbrev=4,
-                     cols = NULL, ...)
+                     cols = NULL, rel.loc.x = TRUE,...)
 {
     if (!inherits(x, "rpart"))
         stop("Not legitimate rpart")
@@ -246,7 +246,7 @@ text.rpart=function (x, splits = TRUE, which = 4, label = "var", FUN = text,
         #print(left.child)
         #print(right.child)
 
-        xy$x <- x$frame$loc + (abs(min(x$frame$loc))) +1
+        if (rel.loc.x) xy$x <- x$frame$loc + (abs(min(x$frame$loc))) +1
         ## Find name for split
 
 

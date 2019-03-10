@@ -31,7 +31,7 @@ plot.MonoClust<-function(x,margin,which,abbrev=4,text=TRUE,cols=NULL,rel.loc.x =
 #     }
 
     if(text){
-        text.MonoClust(x,which=which,abbrev=abbrev,cols = cols)
+        text.MonoClust(x,which=which,abbrev=abbrev,cols = cols, rel.loc.x = rel.loc.x)
     }
 
     if (!is.null(x$circularroot$var)) {

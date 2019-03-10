@@ -1,6 +1,6 @@
 Package: monoClust
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Perform monothetic clustering with extensions to circular
 Version: 0.2.0
 Author: Tan Tran, Brian McGuire, Mark Greenwood
 Maintainer: Tan Tran <tan.tran@msu.montana.edu>
