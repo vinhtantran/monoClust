@@ -8,6 +8,7 @@
 #' @param margin see Documentation of rpart package
 #' @param minbranch see Documentation of rpart package
 #' @param bar see Documentation of rpart package
+#' @param rel.loc.x Whether to use the relative distance between clusters as x coordinate of the leaves. Default is TRUE.
 #' @param ... more args
 #'
 #' @return Plot of tree
@@ -16,7 +17,8 @@
 #'
 #' @examples Blank
 plot.rpart=function (x, uniform = FALSE, branch = 1, compress = FALSE, nspace,
-                     margin = 0, minbranch = 0.3, bar = 0.03,...)
+                     margin = 0, minbranch = 0.3, bar = 0.03, rel.loc.x = TRUE,
+                     ...)
 {
     if (!inherits(x, "rpart"))
         stop("Not an rpart object")
@@ -36,7 +38,7 @@ plot.rpart=function (x, uniform = FALSE, branch = 1, compress = FALSE, nspace,
     xx <- temp$x
     yy <- temp$y
 
-    xx <- x$frame$loc + (abs(min(x$frame$loc))) +1
+    if (rel.loc.x) xx <- x$frame$loc + (abs(min(x$frame$loc))) +1
     #print("temp")
     #print(xx)
 

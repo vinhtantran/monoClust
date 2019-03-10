@@ -13,7 +13,8 @@
 #' sig.val or keeps testing and let the researcher pick the final splitting
 #' tree. Default value is FALSE.
 #' @param sig.val Significance value to decide when to stop splitting. This
-#' option is ignored if auto.pick is FALSE.
+#' option is ignored if auto.pick is FALSE, and is 0.05 by default when
+#' auto.pick is TRUE.
 #' @param method Can be chosen between 1 (default), 2, or 3. See description
 #' above the details.
 #' @param rep Number of permutations to calculate test statistic.
@@ -165,7 +166,7 @@ test.split <- function(current, members, members.L, members.R,
     # Shuffling
 
     for (k in 1:permutations) {
-      # print(k)
+      print(k)
       currentdata[,split.var] <- currentdata[perm[k,], split.var]
 
       if (method == 2) {

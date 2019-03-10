@@ -6,20 +6,21 @@
 #' @param abbrev Whether abbreviations of labels are used
 #' @param text Fill in later
 #' @param cols Whether to use color or not
+#' @param rel.loc.x Whether to use the relative distance between clusters as x coordinate of the leaves. Default is TRUE.
 #' @param ... Other args
 #'
 #' @return Plot of splitting rule
 #' @export
 #'
 #' @examples NULL
-plot.MonoClust<-function(x,margin,which,abbrev=4,text=TRUE,cols=NULL,...){
+plot.MonoClust<-function(x,margin,which,abbrev=4,text=TRUE,cols=NULL,rel.loc.x = TRUE,...){
     ## This function sets some defaults and changes things a bit, but is mostly a
     ## wrapper for our slightly modified version of rpart's plot function (see plots.R).
 
     if(missing(margin)){margin<-c(.12,.02,0,.05)}
     if(missing(which)){which <- 4}
 
-    plot.rpart(x,margin=margin,...)
+    plot.rpart(x,margin=margin, rel.loc.x,...)
 
     ## REMOVE: Tan, 3/1/15, Remove Inertia line
 #     lines(x=c(.88,.88),y=c(0,1))
