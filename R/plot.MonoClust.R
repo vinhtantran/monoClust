@@ -20,7 +20,7 @@ plot.MonoClust<-function(x,margin,which,abbrev=4,text=TRUE,cols=NULL,rel.loc.x =
     if(missing(margin)){margin<-c(.12,.02,0,.05)}
     if(missing(which)){which <- 4}
 
-    plot.rpart(x,margin=margin, rel.loc.x,...)
+    plot.rpart(x,margin=margin, rel.loc.x = rel.loc.x,...)
 
     ## REMOVE: Tan, 3/1/15, Remove Inertia line
 #     lines(x=c(.88,.88),y=c(0,1))
