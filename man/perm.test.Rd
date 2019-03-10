@@ -17,7 +17,8 @@ sig.val or keeps testing and let the researcher pick the final splitting
 tree. Default value is FALSE.}
 
 \item{sig.val}{Significance value to decide when to stop splitting. This
-option is ignored if auto.pick is FALSE.}
+option is ignored if auto.pick is FALSE, and is 0.05 by default when
+auto.pick is TRUE.}
 
 \item{method}{Can be chosen between 1 (default), 2, or 3. See description
 above the details.}

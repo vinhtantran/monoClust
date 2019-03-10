@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{rpart}(x, uniform = FALSE, branch = 1,
   compress = FALSE, nspace, margin = 0, minbranch = 0.3,
-  bar = 0.03, ...)
+  bar = 0.03, rel.loc.x = TRUE, ...)
 }
 \arguments{
 \item{x}{MonoClust object}
@@ -24,6 +24,8 @@
 \item{minbranch}{see Documentation of rpart package}
 
 \item{bar}{see Documentation of rpart package}
+
+\item{rel.loc.x}{Whether to use the relative distance between clusters as x coordinate of the leaves. Default is TRUE.}
 
 \item{...}{more args}
 }

@@ -5,7 +5,7 @@
 \title{Plot MonoClust splitting rule tree}
 \usage{
 \method{plot}{MonoClust}(x, margin, which, abbrev = 4, text = TRUE,
-  cols = NULL, ...)
+  cols = NULL, rel.loc.x = TRUE, ...)
 }
 \arguments{
 \item{x}{MonoClust object}
@@ -19,6 +19,8 @@
 \item{text}{Fill in later}
 
 \item{cols}{Whether to use color or not}
+
+\item{rel.loc.x}{Whether to use the relative distance between clusters as x coordinate of the leaves. Default is TRUE.}
 
 \item{...}{Other args}
 }
