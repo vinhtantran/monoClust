@@ -306,7 +306,7 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
   ## This is what will print at each terminal node on the dendrogram
   ## (See plot.MonoClust).
   textfxn<-function(yval,dev,wt,ylevel,digits,n,meds,names, use.n){
-    paste("\n  n=", n,"\n           M=",meds, sep="")
+    paste("\n  n=", n,"\n  M=",meds, sep="")
   }
 
   ## Seperate categorical and quantitative splits as the text and plot
