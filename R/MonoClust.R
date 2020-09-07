@@ -1,161 +1,150 @@
-#' Arctic Sea Ice Extend
+#' MonoClust creates a MonoClust object after partitioning the data set using
+#' Monothetic Clustering.
 #'
-#' @name arctic
-#' @docType data
-#' @author National Snow & Ice Data Center
-#' @references \url{http://nsidc.org/}
-#' @keywords data
-NULL
-
-
-#' Title Monothetic Clustering MonoClust creates a MonoClust object after
-#' partitioning the data set using MonoClust clustering.
-#' @param toclust the data set
-#' @param cir.var the index or name of the circular variable in the data set.
-#'   Default is NULL
+#' @param toclust data set.
+#' @param cir.var index or name of the circular variable in the data set.
 #' @param variables list of variables selected for clustering procedure. It
-#'   could be a vector of variable indices, or a vector of variable names.
+#'   could be a vector of variable indexes, or a vector of variable names.
 #' @param distmethod distance method to use with the data set. The default value
-#'   is the Euclidean distance for quantitative variables and the ... distance
-#'   for categorical variables.
-#' @param labels define names of variables.
-#' @param digits significant numbers shown in the result.
-#' @param nclusters number of clusters created.
+#'   is the Euclidean distance for quantitative variables and the Gower's
+#'   distance for categorical variables.
+#' @param labels displayed names of variables.
+#' @param digits significant number of clusters created
+#' @param nclusters number of clusters created
 #' @param minbucket the minimum number of observations in any terminal <leaf>
 #'   node. If only one of minbucket or minsplit is specified, the code either
 #'   sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.
 #' @param minsplit the minimum number of observations that must exist in a node
 #'   in order for a split to be attempted.
-#' @param corders Blank
-#' @param alpha This value goes with the permutation test
-#' @param perm.test Whether or not to make a permutation test while clustering.
-#' @param ran This parameter should never be used
+#' @param corders blank
+#' @param alpha value applied specifically to permutation test.
+#' @param perm.test whether or not to make a permutation test as stopping
+#'   criterion while clustering.
+#' @param ran this parameter should never be used
 #'
-#' @import stats
-#' @import utils
 #' @return MonoClust object
 #' @export
 #'
-#' @examples blank
-MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
-                     distmethod=NULL, labels=as.character(1:length(toclust[,1])),
-                     digits=options('digits')$digits,nclusters=nrow(toclust),
-                     minbucket=round(minsplit/3), minsplit=5, corders = 2,
-                     alpha=0.05, perm.test = FALSE,
-                     ran=0){ # Tan 4/16 Added to control recursive call
+#' @examples
+#' data(cluster::ruspini)
+#' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
+MonoClust <- function(toclust,
+                      cir.var = NULL,
+                      variables = NULL,
+                      distmethod = NULL,
+                      labels = as.character(seq_len(length(toclust[, 1]))),
+                      digits = options("digits")$digits,
+                      nclusters = nrow(toclust),
+                      minbucket = round(minsplit / 3),
+                      minsplit = 5,
+                      corders = 2,
+                      alpha = 0.05,
+                      perm.test = FALSE,
+                      ran = 0) { # Tan 4/16 Added to control recursive call
 
-  #if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
-  #                                                        ".Cluster_frame"),
-  #                                                      add = FALSE)
-
-  ## MOVE: Tan, 12/14, move to the top to save some calculations if bad parameters are transfered
+  ## MOVE: Tan, 12/14, move to the top to save some calculations if bad
+  ## parameters are transferred
   ## Ensure that important options make sense
-  if(minbucket>=minsplit){
-    cat("minbucket must be less than minsplit")
-    return(0)
+  if (minbucket >= minsplit) {
+    stop("minbucket must be less than minsplit.")
   }
 
   ## Tan, 5/27/16, argument checking (variables)
   if (!is.null(variables)) {
     if (!is.vector(variables)) {
-      cat("variables need to be a list of variable names or indices.")
-      return(0)
+      stop("variables need to be a vector of variable names or indices.")
     }
     toclust1 <- toclust[variables]
     if (!is.data.frame(toclust1)) {
-      cat("undefined variables selected.")
-      return(0)
+      stop("undefined variables selected.")
     }
     if (variables %in% colnames(toclust)) {
       variables <- which(colnames(toclust) == variables)
     }
-  } else  {
-    variables <- 1:ncol(toclust)
+  } else {
+    variables <- seq_len(ncol(toclust))
   }
 
   ## Tan, 4/10/17, argument checking (circular variables)
   if (!is.null(cir.var)) {
     if (!is.vector(cir.var)) {
-      cat("circular variables need to be a list of variable names or indices.")
-      return(0)
+      stop("circular variables need to be a vector of variable names or indices.")
     }
     toclust1 <- toclust[cir.var]
     if (!is.data.frame(toclust1)) {
-      cat("undefined variables selected.")
-      return(0)
+      stop("undefined variables selected.")
     }
   }
 
-
   ## Switch so we only give off one warning.
-  assign(".MonoClustwarn",0,envir = .GlobalEnv)
-  ## Right now, each observation has equal weight. This could be made into an option.
-  weights <- rep(1,nrow(toclust))
-
+  assign(".MonoClustwarn", 0, envir = .GlobalEnv)
+  ## Right now, each observation has equal weight. This could be made into an
+  ## option.
+  weights <- rep(1, nrow(toclust))
 
   ## Categorical Variable Ordering
-  quali_ordered<-NULL
+  quali_ordered <- NULL
 
-  ## REMOVE: Tan, 4/6/15. These codes haven't show usefulness, but R v1.3.1 changed output of lapply to list, fail running.
+  ## REMOVE: Tan, 4/6/15. These codes haven't show usefulness, but R v1.3.1
+  ## changed output of lapply to list, fail running.
+  ## ADD: Tan, 9/6/20. Change to dplyr.
   ## See which variables are character and convert them to factors.
-  i <- sapply(toclust, is.character)
-  toclust[i] <- lapply(toclust[i], function(x) as.factor(x))
+  toclust <- purrr::modify_if(toclust, is.character, as.factor)
 
-  ## ADD: Tan, 12/14. Check if there is any factor variable in the data
-  i <- sapply(toclust, is.factor)
-
-  ## If we have categorical variables we want to use Gower's distance unless otherwise specified.
-  if(sum(i) != 0 & is.null(distmethod)){
-    distmethod<-'gower'
+  ## If we have categorical variables we want to use Gower's distance unless
+  ## otherwise specified.
+  if (any(purrr::map_lgl(toclust, is.factor)) && is.null(distmethod)) {
+    distmethod <- "gower"
   }
 
-  ## Tan 4/16/17, if there is a circular variable in the data set, use Gower's distance unless otherwise specified.
-  if(!is.null(cir.var) && is.null(distmethod)){
-    distmethod<-'gower'
+  ## Tan 4/16/17, if there is a circular variable in the data set, use Gower's
+  ## distance unless otherwise specified.
+  if (!is.null(cir.var) && is.null(distmethod)) {
+    distmethod <- "gower"
   }
 
   ## For now, impute missing values so we have no missing data
   ## Emit warning that values were imputed.
-
-  if(sum(is.na(toclust))){
-    imputed<-mice::mice(toclust)
+  if (any(is.na(toclust))) {
+    imputed <- mice::mice(toclust)
     cat("\nData contain missing values mice() used for imputation")
     cat("\nSee mice() help page for more details")
     cat("\nMissing cells per column:")
     print(imputed$nmis)
-    toclust<-mice::complete(imputed)
+    toclust <- mice::complete(imputed)
   }
 
   toclust0 <- toclust
 
-  ## Determine whether we need to use PCAmix, or whether we only have quantitative variables.
-  ## variable factors gives a boolean value for factor and non-factor columns.
-
-  factors<-sapply(toclust,is.factor)
-  qualtog<-ifelse(sum(factors)>0,1,0)
-  quanttog<-ifelse(sum(!factors)>0,1,0)
+  ## Determine whether we need to use PCAmix, or whether we only have
+  ## quantitative variables.
+  factors <- purrr::map_lgl(toclust, is.factor)
+  qualtog <- any(factors)
+  quanttog <- any(!factors)
 
   ## Since we are going to have multiple factor orderings,
-  ## we need to consider each of these orderings a seperate "explanatory" variable, and determine the number
-  ## of extra columns we will need based on the number of orderings and the number of factors in the dataset.
-
+  ## we need to consider each of these orderings a separate "explanatory"
+  ## variable, and determine the number of extra columns we will need based on
+  ## the number of orderings and the number of factors in the dataset.
   extra <- sum(factors)
   extracols <- ncol(toclust) + 1:(extra*(corders-1))
 
-  if(qualtog){
-    ## If we have any factor variables.
+  # If has at least one categorical variable
+  if (qualtog) {
+    ## Use PCAmix with quantitative variables the non-factors and qualitative variables the factors.
+    PCA <- PCAmixdata::PCAmix(X.quanti = toclust[, !factors],
+                              X.quali = toclust[, factors],
+                              graph = FALSE)
+
     ## Get the number of levels of each factor.
-    numbyvar<-sapply(toclust[,factors],function(xxx)length(levels(xxx)))
+    numbyvar <- sapply(toclust[,factors],function(xxx)length(levels(xxx)))
 
     ## Get each factor variable name.
-    catnames<-colnames(toclust[,factors])
+    catnames<-colnames(toclust)[factors]
 
     ## Sort the levels alphabetically as this is the way they will come out of PCAmix.
     catrepvarlevel<-unlist(sapply(toclust[,factors],function(x)sort(levels(x))))
     names(catrepvarlevel)<-rep(catnames,numbyvar)
-
-    ## Use PCAmix with quantitative varibales the non-factors and qualitative variables the factors.
-    PCA<-PCAmixdata::PCAmix(X.quanti=toclust[,!factors],X.quali=toclust[,factors],graph=FALSE)
 
     ## Set up variables to be filled in the loop
     ## This method seems a bit odd, but PCAmix looks at all levels of all variables simultaneously,
@@ -171,7 +160,7 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
       catrepvarlevelordered <- cbind(catrepvarlevelordered,catrepvarlevel)
 
       for(p in 1:length(catnames)){
-        position <- position+1;
+        position <- position+1
         quali_ordered[[position]]<-catrepvarlevel[names(catrepvarlevel)==catnames[p]]
 
         ## We want the orders and the cuts
@@ -277,7 +266,7 @@ MonoClust <-function(toclust, cir.var = NULL, variables = NULL,
 
   members<-1:nobs
 
-    ## Set up a vector containing each observation's membership. Put into global environment, but this will be deleted at the end
+  ## Set up a vector containing each observation's membership. Put into global environment, but this will be deleted at the end
   ## of this function. Using global environment allows us to modify things recursively as we partition clusters.
   assign(".Cloc",rep(1,nobs), envir = .GlobalEnv)
 
