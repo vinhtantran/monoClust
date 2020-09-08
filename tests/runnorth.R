@@ -1,12 +1,12 @@
-data(arctic)
-summary(arctic)
+data(arctic_2019)
+summary(arctic_2019)
 
 obj.lst <- NULL
 for (i in 1978:2014) {
-  extent <- arctic[arctic$Year == i, "Extent"]
-  count <-  nrow(arctic[arctic$Year == i,])
+  extent <- arctic_2019[arctic_2019$Year == i, "Extent"]
+  count <-  nrow(arctic_2019[arctic_2019$Year == i,])
 
-  date.list <- with(arctic[arctic$Year == i,], as.Date(paste(Year, Month, Day, sep="-")))
+  date.list <- with(arctic_2019[arctic_2019$Year == i,], as.Date(paste(Year, Month, Day, sep="-")))
   days <- julian(date.list, origin = as.Date(ISOdate(i, 1, 1)) - 1)
 
   obj.lst <- c(obj.lst, list(list(extent = extent, count = count, days = days)))
@@ -42,14 +42,14 @@ for (i in 1:length(obj.lst)) {
 
 par(mfrow = c(1,2))
 plot(obj.lst$year1999$extent ~ obj.lst$year1999$days, type="n",
-     ylim = c(min(arctic$Extent), max(arctic$Extent)))
+     ylim = c(min(arctic_2019$Extent), max(arctic_2019$Extent)))
 
 for (i in 1:length(obj.lst)) {
   lines(obj.lst[[i]]$extent ~ obj.lst[[i]]$days, type="l", col = i)
 }
 
 plot(obj.lst$year1999$extent ~ obj.lst$year1999$days, type="n",
-     ylim = c(min(arctic$Extent), max(arctic$Extent)))
+     ylim = c(min(arctic_2019$Extent), max(arctic_2019$Extent)))
 for (i in 1:length(obj.lst))
   lines(predicted.mat[i,] ~ c(1:365), type="l", col = i)
 
