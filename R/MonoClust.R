@@ -29,8 +29,21 @@
 #' @export
 #'
 #' @examples
+#' # very simple data set
 #' data(cluster::ruspini)
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
+#' ruspini4sol
+#'
+#' # data with categorical variable
+#' data(iris)
+#' iris_cat <- MonoClust(iris, nclusters = 3)
+#' iris_cat
+#'
+#' # data with circular variable
+#' data(wind_sensit_2007)
+#'
+#' circular_wind <- MonoClust(wind_sensit_2007), cir.var = 3, nclusters = 2)
+#' circular_wind
 MonoClust <- function(toclust,
                       cir.var = NULL,
                       variables = NULL,
@@ -197,32 +210,36 @@ MonoClust <- function(toclust,
     quantis <- c(quantis, rep(FALSE, length(extracols)))
   }
 
-  # CLUSTER ON CIRCULAR VARIABLE
-  nextvalue <- find_closest(toclust[, cir.var])
-  bestcircsplit <- list(hour = 0, minute = 0, inertia = 0)
-  ## Tan 4/16/17, discreetly find the first split for the circular variable to
-  ## nail the the first split
-  if (!is.null(cir.var) && (ran == 0)) {
-    variable <- toclust[, cir.var]
-    minvalue <- min(variable)
-    min.inertia <- 9999
-    # Check all starting value to find the best split
-    # The best split will be recorded in output with the pivot is hour
-    while (minvalue < max(variable)) {
-      variable.shift <- cshift(variable, -minvalue)
-      out <- MonoClust(data.frame(variable.shift), cir.var = 1, nclusters = 2, ran = 1)
-      cut <- out$frame$cut[1]
-      int <- inertia(out$Dist[which(out$Membership == 2), which(out$Membership == 2)]) +
-        inertia(out$Dist[which(out$Membership == 3),which(out$Membership == 3)])
-      if (min.inertia > int) {
-        min.inertia <- int
-        bestcircsplit <- list(hour = minvalue, minute=ifelse((cut+minvalue) < 360, cut+minvalue, cut+minvalue-360), intertia = int)
-      }
-      minvalue <- as.numeric(nextvalue[which(variable == minvalue)])[1]
-    }
+  # CLUSTERING ON CIRCULAR VARIABLE
+  if (!is.null(cir.var)) {
 
-    # Shift the circular variable to the hour pivot, will shift back later
-    toclust[,cir.var] <- cshift(variable, -bestcircsplit$hour)
+    # This only works on **one** circular variable
+    next_value <- find_closest(toclust[, cir.var])
+    bestcircsplit <- list(hour = 0, minute = 0, inertia = 0)
+    ## Tan 4/16/17, discreetly find the first split for the circular variable to
+    ## nail the the first split
+    if (ran == 0) {
+      variable <- toclust[, cir.var]
+      min_value <- min(variable)
+      min_inertia <- 9999
+      # Check all starting value to find the best split
+      # The best split will be recorded in output with the pivot is hour
+      while (min_value < max(variable)) {
+        variable_shift <- cshift(variable, -min_value)
+        out <- MonoClust(data.frame(variable_shift), cir.var = 1, nclusters = 2, ran = 1)
+        cut <- out$frame$cut[1]
+        inertia <- inertia_calc(out$Dist[which(out$Membership == 2), which(out$Membership == 2)]) +
+          inertia_calc(out$Dist[which(out$Membership == 3), which(out$Membership == 3)])
+        if (min_inertia > inertia) {
+          min_inertia <- inertia
+          bestcircsplit <- list(hour = min_value, minute=ifelse((cut+min_value) < 360, cut+min_value, cut+min_value-360), intertia = inertia)
+        }
+        min_value <- as.numeric(next_value[which(variable == min_value)])[1]
+      }
+
+      # Shift the circular variable to the hour pivot, will shift back later
+      toclust[,cir.var] <- cshift(variable, -bestcircsplit$hour)
+    }
   }
 
 
@@ -282,7 +299,7 @@ MonoClust <- function(toclust,
 
   ## Likewise, set up the first (entire dataset) cluster in our Cluster frame where we keep track of each of the clusters and the
   ## partitioning.
-  assign(".Cluster_frame", data.frame(number = 1, var = "<leaf>", n = nobs,wt = sum(weights[members]), inertia = inertia(distmats[members,members]), bipartvar="NA", bipartsplitrow=NA, bipartsplitcol=NA,inertiadel=0, yval=1,medoid = med(members,distmats), category = NA, cut=NA,loc=0.1, stringsAsFactors=FALSE, split.order = 0), envir = .GlobalEnv)
+  assign(".Cluster_frame", data.frame(number = 1, var = "<leaf>", n = nobs,wt = sum(weights[members]), inertia = inertia_calc(distmats[members,members]), bipartvar="NA", bipartsplitrow=NA, bipartsplitcol=NA,inertiadel=0, yval=1,medoid = med(members,distmats), category = NA, cut=NA,loc=0.1, stringsAsFactors=FALSE, split.order = 0), envir = .GlobalEnv)
 
   split.order <- 1
   ## This loop runs until we have nclusters, have exhausted our observations or run into our minbucket/minsplit restrictions.
@@ -376,18 +393,18 @@ MonoClust <- function(toclust,
 
 #' Find the Closest Cut
 #'
-#' Find the cuts for each quantitative variable. These cuts are what we are
+#' Find the cuts for a quantitative variable. These cuts are what we are
 #' going to consider when thinking about bi-partitioning the data. For a
 #' quantitative column, find the next larger value of each value, if it is the
 #' largest, that value + 1
 #'
-#' @param col list of quantitative vectors, or a data set
+#' @param col a quantitative vector.
 #'
-#' @return a quantitative vector
-find_closest <- function(cols) {
-  sapply(cols, function(x) ifelse(x == max(cols),
-                                  x + 1,
-                                  min(cols[which(colSums() - x > 0)])))
+#' @return a quantitative vector which contains the closest higher cut.
+find_closest <- function(col) {
+  purrr::map_dbl(col, ~ ifelse(.x == max(col),
+                               .x + 1,
+                               min(col[which(col - .x > 0)])))
 }
 
 #' Add/Subtract From A Circular Value
@@ -424,7 +441,7 @@ cshift <- function(variable, shift) {
 #'
 #' @return inertia value of the matrix, formula in Chavent (1998). If X is a
 #'   single number, return 0.
-inertia <- function(X) {
+inertia_calc <- function(X) {
   # there are cases when a cluster has only 1 point, say, 1st point, then
   # Dist[1,1] is a numeric value, not matrix.
   #MG, 9/25: Should this then return a value of 0 for inertia? If you go back to
@@ -600,7 +617,7 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   .Cluster_frame[splitrow+1,2] <<- "<leaf>"
   .Cluster_frame[splitrow+1,3] <<- length(memsA)
   .Cluster_frame[splitrow+1,4] <<- sum(weights[memsA])
-  .Cluster_frame[splitrow+1,5] <<- inertia(Dist[memsA,memsA])
+  .Cluster_frame[splitrow+1,5] <<- inertia_calc(Dist[memsA,memsA])
   .Cluster_frame[splitrow+1,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
   .Cluster_frame[splitrow+1,11] <<- med(memsA,Dist)
   .Cluster_frame[splitrow+1,14] <<- .Cluster_frame[splitrow,14] - 1/nr
@@ -610,7 +627,7 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   .Cluster_frame[splitrow+2,2] <<- "<leaf>"
   .Cluster_frame[splitrow+2,3] <<- length(memsB)
   .Cluster_frame[splitrow+2,4] <<- sum(weights[memsB])
-  .Cluster_frame[splitrow+2,5] <<- inertia(Dist[memsB,memsB])
+  .Cluster_frame[splitrow+2,5] <<- inertia_calc(Dist[memsB,memsB])
   .Cluster_frame[splitrow+2,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
   .Cluster_frame[splitrow+2,11] <<- med(memsB,Dist)
   .Cluster_frame[splitrow+2,14] <<- .Cluster_frame[splitrow,14] + 1/nr
@@ -621,7 +638,7 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   #     .Cluster_frame[nr+1,2] <<- "<leaf>"
   #     .Cluster_frame[nr+1,3] <<- length(memsA)
   #     .Cluster_frame[nr+1,4] <<- sum(weights[memsA])
-  #     .Cluster_frame[nr+1,5] <<- inertia(Dist[memsA,memsA])
+  #     .Cluster_frame[nr+1,5] <<- inertia_calc(Dist[memsA,memsA])
   #     .Cluster_frame[nr+1,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
   #     .Cluster_frame[nr+1,11] <<- med(memsA,Dist)
   #     .Cluster_frame[nr+1,14] <<- .Cluster_frame[splitrow,14] - 1/nr
@@ -631,7 +648,7 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   #     .Cluster_frame[nr+2,2] <<- "<leaf>"
   #     .Cluster_frame[nr+2,3] <<- length(memsB)
   #     .Cluster_frame[nr+2,4] <<- sum(weights[memsB])
-  #     .Cluster_frame[nr+2,5] <<- inertia(Dist[memsB,memsB])
+  #     .Cluster_frame[nr+2,5] <<- inertia_calc(Dist[memsB,memsB])
   #     .Cluster_frame[nr+2,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
   #     .Cluster_frame[nr+2,11] <<- med(memsB,Dist)
   #     .Cluster_frame[nr+2,14] <<- .Cluster_frame[splitrow,14] + 1/nr
@@ -684,7 +701,7 @@ FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minb
 
     bycol<-cbind(bycol,sapply(Cuts_col,function(x){
       memsA<-mems[which(Data_col<x)]; memsB<-setdiff(mems,memsA);
-      ifelse(length(memsA)*length(memsB)==0, NA, inertia(Dist[memsA,memsA]) + inertia(Dist[memsB,memsB])); }))
+      ifelse(length(memsA)*length(memsB)==0, NA, inertia_calc(Dist[memsA,memsA]) + inertia_calc(Dist[memsB,memsB])); }))
   }
   # Difference between current cluster and the possible splits
   vals <- inertiap - bycol
@@ -721,7 +738,7 @@ FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minb
     memsB <-setdiff(mems,memsA)
 
     # calculate our change in inertia
-    inertiadel <- inertiap - inertia(Dist[memsA,memsA]) - inertia(Dist[memsB,memsB])
+    inertiadel <- inertiap - inertia_calc(Dist[memsA,memsA]) - inertia_calc(Dist[memsB,memsB])
 
     ## Update our frame
     frame[row,7] <- split[1]

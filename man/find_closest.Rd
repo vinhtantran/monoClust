@@ -4,16 +4,16 @@
 \alias{find_closest}
 \title{Find the Closest Cut}
 \usage{
-find_closest(cols)
+find_closest(col)
 }
 \arguments{
-\item{col}{list of quantitative vectors, or a data set}
+\item{col}{a quantitative vector.}
 }
 \value{
-a quantitative vector
+a quantitative vector which contains the closest higher cut.
 }
 \description{
-Find the cuts for each quantitative variable. These cuts are what we are
+Find the cuts for a quantitative variable. These cuts are what we are
 going to consider when thinking about bi-partitioning the data. For a
 quantitative column, find the next larger value of each value, if it is the
 largest, that value + 1

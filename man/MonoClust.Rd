@@ -63,6 +63,19 @@ Creates a MonoClust object after partitioning the data set using Monothetic
 Clustering.
 }
 \examples{
+# very simple data set
 data(cluster::ruspini)
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
+ruspini4sol
+
+# data with categorical variable
+data(iris)
+iris_cat <- MonoClust(iris, nclusters = 3)
+iris_cat
+
+# data with circular variable
+data(wind_sensit_2007)
+
+circular_wind <- MonoClust(wind_sensit_2007), cir.var = 3, nclusters = 2)
+circular_wind
 }
