@@ -76,6 +76,6 @@ iris_cat
 # data with circular variable
 data(wind_sensit_2007)
 
-circular_wind <- MonoClust(wind_sensit_2007), cir.var = 3, nclusters = 2)
+circular_wind <- MonoClust(wind_sensit_2007, cir.var = 3, nclusters = 2)
 circular_wind
 }
