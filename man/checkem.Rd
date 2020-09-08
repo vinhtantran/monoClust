@@ -17,35 +17,38 @@ checkem(
 )
 }
 \arguments{
-\item{data}{original data set.}
+\item{data}{Original data set.}
 
-\item{cuts}{cuts data set, which has the next higher value of each variable
+\item{cuts}{Cuts data set, which has the next higher value of each variable
 in the original data set.}
 
-\item{dist}{distance matrix of all observations in the data.}
+\item{dist}{Distance matrix of all observations in the data.}
 
-\item{catnames}{categorical variables' names.}
+\item{catnames}{Categorical variables' names.}
 
-\item{variables}{indices of variables used to split on.}
+\item{variables}{List of variables selected for clustering procedure. It
+could be a vector of variable indexes, or a vector of variable names.}
 
-\item{weights}{weights on each observation. Hasn't been implemented in
+\item{weights}{Weights on each observation. Hasn't been implemented in
 exported function yet. Vector of 1 for all observations.}
 
-\item{minsplit}{the minimum number of observations that must exist in a node
+\item{minsplit}{The minimum number of observations that must exist in a node
 in order for a split to be attempted.}
 
-\item{minbucket}{the minimum number of observations in any terminal leaf
-node.}
+\item{minbucket}{The minimum number of observations in any terminal leaf
+node. If only one of minbucket or minsplit is specified, the code either
+sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.}
 
-\item{split.order}{the control argument to see how many split has been done.}
+\item{split.order}{The control argument to see how many split has been done.}
 }
 \value{
-not supposed to return anything because global environment was used.
-However, if there is nothing left to split, it returns 0 to tell the caller
-to stop running the loop.
+It is not supposed to return anything because global environment was
+used. However, if there is nothing left to split, it returns 0 to tell the
+caller to stop running the loop.
 }
 \description{
 This function checks what are available nodes to split and then call
 \code{find_split()} on each node, then decide which node creates best split, and
 call \code{splitter()} to perform the split.
 }
+\keyword{internal}

@@ -6,7 +6,6 @@
 #' @param ... more args
 #'
 #' @return A plot
-#' @import graphics
 #' @export
 #'
 #' @examples Blank

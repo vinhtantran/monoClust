@@ -12,7 +12,6 @@
 #' @param ... more args
 #'
 #' @return Plot of tree
-#' @importFrom grDevices dev.cur
 #' @export
 #'
 #' @examples Blank

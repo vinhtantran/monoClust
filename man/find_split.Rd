@@ -7,32 +7,34 @@
 find_split(row, data, cuts, dist, variables, weights, minsplit, minbucket)
 }
 \arguments{
-\item{row}{the row in .Cluster_frame that would be assessed.}
+\item{row}{The row in .Cluster_frame that would be assessed.}
 
-\item{data}{original data set.}
+\item{data}{Original data set.}
 
-\item{cuts}{cuts data set, which has the next higher value of each variable
+\item{cuts}{Cuts data set, which has the next higher value of each variable
 in the original data set.}
 
-\item{dist}{distance matrix of all observations in the data.}
+\item{dist}{Distance matrix of all observations in the data.}
 
-\item{variables}{indices of variables used to split on.}
+\item{variables}{List of variables selected for clustering procedure. It
+could be a vector of variable indexes, or a vector of variable names.}
 
-\item{weights}{weights on each observation. Hasn't been implemented in
+\item{weights}{Weights on each observation. Hasn't been implemented in
 exported function yet. Vector of 1 for all observations.}
 
-\item{minsplit}{the minimum number of observations that must exist in a node
+\item{minsplit}{The minimum number of observations that must exist in a node
 in order for a split to be attempted.}
 
-\item{minbucket}{the minimum number of observations in any terminal leaf
-node.}
+\item{minbucket}{The minimum number of observations in any terminal leaf
+node. If only one of minbucket or minsplit is specified, the code either
+sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.}
 }
 \value{
-this function changes the .Cluster_frame in global environment, it's
+This function changes the .Cluster_frame in global environment, it's
 not supposed to return anything.
 }
 \description{
-find the best split in terms of reduction in inertia for the transferred
+Find the best split in terms of reduction in inertia for the transferred
 node, indicate by row. We are keeping all of the information regarding which
 clusters we have in. At this point, we want to find the terminal node with
 the greatest change in inertia and bi-partition it. The way this is done is
@@ -43,3 +45,4 @@ check the center the 25\% and 75\% and then search more selectively from there.
 This is a fairly simple discrete optimization problem and could reduce
 computation time .
 }
+\keyword{internal}
