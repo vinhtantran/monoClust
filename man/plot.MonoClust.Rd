@@ -4,8 +4,16 @@
 \alias{plot.MonoClust}
 \title{Plot MonoClust splitting rule tree}
 \usage{
-\method{plot}{MonoClust}(x, margin, which, abbrev = 4, text = TRUE,
-  cols = NULL, rel.loc.x = TRUE, ...)
+\method{plot}{MonoClust}(
+  x,
+  margin,
+  which,
+  abbrev = 4,
+  text = TRUE,
+  cols = NULL,
+  rel.loc.x = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{MonoClust object}

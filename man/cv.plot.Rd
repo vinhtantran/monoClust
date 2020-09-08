@@ -4,11 +4,15 @@
 \alias{cv.plot}
 \title{Plot the Mean Square Error with error bar for +/- 1 Standard Error}
 \usage{
-cv.plot(cptable, main = "MSE for CV of monothetic clustering",
-  ylab = "MSE +/- 1 SE", ...)
+cv.plot(
+  cp.table,
+  main = "MSE for CV of monothetic clustering",
+  ylab = "MSE +/- 1 SE",
+  ...
+)
 }
 \arguments{
-\item{cptable}{The output of cv.test or cv.test.mse}
+\item{cp.table}{The output of cv.test or cv.test.mse}
 
 \item{main}{Title of the plot}
 

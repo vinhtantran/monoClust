@@ -1,5 +1,7 @@
-#' MonoClust creates a MonoClust object after partitioning the data set using
-#' Monothetic Clustering.
+#' Monothetic Clustering
+#'
+#' Creates a MonoClust object after partitioning the data set using Monothetic
+#' Clustering.
 #'
 #' @param toclust data set.
 #' @param cir.var index or name of the circular variable in the data set.
@@ -11,12 +13,13 @@
 #' @param labels displayed names of variables.
 #' @param digits significant number of clusters created
 #' @param nclusters number of clusters created
-#' @param minbucket the minimum number of observations in any terminal <leaf>
+#' @param minbucket the minimum number of observations in any terminal leaf
 #'   node. If only one of minbucket or minsplit is specified, the code either
 #'   sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.
 #' @param minsplit the minimum number of observations that must exist in a node
 #'   in order for a split to be attempted.
-#' @param corders blank
+#' @param corders for data set with categorical variables, the number of
+#'   dimensions should be used from PCAMix. Taken a value from 1 to 5.
 #' @param alpha value applied specifically to permutation test.
 #' @param perm.test whether or not to make a permutation test as stopping
 #'   criterion while clustering.
@@ -122,87 +125,94 @@ MonoClust <- function(toclust,
   qualtog <- any(factors)
   quanttog <- any(!factors)
 
-  ## Since we are going to have multiple factor orderings,
-  ## we need to consider each of these orderings a separate "explanatory"
-  ## variable, and determine the number of extra columns we will need based on
-  ## the number of orderings and the number of factors in the dataset.
-  extra <- sum(factors)
-  extracols <- ncol(toclust) + 1:(extra*(corders-1))
-
   # If has at least one categorical variable
+  # TODO: Candidate to move to a function
+  # Input: toclust, factors, corders
+  # Output: toclust, quantis
   if (qualtog) {
-    ## Use PCAmix with quantitative variables the non-factors and qualitative variables the factors.
-    PCA <- PCAmixdata::PCAmix(X.quanti = toclust[, !factors],
+
+    ## Use PCAmix with quantitative variables the non-factors and qualitative
+    ## variables the factors.
+    pca <- PCAmixdata::PCAmix(X.quanti = toclust[, !factors],
                               X.quali = toclust[, factors],
                               graph = FALSE)
 
+    ## Since we are going to have multiple factor orderings,
+    ## we need to consider each of these orderings a separate "explanatory"
+    ## variable, and determine the number of extra columns we will need based on
+    ## the number of orderings and the number of factors in the dataset.
+    num_factors <- sum(factors)
+    extracols <- ncol(toclust) + 1:(num_factors * (corders - 1))
+
     ## Get the number of levels of each factor.
-    numbyvar <- sapply(toclust[,factors],function(xxx)length(levels(xxx)))
+    numbyvar <- purrr::map_int(toclust[, factors], nlevels)
 
     ## Get each factor variable name.
-    catnames<-colnames(toclust)[factors]
+    catnames <- colnames(toclust)[factors]
 
-    ## Sort the levels alphabetically as this is the way they will come out of PCAmix.
-    catrepvarlevel<-unlist(sapply(toclust[,factors],function(x)sort(levels(x))))
-    names(catrepvarlevel)<-rep(catnames,numbyvar)
+    ## Sort the levels alphabetically as this is the way they will come out of
+    ## PCAmix.
+    catrepvarlevel <- purrr::flatten_chr(purrr::map(toclust[, factors],
+                                                    ~ sort(levels(.x))))
+    names(catrepvarlevel) <- rep(catnames, numbyvar)
 
     ## Set up variables to be filled in the loop
-    ## This method seems a bit odd, but PCAmix looks at all levels of all variables simultaneously,
-    ## and some work must be done to keep the levels with the factor they belong to.
+    ## This method seems a bit odd, but PCAmix looks at all levels of all
+    ## variables simultaneously, and some work must be done to keep the levels
+    ## with the factor they belong to.
     catrepvarlevelordered <- character(0)
     cuts_quali <- numeric(0)
     position <- 0
 
-    for(j in 1:corders){
+    for (j in 1:corders) {
       ## Do this for each dimension that we want 1-5 (number of orderings)
       ## Order and put them in columns
-      catrepvarlevel <- catrepvarlevel[order(PCA$categ.coord[,j])]
-      catrepvarlevelordered <- cbind(catrepvarlevelordered,catrepvarlevel)
+      catrepvarlevel <- catrepvarlevel[order(PCA$categ.coord[, j])]
+      catrepvarlevelordered <- cbind(catrepvarlevelordered, catrepvarlevel)
 
-      for(p in 1:length(catnames)){
-        position <- position+1
-        quali_ordered[[position]]<-catrepvarlevel[names(catrepvarlevel)==catnames[p]]
+      for (p in seq_len(num_factors)) {
+        position <- position + 1
+        quali_ordered[[position]] <-
+          catrepvarlevel[names(catrepvarlevel) == catnames[p]]
 
         ## We want the orders and the cuts
-        ## The cuts are the ordered levels that we can use to partition the dataset
-        ## They are numeric, but correspond to a division between two levels of a categorical variable
-        ## according to a particular ordering from PCAmix.
-        fcolumn<-toclust[,which(factors)[p]]
-        var_order<-quali_ordered[[position]]
-        cuts_quali<-cbind(cuts_quali,sapply(fcolumn,function(xxx)match(xxx,var_order)+1))
+        ## The cuts are the ordered levels that we can use to partition the
+        ## dataset. They are numeric, but correspond to a division between two
+        ## levels of a categorical variable according to a particular ordering
+        ## from PCAmix.
+        fcolumn <- toclust[, which(factors)[p]]
+        var_order <- quali_ordered[[position]]
+        cuts_quali <- cbind(cuts_quali,
+                            purrr::map_dbl(fcolumn, ~ match(.x, var_order) + 1))
       }
     }
 
-    qual_quant<-cuts_quali-1
-    toclust[,factors] <- qual_quant[,1:extra]
-    toclust[,extracols] <- qual_quant[,-c(1:extra)]
+    qual_quant <- cuts_quali - 1
+    toclust[, factors] <- qual_quant[, 1:num_factors]
+    toclust[, extracols] <- qual_quant[, -c(1:num_factors)]
+
+    ## Now, we have extra columns, we have to make sure that we do not consider
+    ## them quantitative.
+    quantis <- !factors
+    quantis <- c(quantis, rep(FALSE, length(extracols)))
   }
 
-  ## Now, we have extra columns, we have to make sure that we do not consider them quantitative.
-  quantis<-!factors
-  quantis <- c(quantis,rep(FALSE,length(extracols)))
-
-  ## Find the cuts for each quantitative variable.
-  ## These cuts are what we are going to consider when thinking about bi-partitioning the data.
-  ## For a quantitative column, find the next larger value of each value, if it is the largest, that value + 1
-  findclosest<-function(col){
-    sapply(col,function(x) ifelse(x==max(col),x+1,min(col[which(col-x > 0)])))
-  }
-
-  nextvalue <- findclosest(toclust[,cir.var])
+  # CLUSTER ON CIRCULAR VARIABLE
+  nextvalue <- find_closest(toclust[, cir.var])
   bestcircsplit <- list(hour = 0, minute = 0, inertia = 0)
-  ## Tan 4/16/17, discreetly find the first split for the circular variable to nail the the first split
-  if (!is.null(cir.var) && (ran==0)) {
-    variable <- toclust[,cir.var]
+  ## Tan 4/16/17, discreetly find the first split for the circular variable to
+  ## nail the the first split
+  if (!is.null(cir.var) && (ran == 0)) {
+    variable <- toclust[, cir.var]
     minvalue <- min(variable)
     min.inertia <- 9999
     # Check all starting value to find the best split
     # The best split will be recorded in output with the pivot is hour
     while (minvalue < max(variable)) {
       variable.shift <- cshift(variable, -minvalue)
-      out <- MonoClust(data.frame(variable.shift), cir.var = 1, nclusters=2, ran=1)
+      out <- MonoClust(data.frame(variable.shift), cir.var = 1, nclusters = 2, ran = 1)
       cut <- out$frame$cut[1]
-      int <- inertia(out$Dist[which(out$Membership == 2),which(out$Membership == 2)]) +
+      int <- inertia(out$Dist[which(out$Membership == 2), which(out$Membership == 2)]) +
         inertia(out$Dist[which(out$Membership == 3),which(out$Membership == 3)])
       if (min.inertia > int) {
         min.inertia <- int
@@ -216,7 +226,7 @@ MonoClust <- function(toclust,
   }
 
 
-  if(quanttog){cuts_quant<-apply(data.frame(toclust[,quantis]),2,findclosest)}
+  if(quanttog){cuts_quant<-apply(data.frame(toclust[,quantis]),2,find_closest)}
 
   cuts<-toclust
   if(qualtog){cuts[,c(which(factors),extracols)]<-cuts_quali}
@@ -362,6 +372,69 @@ MonoClust <- function(toclust,
 
   return(rpartobj)
 
+}
+
+#' Find the Closest Cut
+#'
+#' Find the cuts for each quantitative variable. These cuts are what we are
+#' going to consider when thinking about bi-partitioning the data. For a
+#' quantitative column, find the next larger value of each value, if it is the
+#' largest, that value + 1
+#'
+#' @param col list of quantitative vectors, or a data set
+#'
+#' @return a quantitative vector
+find_closest <- function(cols) {
+  sapply(cols, function(x) ifelse(x == max(cols),
+                                  x + 1,
+                                  min(cols[which(colSums() - x > 0)])))
+}
+
+#' Add/Subtract From A Circular Value
+#'
+#' Add a value to a circular value or variable. When the value reaches 360 or 0,
+#' it will become 0.
+#'
+#' @param variable circular variable (in degree 0-360).
+#' @param shift the added value to the circular variable, can be positive or
+#'   negative if want to subtract.
+#'
+#' @return shifted circular value or variable.
+cshift <- function(variable, shift) {
+  # In case shift is larger a full circle
+  shift_less_360 <- shift %/% 360
+  # Add value
+  variable_shifted <- variable + shift_less_360
+  variable_shifted <- ifelse(variable_shifted < 0,
+                             variable_shifted + 360,
+                             variable_shifted)
+  variable_shifted <- ifelse(variable_shifted >= 360,
+                             variable_shifted - 360,
+                             variable_shifted)
+  return(variable_shifted)
+}
+
+#' Cluster Inertia Calculation
+#'
+#' Calculate inertia for a given subset of the distance matrix from the original
+#' data set provided to X. Assumes that distance matrices are stored as matrices
+#' and not distance objects
+#'
+#' @param X distance matrix, not an object of some distance measure
+#'
+#' @return inertia value of the matrix, formula in Chavent (1998). If X is a
+#'   single number, return 0.
+inertia <- function(X) {
+  # there are cases when a cluster has only 1 point, say, 1st point, then
+  # Dist[1,1] is a numeric value, not matrix.
+  #MG, 9/25: Should this then return a value of 0 for inertia? If you go back to
+  # (y-mean(y))^2, then maybe set the return to 0?
+  if (!is.numeric(X) && !is.matrix(X)) stop("X has to be a numerical value or matrix.")
+
+  inertia_value <- ifelse(length(X) > 0 && is.numeric(X),
+                          0,
+                          sum(X^2) / (dim(X)[1] * 2))
+  return(intertia_value)
 }
 
 ## ADD, Tan, 12/15, function to calculate the mean of each cluster.
@@ -684,15 +757,6 @@ checkem<-function(Data,Cuts,Dist,catnames,variables,weights, minsplit, minbucket
 }
 
 
-## Calculate inertia for a given subset of the distance matrix from the original data set provided to X.
-## Assumes that distance matrices are stored as matrices and not distance objects
-inertia <- function(X){
-  # there are cases when a cluster has only 1 point, say, 1st point, then Dist[1,1] is a numeric value, not matrix
-  #MG, 9/25: Should this then return a value of 0 for inertia? If you go back to (y-mean(y))^2, then maybe set the return to 0?
-  if (!is.matrix(X)) return(X) else
-    return(sum(X^2)/(dim(X)[1]*2))
-}
-
 ## Find medoid of the cluster. Dfn: the point that has minimum distance to all other points
 med <- function(members,Dist){
   if(length(members)==1){return(members)}
@@ -727,13 +791,4 @@ circd <- function(x) {
     }
   }
   return(as.dist(dist1))
-}
-
-# Tan Added 4/16/17
-# Small function to shift a circular value or variable
-cshift <- function(variable, shift) {
-  variable.shifted <- variable + shift
-  variable.shifted <- ifelse(variable.shifted >= 0, variable.shifted, variable.shifted + 360)
-  variable.shifted <- ifelse(variable.shifted < 360, variable.shifted, variable.shifted - 360)
-  variable.shifted
 }

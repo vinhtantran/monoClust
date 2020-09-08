@@ -4,9 +4,17 @@
 \alias{pcp.circ.plot}
 \title{Plot a parallel coordinate plot with one circular variable}
 \usage{
-pcp.circ.plot(data, cir.var = NULL, membership = NULL, order = NULL,
-  col = NULL, zero = "east", nslabel = TRUE, rotation = "counter",
-  meds = NULL)
+pcp.circ.plot(
+  data,
+  cir.var = NULL,
+  membership = NULL,
+  order = NULL,
+  col = NULL,
+  zero = "east",
+  nslabel = TRUE,
+  rotation = "counter",
+  meds = NULL
+)
 }
 \arguments{
 \item{data}{The full data set}
@@ -22,14 +30,14 @@ data set}
 groups in membership parameter}
 
 \item{zero}{The position of the zero degree value in the circular variable.
-Can be chosen in c("north", "east", "west", "south"). Default is "east"
+Can be chosen in c('north', 'east', 'west', 'south'). Default is 'east'
 side of the circle (usual 0 position in calculus circle)}
 
 \item{nslabel}{Whether to print the North and South label on the circular
 variable. Default is TRUE}
 
 \item{rotation}{The positive direction of the circular variable. Default is
-"counter"-clockwise. Can be changed to "clock".}
+'counter'-clockwise. Can be changed to 'clock'.}
 
 \item{meds}{A list of median values of the cluster. The length of this vector
 should match the unique values in membership.}

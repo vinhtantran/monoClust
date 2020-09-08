@@ -4,8 +4,7 @@
 \alias{print.MonoClust}
 \title{Print the result of MonoClust clustering}
 \usage{
-\method{print}{MonoClust}(x, abbrev = 0, spaces = 2,
-  digits = options("digits")$digits, ...)
+\method{print}{MonoClust}(x, abbrev = 0, spaces = 2, digits = options("digits")$digits, ...)
 }
 \arguments{
 \item{x}{MonoClust result object}

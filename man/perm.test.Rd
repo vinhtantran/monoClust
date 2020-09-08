@@ -4,8 +4,15 @@
 \alias{perm.test}
 \title{Permutation test on monothetic tree}
 \usage{
-perm.test(object, data, auto.pick = FALSE, sig.val = 0.05,
-  method = 1, rep = 10000, stat = "F")
+perm.test(
+  object,
+  data,
+  auto.pick = FALSE,
+  sig.val = 0.05,
+  method = 1,
+  rep = 10000,
+  stat = "F"
+)
 }
 \arguments{
 \item{object}{The MonoClust object as the result of the clustering.}
@@ -25,7 +32,7 @@ above the details.}
 
 \item{rep}{Number of permutations to calculate test statistic.}
 
-\item{stat}{Statistic to use, choosing between "F" (default), "AW".}
+\item{stat}{Statistic to use, choosing between 'F' (default), 'AW'.}
 }
 \value{
 The same MonoClust object with an updated frame with one extra

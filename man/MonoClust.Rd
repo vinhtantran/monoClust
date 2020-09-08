@@ -2,56 +2,67 @@
 % Please edit documentation in R/MonoClust.R
 \name{MonoClust}
 \alias{MonoClust}
-\title{Title Monothetic Clustering MonoClust creates a MonoClust object after
-partitioning the data set using MonoClust clustering.}
+\title{Monothetic Clustering}
 \usage{
-MonoClust(toclust, cir.var = NULL, variables = NULL,
-  distmethod = NULL, labels = as.character(1:length(toclust[, 1])),
-  digits = options("digits")$digits, nclusters = nrow(toclust),
-  minbucket = round(minsplit/3), minsplit = 5, corders = 2,
-  alpha = 0.05, perm.test = FALSE, ran = 0)
+MonoClust(
+  toclust,
+  cir.var = NULL,
+  variables = NULL,
+  distmethod = NULL,
+  labels = as.character(seq_len(length(toclust[, 1]))),
+  digits = options("digits")$digits,
+  nclusters = nrow(toclust),
+  minbucket = round(minsplit/3),
+  minsplit = 5,
+  corders = 2,
+  alpha = 0.05,
+  perm.test = FALSE,
+  ran = 0
+)
 }
 \arguments{
-\item{toclust}{the data set}
+\item{toclust}{data set.}
 
-\item{cir.var}{the index or name of the circular variable in the data set.
-Default is NULL}
+\item{cir.var}{index or name of the circular variable in the data set.}
 
 \item{variables}{list of variables selected for clustering procedure. It
-could be a vector of variable indices, or a vector of variable names.}
+could be a vector of variable indexes, or a vector of variable names.}
 
 \item{distmethod}{distance method to use with the data set. The default value
-is the Euclidean distance for quantitative variables and the ... distance
-for categorical variables.}
+is the Euclidean distance for quantitative variables and the Gower's
+distance for categorical variables.}
 
-\item{labels}{define names of variables.}
+\item{labels}{displayed names of variables.}
 
-\item{digits}{significant numbers shown in the result.}
+\item{digits}{significant number of clusters created}
 
-\item{nclusters}{number of clusters created.}
+\item{nclusters}{number of clusters created}
 
-\item{minbucket}{the minimum number of observations in any terminal <leaf>
+\item{minbucket}{the minimum number of observations in any terminal leaf
 node. If only one of minbucket or minsplit is specified, the code either
 sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.}
 
 \item{minsplit}{the minimum number of observations that must exist in a node
 in order for a split to be attempted.}
 
-\item{corders}{Blank}
+\item{corders}{for data set with categorical variables, the number of
+dimensions should be used from PCAMix. Taken a value from 1 to 5.}
 
-\item{alpha}{This value goes with the permutation test}
+\item{alpha}{value applied specifically to permutation test.}
 
-\item{perm.test}{Whether or not to make a permutation test while clustering.}
+\item{perm.test}{whether or not to make a permutation test as stopping
+criterion while clustering.}
 
-\item{ran}{This parameter should never be used}
+\item{ran}{this parameter should never be used}
 }
 \value{
 MonoClust object
 }
 \description{
-Title Monothetic Clustering MonoClust creates a MonoClust object after
-partitioning the data set using MonoClust clustering.
+Creates a MonoClust object after partitioning the data set using Monothetic
+Clustering.
 }
 \examples{
-blank
+data(cluster::ruspini)
+ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 }

@@ -7,9 +7,17 @@ Copy directly from adonis function
 Modified to stop at the F.stat
 ####################################################}
 \usage{
-F.stat(formula, data = NULL, permutations = 999, method = "bray",
-  strata = NULL, contr.unordered = "contr.sum",
-  contr.ordered = "contr.poly", parallel = getOption("mc.cores"), ...)
+F.stat(
+  formula,
+  data = NULL,
+  permutations = 999,
+  method = "bray",
+  strata = NULL,
+  contr.unordered = "contr.sum",
+  contr.ordered = "contr.poly",
+  parallel = getOption("mc.cores"),
+  ...
+)
 }
 \description{
 ####################################################
