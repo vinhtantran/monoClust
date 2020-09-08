@@ -27,3 +27,5 @@ Imports:
     purrr,
     mice,
     PCAmixdata
+Suggests: 
+    testthat
