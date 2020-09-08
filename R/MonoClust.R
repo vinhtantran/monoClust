@@ -3,33 +3,34 @@
 #' Creates a MonoClust object after partitioning the data set using Monothetic
 #' Clustering.
 #'
-#' @param toclust data set.
-#' @param cir.var index or name of the circular variable in the data set.
-#' @param variables list of variables selected for clustering procedure. It
+#' @param toclust Data set.
+#' @param cir.var Index or name of the circular variable in the data set.
+#' @param variables List of variables selected for clustering procedure. It
 #'   could be a vector of variable indexes, or a vector of variable names.
-#' @param distmethod distance method to use with the data set. The default value
+#' @param distmethod Distance method to use with the data set. The default value
 #'   is the Euclidean distance for quantitative variables and the Gower's
 #'   distance for categorical variables.
-#' @param labels displayed names of variables.
-#' @param digits significant number of clusters created
-#' @param nclusters number of clusters created
-#' @param minbucket the minimum number of observations in any terminal leaf
+#' @param labels Displayed names of variables.
+#' @param digits Significant number of clusters created
+#' @param nclusters Number of clusters created
+#' @param minbucket The minimum number of observations in any terminal leaf
 #'   node. If only one of minbucket or minsplit is specified, the code either
 #'   sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.
-#' @param minsplit the minimum number of observations that must exist in a node
+#' @param minsplit The minimum number of observations that must exist in a node
 #'   in order for a split to be attempted.
-#' @param corders for data set with categorical variables, the number of
+#' @param corders For data set with categorical variables, the number of
 #'   dimensions should be used from PCAMix. Taken a value from 1 to 5.
-#' @param alpha value applied specifically to permutation test.
-#' @param perm.test whether or not to make a permutation test as stopping
+#' @param alpha Value applied specifically to permutation test.
+#' @param perm.test Whether or not to make a permutation test as stopping
 #'   criterion while clustering.
-#' @param ran this parameter should never be used
+#' @param ran This parameter should never be used
 #'
-#' @return MonoClust object
+#' @return MonoClust object, an extension of rpart object
+#' @importFrom dplyr `%>%`
 #' @export
 #'
 #' @examples
-#' # very simple data set
+#' # Very simple data set
 #' data(cluster::ruspini)
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 #' ruspini4sol
@@ -84,7 +85,8 @@ MonoClust <- function(toclust,
   ## Tan, 4/10/17, argument checking (circular variables)
   if (!is.null(cir.var)) {
     if (!is.vector(cir.var)) {
-      stop("circular variables need to be a vector of variable names or indices.")
+      stop("circular variables need to be a vector of variable names or
+           indices.")
     }
     toclust1 <- toclust[cir.var]
     if (!is.data.frame(toclust1)) {
@@ -266,13 +268,14 @@ MonoClust <- function(toclust,
   cuts <- toclust
   if (qualtog) cuts[, c(which(factors), extracols)] <- cuts_quali
   if (quanttog) {
-    cuts_quant <- purrr::map_dfc(toclust %>% select(which(quantis)),
+    cuts_quant <- purrr::map_dfc(toclust %>%
+                                   dplyr::select(which(quantis)),
                                  find_closest)
     cuts[, which(quantis)] <- cuts_quant
   }
   # if (!qualtog) catnames <- character(0)
 
-  ## Make variables that are simple derivatives of inputs that will be used a lot.
+  ## Variables that are simple derivatives of inputs that will be used a lot.
   labs <- labels
   nobs <- dim(toclust)[1]
   # nvars <- dim(toclust)[2]
@@ -442,115 +445,6 @@ MonoClust <- function(toclust,
 
   return(rpartobj)
 
-}
-
-#' Find the Closest Cut
-#'
-#' Find the cuts for a quantitative variable. These cuts are what we are
-#' going to consider when thinking about bi-partitioning the data. For a
-#' quantitative column, find the next larger value of each value, if it is the
-#' largest, that value + 1
-#'
-#' @param col a quantitative vector.
-#'
-#' @return a quantitative vector which contains the closest higher cut.
-find_closest <- function(col) {
-  purrr::map_dbl(col, ~ ifelse(.x == max(col),
-                               .x + 1,
-                               min(col[which(col - .x > 0)])))
-}
-
-#' Add/Subtract From A Circular Value
-#'
-#' Add a value to a circular value or variable. When the value reaches 360 or 0,
-#' it will become 0.
-#'
-#' @param variable circular variable (in degree 0-360).
-#' @param shift the added value to the circular variable, can be positive or
-#'   negative if want to subtract.
-#'
-#' @return shifted circular value or variable.
-cshift <- function(variable, shift) {
-  # In case shift is larger a full circle
-  shift_less_360 <- shift %/% 360
-  # Add value
-  variable_shifted <- variable + shift_less_360
-  variable_shifted <- ifelse(variable_shifted < 0,
-                             variable_shifted + 360,
-                             variable_shifted)
-  variable_shifted <- ifelse(variable_shifted >= 360,
-                             variable_shifted - 360,
-                             variable_shifted)
-  return(variable_shifted)
-}
-
-#' Cluster Inertia Calculation
-#'
-#' Calculate inertia for a given subset of the distance matrix from the original
-#' data set provided to X. Assumes that distance matrices are stored as matrices
-#' and not distance objects
-#'
-#' @param X distance matrix, not an object of some distance measure
-#'
-#' @return inertia value of the matrix, formula in Chavent (1998). If X is a
-#'   single number, return 0.
-inertia_calc <- function(X) {
-  # there are cases when a cluster has only 1 point, say, 1st point, then
-  # dist[1,1] is a numeric value, not matrix.
-  #MG, 9/25: Should this then return a value of 0 for inertia? If you go back to
-  # (y-mean(y))^2, then maybe set the return to 0?
-  if (!is.numeric(X) && !is.matrix(X)) stop("X has to be a numerical value or matrix.")
-
-  inertia_value <- ifelse(length(X) > 0 && is.numeric(X),
-                          0,
-                          sum(X^2) / (dim(X)[1] * 2))
-  return(inertia_value)
-}
-
-#' Circular Distance using Gower's
-#'
-#' calculates the distance matrix within a circular variable using Gower's
-#' distance. Written by Garland Will.
-#'
-#' @param x a numeric vector of circular values
-#'
-#' @return object of class "dist"
-circ_dist <- function(x) {
-  # Assumes x is just a single variable
-  dist1 <- matrix(0, nrow = length(x), ncol = length(x))
-  for (i in seq_len((length(x) - 1))) {
-    for (j in (i+1):length(x)) {
-      dist1[j, i] = min(abs(x[i] - x[j]), (360 - abs(x[i] - x[j])))/180
-    }
-  }
-  return(as.dist(dist1))
-}
-
-#' Find Medoid of the Cluster
-#'
-#' Medoid is the point that has minimum distance to all other points in the
-#' cluster.
-#'
-#' @param members index vector indicating which observation belongs to the
-#'   cluster.
-#' @param dist_mat distance matrix of the whole data set.
-#'
-#' @return index of the medoid point in the members vector.
-medoid <- function(members, dist_mat) {
-  index <- NULL
-
-  if (length(members) == 0) {
-    index <- 0
-  } else if (length(members) == 1) {
-    index <- members
-  } else {
-    dists <- purrr::map_dbl(purrr::array_branch(dist_mat[members, members], 1),
-                            sum)
-    medoid <- members[which(dists == min(dists))]
-    index <- medoid[1]
-  }
-
-  return(index)
 }
 
 ## ADD, Tan, 12/15, function to calculate the mean of each cluster.
@@ -756,7 +650,7 @@ splitter<-function(splitrow,data,cuts,dist,catnames,weights, split.order = 0){
 
 #' Find the Best Split
 #'
-#' find the best split in terms of reduction in inertia for the transferred
+#' Find the best split in terms of reduction in inertia for the transferred
 #' node, indicate by row. We are keeping all of the information regarding which
 #' clusters we have in. At this point, we want to find the terminal node with
 #' the greatest change in inertia and bi-partition it. The way this is done is
@@ -767,21 +661,13 @@ splitter<-function(splitrow,data,cuts,dist,catnames,weights, split.order = 0){
 #' This is a fairly simple discrete optimization problem and could reduce
 #' computation time .
 #'
-#' @param row the row in .Cluster_frame that would be assessed.
-#' @param data original data set.
-#' @param cuts cuts data set, which has the next higher value of each variable
-#'   in the original data set.
-#' @param dist distance matrix of all observations in the data.
-#' @param variables indices of variables used to split on.
-#' @param weights weights on each observation. Hasn't been implemented in
-#' exported function yet. Vector of 1 for all observations.
-#' @param minsplit the minimum number of observations that must exist in a node
-#'   in order for a split to be attempted.
-#' @param minbucket the minimum number of observations in any terminal leaf
-#'   node.
+#' @param row The row in .Cluster_frame that would be assessed.
+#' @inheritParams checkem
 #'
-#' @return this function changes the .Cluster_frame in global environment, it's
+#' @return This function changes the .Cluster_frame in global environment, it's
 #'   not supposed to return anything.
+#' @importFrom foreach `%dopar%`
+#' @keywords internal
 find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
                        minbucket) {
 
@@ -813,7 +699,7 @@ find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
 
   ## For each possible cut, calculate the inertia. This is where using a
   ## discrete optimization algorithm would help a lot.
-  bycol <- foreach(i = seq_len(ncol(datamems)),
+  bycol <- foreach::foreach(i = seq_len(ncol(datamems)),
                    .combine = cbind,
                    .exports = c("datamems", "cutsmems", "dist", "mems")) %dopar%
     function(index) {
@@ -899,35 +785,34 @@ find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
 #' `find_split()` on each node, then decide which node creates best split, and
 #' call `splitter()` to perform the split.
 #'
-#' @param data original data set.
-#' @param cuts cuts data set, which has the next higher value of each variable
+#' @param data Original data set.
+#' @param cuts Cuts data set, which has the next higher value of each variable
 #'   in the original data set.
-#' @param dist distance matrix of all observations in the data.
-#' @param catnames categorical variables' names.
-#' @param variables indices of variables used to split on.
-#' @param weights weights on each observation. Hasn't been implemented in
+#' @param dist Distance matrix of all observations in the data.
+#' @param catnames Categorical variables' names.
+#' @param weights Weights on each observation. Hasn't been implemented in
 #' exported function yet. Vector of 1 for all observations.
-#' @param minsplit the minimum number of observations that must exist in a node
+#' @param minsplit The minimum number of observations that must exist in a node
 #'   in order for a split to be attempted.
-#' @param minbucket the minimum number of observations in any terminal leaf
-#'   node.
-#' @param split.order the control argument to see how many split has been done.
+#' @param split.order The control argument to see how many split has been done.
+#' @inheritParams MonoClust
 #'
-#' @return not supposed to return anything because global environment was used.
-#'   However, if there is nothing left to split, it returns 0 to tell the caller
-#'   to stop running the loop.
+#' @return It is not supposed to return anything because global environment was
+#'   used. However, if there is nothing left to split, it returns 0 to tell the
+#'   caller to stop running the loop.
+#' @keywords internal
 checkem <- function(data, cuts, dist, catnames, variables, weights, minsplit,
                     minbucket, split.order = 0) {
 
   ## Current terminal nodes
-  candidates <- which(.Cluster_frame$var == '<leaf>' &&
+  candidates <- which(.Cluster_frame$var == "<leaf>" &&
                         is.na(.Cluster_frame$bipartsplitrow))
-  ## Split the best one. Return to Nada which never gets output.
-  Nada <- purrr::map(candidates,
+  ## Split the best one. Return to nada which never gets output.
+  nada <- purrr::map(candidates,
                      ~ find_split(.x, data, cuts, dist, variables, weights,
                                   minsplit, minbucket))
   ## See which ones are left.
-  candidates2 <- which(.Cluster_frame$var == '<leaf>' &&
+  candidates2 <- which(.Cluster_frame$var == "<leaf>" &&
                          .Cluster_frame$bipartsplitrow != 0)
   ## If nothing's left, stop running.
   if (length(candidates2) == 0) return(0)
@@ -943,5 +828,6 @@ checkem <- function(data, cuts, dist, catnames, variables, weights, minsplit,
   # Tan, 9/24, in case there are more than one node equal to max
   # MG, 9/25, I thought the earlier code would make sure only one is identified
   # as top but that might not be true. It never caused a problem before.
-  # Maybe because we fixed inertia fn, equal inertias occurred for small clusters
+  # Maybe because we fixed inertia fn, equal inertias occurred for small
+  # clusters
 }

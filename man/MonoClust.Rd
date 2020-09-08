@@ -21,49 +21,49 @@ MonoClust(
 )
 }
 \arguments{
-\item{toclust}{data set.}
+\item{toclust}{Data set.}
 
-\item{cir.var}{index or name of the circular variable in the data set.}
+\item{cir.var}{Index or name of the circular variable in the data set.}
 
-\item{variables}{list of variables selected for clustering procedure. It
+\item{variables}{List of variables selected for clustering procedure. It
 could be a vector of variable indexes, or a vector of variable names.}
 
-\item{distmethod}{distance method to use with the data set. The default value
+\item{distmethod}{Distance method to use with the data set. The default value
 is the Euclidean distance for quantitative variables and the Gower's
 distance for categorical variables.}
 
-\item{labels}{displayed names of variables.}
+\item{labels}{Displayed names of variables.}
 
-\item{digits}{significant number of clusters created}
+\item{digits}{Significant number of clusters created}
 
-\item{nclusters}{number of clusters created}
+\item{nclusters}{Number of clusters created}
 
-\item{minbucket}{the minimum number of observations in any terminal leaf
+\item{minbucket}{The minimum number of observations in any terminal leaf
 node. If only one of minbucket or minsplit is specified, the code either
 sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.}
 
-\item{minsplit}{the minimum number of observations that must exist in a node
+\item{minsplit}{The minimum number of observations that must exist in a node
 in order for a split to be attempted.}
 
-\item{corders}{for data set with categorical variables, the number of
+\item{corders}{For data set with categorical variables, the number of
 dimensions should be used from PCAMix. Taken a value from 1 to 5.}
 
-\item{alpha}{value applied specifically to permutation test.}
+\item{alpha}{Value applied specifically to permutation test.}
 
-\item{perm.test}{whether or not to make a permutation test as stopping
+\item{perm.test}{Whether or not to make a permutation test as stopping
 criterion while clustering.}
 
-\item{ran}{this parameter should never be used}
+\item{ran}{This parameter should never be used}
 }
 \value{
-MonoClust object
+MonoClust object, an extension of rpart object
 }
 \description{
 Creates a MonoClust object after partitioning the data set using Monothetic
 Clustering.
 }
 \examples{
-# very simple data set
+# Very simple data set
 data(cluster::ruspini)
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 ruspini4sol
