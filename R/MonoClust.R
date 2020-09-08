@@ -42,7 +42,7 @@
 #' # data with circular variable
 #' data(wind_sensit_2007)
 #'
-#' circular_wind <- MonoClust(wind_sensit_2007), cir.var = 3, nclusters = 2)
+#' circular_wind <- MonoClust(wind_sensit_2007, cir.var = 3, nclusters = 2)
 #' circular_wind
 MonoClust <- function(toclust,
                       cir.var = NULL,
@@ -139,23 +139,24 @@ MonoClust <- function(toclust,
   quanttog <- any(!factors)
 
   # If has at least one categorical variable
+  extracols <- NULL
+  catnames <- character(0)
   # TODO: Candidate to move to a function
   # Input: toclust, factors, corders
   # Output: toclust, quantis
   if (qualtog) {
-
-    ## Use PCAmix with quantitative variables the non-factors and qualitative
-    ## variables the factors.
-    pca <- PCAmixdata::PCAmix(X.quanti = toclust[, !factors],
-                              X.quali = toclust[, factors],
-                              graph = FALSE)
-
     ## Since we are going to have multiple factor orderings,
     ## we need to consider each of these orderings a separate "explanatory"
     ## variable, and determine the number of extra columns we will need based on
     ## the number of orderings and the number of factors in the dataset.
     num_factors <- sum(factors)
     extracols <- ncol(toclust) + 1:(num_factors * (corders - 1))
+
+    ## Use PCAmix with quantitative variables the non-factors and qualitative
+    ## variables the factors.
+    pca <- PCAmixdata::PCAmix(X.quanti = toclust[, !factors],
+                              X.quali = toclust[, factors],
+                              graph = FALSE)
 
     ## Get the number of levels of each factor.
     numbyvar <- purrr::map_int(toclust[, factors], nlevels)
@@ -180,7 +181,7 @@ MonoClust <- function(toclust,
     for (j in 1:corders) {
       ## Do this for each dimension that we want 1-5 (number of orderings)
       ## Order and put them in columns
-      catrepvarlevel <- catrepvarlevel[order(PCA$categ.coord[, j])]
+      catrepvarlevel <- catrepvarlevel[order(pca$categ.coord[, j])]
       catrepvarlevelordered <- cbind(catrepvarlevelordered, catrepvarlevel)
 
       for (p in seq_len(num_factors)) {
@@ -194,9 +195,10 @@ MonoClust <- function(toclust,
         ## levels of a categorical variable according to a particular ordering
         ## from PCAmix.
         fcolumn <- toclust[, which(factors)[p]]
-        var_order <- quali_ordered[[position]]
-        cuts_quali <- cbind(cuts_quali,
-                            purrr::map_dbl(fcolumn, ~ match(.x, var_order) + 1))
+        cuts_quali <-
+          cbind(cuts_quali,
+                purrr::map_dbl(fcolumn,
+                               ~ match(.x, quali_ordered[[position]]) + 1))
       }
     }
 
@@ -204,11 +206,11 @@ MonoClust <- function(toclust,
     toclust[, factors] <- qual_quant[, 1:num_factors]
     toclust[, extracols] <- qual_quant[, -c(1:num_factors)]
 
-    ## Now, we have extra columns, we have to make sure that we do not consider
-    ## them quantitative.
-    quantis <- !factors
-    quantis <- c(quantis, rep(FALSE, length(extracols)))
   }
+  ## Now, we have extra columns, we have to make sure that we do not consider
+  ## them quantitative.
+  quantis <- !factors
+  quantis <- c(quantis, rep(FALSE, length(extracols)))
 
   # CLUSTERING ON CIRCULAR VARIABLE
   if (!is.null(cir.var)) {
@@ -226,89 +228,140 @@ MonoClust <- function(toclust,
       # The best split will be recorded in output with the pivot is hour
       while (min_value < max(variable)) {
         variable_shift <- cshift(variable, -min_value)
-        out <- MonoClust(data.frame(variable_shift), cir.var = 1, nclusters = 2, ran = 1)
+        # TODO: Have to call MonoClust with ran = 1 to find the best split for
+        # the shifted variables. Should be improved.
+        out <- MonoClust(data.frame(variable_shift),
+                         cir.var = 1,
+                         nclusters = 2,
+                         ran = 1)
         cut <- out$frame$cut[1]
-        inertia <- inertia_calc(out$Dist[which(out$Membership == 2), which(out$Membership == 2)]) +
-          inertia_calc(out$Dist[which(out$Membership == 3), which(out$Membership == 3)])
+        inertia <-
+          inertia_calc(out$dist[which(out$Membership == 2),
+                                which(out$Membership == 2)]) +
+          inertia_calc(out$dist[which(out$Membership == 3),
+                                which(out$Membership == 3)])
+
         if (min_inertia > inertia) {
           min_inertia <- inertia
-          bestcircsplit <- list(hour = min_value, minute=ifelse((cut+min_value) < 360, cut+min_value, cut+min_value-360), intertia = inertia)
+          bestcircsplit <- list(hour = min_value,
+                                minute = ifelse((cut + min_value) < 360,
+                                                cut + min_value,
+                                                cut + min_value - 360),
+                                intertia = inertia)
         }
+
+        # Increase min_value to the next higher value
         min_value <- as.numeric(next_value[which(variable == min_value)])[1]
       }
 
-      # Shift the circular variable to the hour pivot, will shift back later
-      toclust[,cir.var] <- cshift(variable, -bestcircsplit$hour)
+      # Shift the circular variable to the hour pivot. That turns the circular
+      # to linear variable. The first best split would be the minute split,
+      # which was already found, together with hour, to be the best arcs. Will
+      # shift back later by modifying .Cluster_frame2
+      toclust[, cir.var] <- cshift(variable, -bestcircsplit$hour)
     }
   }
 
-
-  if(quanttog){cuts_quant<-apply(data.frame(toclust[,quantis]),2,find_closest)}
-
-  cuts<-toclust
-  if(qualtog){cuts[,c(which(factors),extracols)]<-cuts_quali}
-  if(quanttog){cuts[,which(quantis)]<-cuts_quant}
-  if(!qualtog){catnames <- character(0)}
+  # Clustering on common quantitative variables
+  cuts <- toclust
+  if (qualtog) cuts[, c(which(factors), extracols)] <- cuts_quali
+  if (quanttog) {
+    cuts_quant <- purrr::map_dfc(toclust %>% select(which(quantis)),
+                                 find_closest)
+    cuts[, which(quantis)] <- cuts_quant
+  }
+  # if (!qualtog) catnames <- character(0)
 
   ## Make variables that are simple derivatives of inputs that will be used a lot.
-  labs<-labels
-  nvars<-length(toclust[1,])
-  nobs<-length(labs)
+  labs <- labels
+  nobs <- dim(toclust)[1]
+  # nvars <- dim(toclust)[2]
 
-  distmats<-matrix()
-  data<-as.data.frame(toclust)
+  distmats <- matrix()
+  # data <- as.data.frame(toclust)
 
   ## which column to use in the distance matrix
-  distcols <- c(1:ncol(toclust0),rep(which(factors),corders-1))
+  # distcols <- c(1:ncol(toclust0),rep(which(factors),corders-1))
 
   ## Since we have multiple categorical orderings for each factor variable,
-  ## We need to label each of these orderings. I chose to do it in a kind of bizzare way,
+  ## We need to label each of these orderings. I chose to do it in a kind of
+  ## bizarre way.
   ## The name followed by *~* and then the number.
-  ## This is odd so that we can replace the *~* in the end which is a unique character combination
-  ## and likely wont interfere with any of the variable names.
-  if(length(catnames)){
-    othercolnames <- paste(colnames(toclust)[rep(which(factors),corders-1)],rep(c(2:corders),each=sum(factors)),sep="*~*")
-    currcolnames  <- paste(colnames(toclust)[which(factors)],1,sep="*~*")
+  ## This is odd so that we can replace the *~* in the end which is a unique
+  ## character combination and likely wont interfere with any of the variable
+  ## names.
+  if (length(catnames) > 0) {
+    othercolnames <- paste(colnames(toclust)[rep(which(factors), corders - 1)],
+                           rep(c(2:corders), each = sum(factors)),
+                           sep="*~*")
+    currcolnames  <- paste(colnames(toclust)[which(factors)], 1, sep="*~*")
     colnames(toclust)[which(factors)] <- currcolnames
     colnames(toclust)[-c(1:ncol(toclust0))] <- othercolnames
-    catnames<-c(currcolnames,othercolnames)
+    catnames <- c(currcolnames, othercolnames)
   }
 
-  colnames(cuts)<-colnames(toclust)
+  colnames(cuts) <- colnames(toclust)
 
   ## Tan 4/10/17, add metric argument to daisy and circular distance
   if (!is.null(cir.var)) {
-    # I have to split because R coerce the distance matrix to one value when using ifelse with a 0.
-    if (ncol(toclust0[,-cir.var])!=0) {
-      distmat1 <- cluster::daisy(toclust0[,-cir.var], metric = distmethod) * dim(toclust0[,-cir.var])[2]
+    # I have to split because R coerce the distance matrix to one value when
+    # using ifelse with a 0.
+    # distmat1: distance matrix of pure quantitative variables
+    if (ncol(toclust0[, -cir.var]) != 0) {
+      distmat1 <- cluster::daisy(toclust0[, -cir.var], metric = distmethod) *
+        dim(toclust0[, -cir.var])[2]
     } else {
       distmat1 <- 0
     }
-    distmat2 <- circd(toclust0[,cir.var])
+    # distmat2: distance matrix of circular variables
+    # TODO cir.var has to be one value
+    distmat2 <- circ_dist(toclust0[, cir.var])
+
+    # distmat0: combined from 1 and 2 as the mean distances
     distmat0 <- (distmat1 + distmat2) / dim(toclust0)[2]
   } else
     distmat0 <- cluster::daisy(toclust0, metric = distmethod)
 
-  distmats<-as.matrix(distmat0)
+  distmats <- as.matrix(distmat0)
 
-  members<-1:nobs
+  members <- seq_len(nobs)
 
-  ## Set up a vector containing each observation's membership. Put into global environment, but this will be deleted at the end
-  ## of this function. Using global environment allows us to modify things recursively as we partition clusters.
-  assign(".Cloc",rep(1,nobs), envir = .GlobalEnv)
+  ## Set up a vector containing each observation's membership. Put into global
+  ## environment, but this will be deleted at the end of this function. Using
+  ## global environment allows us to modify things recursively as we partition
+  ## clusters.
+  assign(".Cloc", rep(1,nobs), envir = .GlobalEnv)
 
-  ## Likewise, set up the first (entire dataset) cluster in our Cluster frame where we keep track of each of the clusters and the
-  ## partitioning.
-  assign(".Cluster_frame", data.frame(number = 1, var = "<leaf>", n = nobs,wt = sum(weights[members]), inertia = inertia_calc(distmats[members,members]), bipartvar="NA", bipartsplitrow=NA, bipartsplitcol=NA,inertiadel=0, yval=1,medoid = med(members,distmats), category = NA, cut=NA,loc=0.1, stringsAsFactors=FALSE, split.order = 0), envir = .GlobalEnv)
+  ## Likewise, set up the first (entire dataset) cluster in our Cluster frame
+  ## where we keep track of each of the clusters and the partitioning.
+  assign(".Cluster_frame",
+         data.frame(number = 1,
+                    var = "<leaf>",
+                    n = nobs,
+                    wt = sum(weights[members]),
+                    inertia = inertia_calc(distmats[members, members]),
+                    bipartvar = "NA",
+                    bipartsplitrow = NA,
+                    bipartsplitcol = NA,
+                    inertiadel = 0,
+                    yval = 1,
+                    medoid = medoid(members, distmats),
+                    category = NA,
+                    cut = NA,
+                    loc = 0.1,
+                    stringsAsFactors = FALSE,
+                    split.order = 0),
+         envir = .GlobalEnv)
 
   split.order <- 1
-  ## This loop runs until we have nclusters, have exhausted our observations or run into our minbucket/minsplit restrictions.
-  while(sum(.Cluster_frame$var=="<leaf>") < nclusters){
-    check <- checkem(toclust,cuts,distmats,catnames,variables,weights,minsplit, minbucket, split.order)
+  ## This loop runs until we have nclusters, have exhausted our observations or
+  ## run into our minbucket/minsplit restrictions.
+  while (sum(.Cluster_frame$var=="<leaf>") < nclusters) {
+    check <- checkem(toclust, cuts, distmats, catnames, variables, weights,
+                     minsplit, minbucket, split.order)
     split.order <- split.order + 1
-    if(check==0){break}
+    if (check == 0) break
   }
-
 
   ## Most of the rest of the function does some bizarre text operations
   ## the reason for this is because I stole a lot of code from rpart,
@@ -443,7 +496,7 @@ cshift <- function(variable, shift) {
 #'   single number, return 0.
 inertia_calc <- function(X) {
   # there are cases when a cluster has only 1 point, say, 1st point, then
-  # Dist[1,1] is a numeric value, not matrix.
+  # dist[1,1] is a numeric value, not matrix.
   #MG, 9/25: Should this then return a value of 0 for inertia? If you go back to
   # (y-mean(y))^2, then maybe set the return to 0?
   if (!is.numeric(X) && !is.matrix(X)) stop("X has to be a numerical value or matrix.")
@@ -451,7 +504,53 @@ inertia_calc <- function(X) {
   inertia_value <- ifelse(length(X) > 0 && is.numeric(X),
                           0,
                           sum(X^2) / (dim(X)[1] * 2))
-  return(intertia_value)
+  return(inertia_value)
+}
+
+#' Circular Distance using Gower's
+#'
+#' calculates the distance matrix within a circular variable using Gower's
+#' distance. Written by Garland Will.
+#'
+#' @param x a numeric vector of circular values
+#'
+#' @return object of class "dist"
+circ_dist <- function(x) {
+  # Assumes x is just a single variable
+  dist1 <- matrix(0, nrow = length(x), ncol = length(x))
+  for (i in seq_len((length(x) - 1))) {
+    for (j in (i+1):length(x)) {
+      dist1[j, i] = min(abs(x[i] - x[j]), (360 - abs(x[i] - x[j])))/180
+    }
+  }
+  return(as.dist(dist1))
+}
+
+#' Find Medoid of the Cluster
+#'
+#' Medoid is the point that has minimum distance to all other points in the
+#' cluster.
+#'
+#' @param members index vector indicating which observation belongs to the
+#'   cluster.
+#' @param dist_mat distance matrix of the whole data set.
+#'
+#' @return index of the medoid point in the members vector.
+medoid <- function(members, dist_mat) {
+  index <- NULL
+
+  if (length(members) == 0) {
+    index <- 0
+  } else if (length(members) == 1) {
+    index <- members
+  } else {
+    dists <- purrr::map_dbl(purrr::array_branch(dist_mat[members, members], 1),
+                            sum)
+    medoid <- members[which(dists == min(dists))]
+    index <- medoid[1]
+  }
+
+  return(index)
 }
 
 ## ADD, Tan, 12/15, function to calculate the mean of each cluster.
@@ -540,31 +639,31 @@ getlevels <- function(ind,cats,varnames,frame,catnames,quali_ordered, digits=get
 }
 
 
-splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
+splitter<-function(splitrow,data,cuts,dist,catnames,weights, split.order = 0){
   ## This function does the actual act of partitioning, given the row that is to be split "splitrow"
 
   number <- .Cluster_frame$number[splitrow]
   mems   <- which(.Cloc == number)
   split  <- c(.Cluster_frame$bipartsplitrow[splitrow],.Cluster_frame$bipartsplitcol[splitrow])
 
-  Datamems<-data.frame(Data[mems,])
-  Cutsmems<-Cuts[mems,]
+  datamems<-data.frame(data[mems,])
+  cutsmems<-cuts[mems,]
 
 
-  memsA <- mems[which(Datamems[,split[2]] < Cutsmems[split[1],split[2]])]
+  memsA <- mems[which(datamems[,split[2]] < cutsmems[split[1],split[2]])]
   memsB <-setdiff(mems,memsA)
 
   # Tan, 2/17, call the permutation test function to test on the newly created group
   # perm.test condition should be uncommented later when successfully tested
   # if (perm.test) {
-  # ptest.result <- permtest(split[2], Data, memsA, memsB)
+  # ptest.result <- permtest(split[2], data, memsA, memsB)
   # ptest.result$aov.tab[1,6]
   # }
 
   # Tan, 10/3, cutpoint is the middle point between two closest points in two clusters
-  DatamemsA <- Datamems[Datamems[,split[2]] < Cutsmems[split[1],split[2]], split[2]]
-  DatamemsB <- setdiff(Datamems[,split[2]], DatamemsA)
-  mid.cutpoint <- (max(DatamemsA) + min(DatamemsB))/2
+  datamemsA <- datamems[datamems[,split[2]] < cutsmems[split[1],split[2]], split[2]]
+  datamemsB <- setdiff(datamems[,split[2]], datamemsA)
+  mid.cutpoint <- (max(datamemsA) + min(datamemsB))/2
 
   ## Make the new clusters.
   Anum<-number*2
@@ -573,7 +672,7 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   .Cloc[memsA]<<-Anum
   .Cloc[memsB]<<-Bnum
 
-  variable <- colnames(Data)[.Cluster_frame$bipartsplitcol[splitrow]]
+  variable <- colnames(data)[.Cluster_frame$bipartsplitcol[splitrow]]
 
   ## This seperates the categorical variable from the level.
   ## Probably bad coding, parsing strings over and over.
@@ -591,7 +690,7 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   ## The old cluster now changes some attributes after splitting.
   .Cluster_frame[splitrow,2] <<- variable
   .Cluster_frame[splitrow,6] <<- variable
-  #.Cluster_frame[splitrow,13] <<- Cutsmems[split[1],split[2]]
+  #.Cluster_frame[splitrow,13] <<- cutsmems[split[1],split[2]]
   .Cluster_frame[splitrow,13] <<- mid.cutpoint # Use new cutpoint
   .Cluster_frame[splitrow,15] <<- split.order
 
@@ -617,9 +716,9 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   .Cluster_frame[splitrow+1,2] <<- "<leaf>"
   .Cluster_frame[splitrow+1,3] <<- length(memsA)
   .Cluster_frame[splitrow+1,4] <<- sum(weights[memsA])
-  .Cluster_frame[splitrow+1,5] <<- inertia_calc(Dist[memsA,memsA])
+  .Cluster_frame[splitrow+1,5] <<- inertia_calc(dist[memsA,memsA])
   .Cluster_frame[splitrow+1,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
-  .Cluster_frame[splitrow+1,11] <<- med(memsA,Dist)
+  .Cluster_frame[splitrow+1,11] <<- medoid(memsA,dist)
   .Cluster_frame[splitrow+1,14] <<- .Cluster_frame[splitrow,14] - 1/nr
 
   ## As does new cluster 2.
@@ -627,9 +726,9 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   .Cluster_frame[splitrow+2,2] <<- "<leaf>"
   .Cluster_frame[splitrow+2,3] <<- length(memsB)
   .Cluster_frame[splitrow+2,4] <<- sum(weights[memsB])
-  .Cluster_frame[splitrow+2,5] <<- inertia_calc(Dist[memsB,memsB])
+  .Cluster_frame[splitrow+2,5] <<- inertia_calc(dist[memsB,memsB])
   .Cluster_frame[splitrow+2,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
-  .Cluster_frame[splitrow+2,11] <<- med(memsB,Dist)
+  .Cluster_frame[splitrow+2,11] <<- medoid(memsB,dist)
   .Cluster_frame[splitrow+2,14] <<- .Cluster_frame[splitrow,14] + 1/nr
 
 
@@ -638,9 +737,9 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   #     .Cluster_frame[nr+1,2] <<- "<leaf>"
   #     .Cluster_frame[nr+1,3] <<- length(memsA)
   #     .Cluster_frame[nr+1,4] <<- sum(weights[memsA])
-  #     .Cluster_frame[nr+1,5] <<- inertia_calc(Dist[memsA,memsA])
+  #     .Cluster_frame[nr+1,5] <<- inertia_calc(dist[memsA,memsA])
   #     .Cluster_frame[nr+1,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
-  #     .Cluster_frame[nr+1,11] <<- med(memsA,Dist)
+  #     .Cluster_frame[nr+1,11] <<- medoid(memsA,dist)
   #     .Cluster_frame[nr+1,14] <<- .Cluster_frame[splitrow,14] - 1/nr
   #
   #     ## As does new cluster 2.
@@ -648,97 +747,140 @@ splitter<-function(splitrow,Data,Cuts,Dist,catnames,weights, split.order = 0){
   #     .Cluster_frame[nr+2,2] <<- "<leaf>"
   #     .Cluster_frame[nr+2,3] <<- length(memsB)
   #     .Cluster_frame[nr+2,4] <<- sum(weights[memsB])
-  #     .Cluster_frame[nr+2,5] <<- inertia_calc(Dist[memsB,memsB])
+  #     .Cluster_frame[nr+2,5] <<- inertia_calc(dist[memsB,memsB])
   #     .Cluster_frame[nr+2,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
-  #     .Cluster_frame[nr+2,11] <<- med(memsB,Dist)
+  #     .Cluster_frame[nr+2,11] <<- medoid(memsB,dist)
   #     .Cluster_frame[nr+2,14] <<- .Cluster_frame[splitrow,14] + 1/nr
 
 }
 
+#' Find the Best Split
+#'
+#' find the best split in terms of reduction in inertia for the transferred
+#' node, indicate by row. We are keeping all of the information regarding which
+#' clusters we have in. At this point, we want to find the terminal node with
+#' the greatest change in inertia and bi-partition it. The way this is done is
+#' incredibly inefficient. We check every single possible split. This should be
+#' done much better since there is a single local maximum with respect to
+#' inertia so we should use this property to not do an exhaustive check, but to
+#' check the center the 25% and 75% and then search more selectively from there.
+#' This is a fairly simple discrete optimization problem and could reduce
+#' computation time .
+#'
+#' @param row the row in .Cluster_frame that would be assessed.
+#' @param data original data set.
+#' @param cuts cuts data set, which has the next higher value of each variable
+#'   in the original data set.
+#' @param dist distance matrix of all observations in the data.
+#' @param variables indices of variables used to split on.
+#' @param weights weights on each observation. Hasn't been implemented in
+#' exported function yet. Vector of 1 for all observations.
+#' @param minsplit the minimum number of observations that must exist in a node
+#'   in order for a split to be attempted.
+#' @param minbucket the minimum number of observations in any terminal leaf
+#'   node.
+#'
+#' @return this function changes the .Cluster_frame in global environment, it's
+#'   not supposed to return anything.
+find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
+                       minbucket) {
 
-## We are keeping all of the information regarding which clusters we have in
-## frame. At this point, we want to find the terminal node with the greatest change in inertia and bipartion it.
-## The way this is done is incredibly inefficient. We check every single possible split.
-## This should be done much better since there is a single local maximum with respect to inertia
-## so we should use this property to not do an exhaustive check, but to check the center the 25% and 75% and then search more selectively from there.
-## This is a fairly simple discrete optimization problem and could reduce computation time .
+  frame <- .Cluster_frame
+  bycol <- numeric()
+  number <- frame[row, 1]
+  mems <- which(.Cloc == number)
+  inertiap <- frame[row, 5]
 
-FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minbucket){
-
-  #if(getRversion() >= "2.15.1")  utils::globalVariables(c(".Cloc",
-  #                                                        ".Cluster_frame"),
-  #                                                      add = FALSE)
-
-  bycol<-numeric()
-  number<-frame[row,1]
-  mems<-which(.Cloc==number)
-  inertiap<-frame[row,5]
-
-  if(inertiap == 0 | frame[row, 3] < minsplit | frame[row,3] == 1 ){
-    # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop checkem forever.
-    # MG, 9/25 I think this means we won't explore this node again. But make it doesn't stop the search into other nodes.
-    # Yup, but we waste resources by keep checking them again and again. The "candidates" of checkem keeps getting longer (at most n) instead of just 2 new splits.
+  if (inertiap == 0 | frame[row, 3] < minsplit | frame[row, 3] == 1) {
+    # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop
+    # checkem forever.
+    # MG, 9/25 I think this means we won't explore this node again. But make it
+    # doesn't stop the search into other nodes.
+    # Yup, but we waste resources by keep checking them again and again. The
+    # "candidates" of checkem keeps getting longer (at most n) instead of just 2
+    # new splits.
     frame[row, 7] <- 0
-    .Cluster_frame<<-frame
-    return(0);
+    .Cluster_frame <<- frame
+    return(0)
   }
 
   ## Subset the data and cut matricies
   # MODIFY: Tan, 7/3/16, add search space limit
-  # Datamems<-Data[mems,]
-  # Cutsmems<-Cuts[mems,]
-  Datamems<-data.frame(Data[mems, variables])
-  Cutsmems<-data.frame(Cuts[mems, variables])
+  # datamems<-data[mems,]
+  # cutsmems<-cuts[mems,]
+  datamems <- data.frame(data[mems, variables])
+  cutsmems <- data.frame(cuts[mems, variables])
 
-  ##For each possible cut, calculate the inertia. This is where using a discrete optimization
-  ## algorithm would help a lot.
-  for(i in 1:ncol(Datamems)){
+  ## For each possible cut, calculate the inertia. This is where using a
+  ## discrete optimization algorithm would help a lot.
+  bycol <- foreach(i = seq_len(ncol(datamems)),
+                   .combine = cbind,
+                   .exports = c("datamems", "cutsmems", "dist", "mems")) %dopar%
+    function(index) {
+      data_col <- datamems[, index]
+      cuts_col <- cutsmems[, index]
 
+      sapply(cuts_col, function(x) {
+        memsA <- mems[which(data_col < x)]
+        memsB <- setdiff(mems, memsA)
+        ifelse(length(memsA) * length(memsB) == 0,
+               NA,
+               inertia_calc(dist[memsA, memsA]) +
+                 inertia_calc(dist[memsB, memsB]))
+      })
+    }
 
-    Data_col<-Datamems[,i]
-    Cuts_col<-Cutsmems[,i]
-
-
-    bycol<-cbind(bycol,sapply(Cuts_col,function(x){
-      memsA<-mems[which(Data_col<x)]; memsB<-setdiff(mems,memsA);
-      ifelse(length(memsA)*length(memsB)==0, NA, inertia_calc(Dist[memsA,memsA]) + inertia_calc(Dist[memsB,memsB])); }))
-  }
+  # for (i in seq_len(ncol(datamems))) {
+  #
+  #   data_col <- datamems[, i]
+  #   cuts_col <- cutsmems[, i]
+  #
+  #   bycol <- cbind(bycol, sapply(cuts_col, function(x) {
+  #     memsA <- mems[which(data_col < x)]
+  #     memsB <- setdiff(mems, memsA)
+  #     ifelse(length(memsA) * length(memsB) == 0,
+  #            NA,
+  #            inertia_calc(dist[memsA, memsA]) + inertia_calc(dist[memsB, memsB]))
+  #     }))
+  # }
   # Difference between current cluster and the possible splits
   vals <- inertiap - bycol
   ## Say no diference if we have NA or infinite (happens when no split is possible)
   vals[!is.finite(vals) | is.na(vals)] <- 0
 
   ## This is the best split.
-  maxval<-max(vals)
+  maxval <- max(vals)
 
   ## This is the maximum inertia change indep
-  ind <- which((inertiap - bycol) == maxval,arr.ind=TRUE)
+  ind <- which((inertiap - bycol) == maxval, arr.ind= TRUE)
 
   ## Add one more column to check minbucket
   ind <- cbind(ind, TRUE)
 
   for (i in 1:nrow(ind)) {
-    split <- ind[i,]
-    left.size <- sum(Datamems[,split[2]] < Cutsmems[split[1],split[2]])
+    split <- ind[i, ]
+    left.size <- sum(datamems[, split[2]] < cutsmems[split[1], split[2]])
     right.size <- length(mems) - left.size
-    if (left.size < minbucket | right.size < minbucket) ind[i,3] <- FALSE
+    if (left.size < minbucket | right.size < minbucket) ind[i, 3] <- FALSE
   }
 
   ## Remove all row doesn't satisfy minbucket and make sure output is always a matrix even though it has only one row
-  ind <- matrix(ind[!ind[,3] == FALSE,], ncol=3)
+  ind <- matrix(ind[!ind[,3] == FALSE, ], ncol = 3)
 
   ## If multiple splits produce the same inertia change output a warning.
   #if(nrow(ind) > 1 & .MonoClustwarn==0){.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
 
   # If there is some row that satisfies minbucket
   if (nrow(ind) != 0) {
-    split<-ind[1,]
+    split <- ind[1, ]
 
-    memsA <- mems[which(Datamems[,split[2]] < Cutsmems[split[1],split[2]])]
-    memsB <-setdiff(mems,memsA)
+    memsA <- mems[which(datamems[,split[2]] < cutsmems[split[1], split[2]])]
+    memsB <- setdiff(mems, memsA)
 
     # calculate our change in inertia
-    inertiadel <- inertiap - inertia_calc(Dist[memsA,memsA]) - inertia_calc(Dist[memsB,memsB])
+    inertiadel <- inertiap -
+      inertia_calc(dist[memsA,memsA]) -
+      inertia_calc(dist[memsB,memsB])
 
     ## Update our frame
     frame[row,7] <- split[1]
@@ -748,64 +890,58 @@ FindSplit <- function(frame,row,Data,Cuts,Dist,variables,weights, minsplit, minb
     frame[row,7] <- 0
 
 
-  .Cluster_frame<<-frame
+  .Cluster_frame <<- frame
 }
 
-checkem<-function(Data,Cuts,Dist,catnames,variables,weights, minsplit, minbucket, split.order = 0){
+#' First Gate Function
+#'
+#' This function checks what are available nodes to split and then call
+#' `find_split()` on each node, then decide which node creates best split, and
+#' call `splitter()` to perform the split.
+#'
+#' @param data original data set.
+#' @param cuts cuts data set, which has the next higher value of each variable
+#'   in the original data set.
+#' @param dist distance matrix of all observations in the data.
+#' @param catnames categorical variables' names.
+#' @param variables indices of variables used to split on.
+#' @param weights weights on each observation. Hasn't been implemented in
+#' exported function yet. Vector of 1 for all observations.
+#' @param minsplit the minimum number of observations that must exist in a node
+#'   in order for a split to be attempted.
+#' @param minbucket the minimum number of observations in any terminal leaf
+#'   node.
+#' @param split.order the control argument to see how many split has been done.
+#'
+#' @return not supposed to return anything because global environment was used.
+#'   However, if there is nothing left to split, it returns 0 to tell the caller
+#'   to stop running the loop.
+checkem <- function(data, cuts, dist, catnames, variables, weights, minsplit,
+                    minbucket, split.order = 0) {
 
   ## Current terminal nodes
-  candidates<-which(.Cluster_frame$var == '<leaf>' & is.na(.Cluster_frame$bipartsplitrow))
+  candidates <- which(.Cluster_frame$var == '<leaf>' &&
+                        is.na(.Cluster_frame$bipartsplitrow))
   ## Split the best one. Return to Nada which never gets output.
-  Nada <- sapply(candidates,function(x)FindSplit(.Cluster_frame,x,Data,Cuts,Dist,variables,weights, minsplit, minbucket))
+  Nada <- purrr::map(candidates,
+                     ~ find_split(.x, data, cuts, dist, variables, weights,
+                                  minsplit, minbucket))
   ## See which ones are left.
-  candidates2 <- which(.Cluster_frame$var == '<leaf>' & .Cluster_frame$bipartsplitrow != 0)
+  candidates2 <- which(.Cluster_frame$var == '<leaf>' &&
+                         .Cluster_frame$bipartsplitrow != 0)
   ## If nothing's left, stop running.
-  if(length(candidates2)==0){return(0)}
+  if (length(candidates2) == 0) return(0)
 
   ## Find the best inertia change of all that are possible
-  maxone <- max(.Cluster_frame$inertiadel[candidates2],na.rm=TRUE)
-  splitrow<-candidates2[which(.Cluster_frame$inertiadel[candidates2]==maxone)]
+  maxone <- max(.Cluster_frame$inertiadel[candidates2], na.rm = TRUE)
+  splitrow <- candidates2[which(.Cluster_frame$inertiadel[candidates2] ==
+                                  maxone)]
 
   ## Make new clusters from that cluster
-  # splitter(splitrow, Data, Cuts,Dist,catnames,weights)
-  splitter(splitrow[1], Data, Cuts,Dist,catnames,weights, split.order) # Tan, 9/24, in case there are more than one node equal to max
-  # MG, 9/25, I thought the earlier code would make sure only one is identified as top but that might not be true. It never caused a problem before.
+  # splitter(splitrow, data, cuts,dist,catnames,weights)
+  splitter(splitrow[1], data, cuts, dist, catnames, weights, split.order)
+  # Tan, 9/24, in case there are more than one node equal to max
+  # MG, 9/25, I thought the earlier code would make sure only one is identified
+  # as top but that might not be true. It never caused a problem before.
   # Maybe because we fixed inertia fn, equal inertias occurred for small clusters
-}
-
-
-## Find medoid of the cluster. Dfn: the point that has minimum distance to all other points
-med <- function(members,Dist){
-  if(length(members)==1){return(members)}
-  else{
-    if(length(members)==0){return(0)}
-    dists<-apply(Dist[members,members],1,sum)
-    medoid<-members[which(dists==min(dists))]
-    return(medoid[1])
-  }
-}
-
-# permtest <- function(splitvar, Data, memsA, memsB) {
-#     data.temp <- Data
-#     data.temp[,splitvar] <- NULL
-#     distmat.reduced <- as.matrix(daisy(data.temp))
-#
-#     dist.mat.twogroup <- distmat.reduced[c(memsA, memsB),c(memsA, memsB)]
-#     fmem2 <- factor(c(rep(1, length(memsA)), rep(2, length(memsB))))
-#     #plot(ruspini[which(member11 %in% two.max), ], col=fmem11)
-#     result <- adonis(dist.mat.twogroup ~ fmem2)
-#     result
-# }
-
-# Calculate distance matrix for circular variable, based on Gower's distance
-# Written by Garland Will
-circd <- function(x) {
-  #Assumes x is just a single variable
-  dist1<-matrix(0,nrow=length(x),ncol=length(x))
-  for (i in (1:(length(x)-1))) {
-    for (j in i:length(x)) {
-      dist1[j,i]=min(abs(x[i]-x[j]), (360 - abs(x[i]-x[j])))/180
-    }
-  }
-  return(as.dist(dist1))
 }

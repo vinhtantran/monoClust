@@ -26,6 +26,9 @@ Depends:
 Imports: 
     purrr,
     mice,
-    PCAmixdata
+    PCAmixdata,
+    dplyr,
+    cluster,
+    foreach
 Suggests: 
     testthat
