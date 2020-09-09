@@ -18,8 +18,6 @@
 #'   sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.
 #' @param minsplit The minimum number of observations that must exist in a node
 #'   in order for a split to be attempted.
-#' @param corders For data set with categorical variables, the number of
-#'   dimensions should be used from PCAMix. Taken a value from 1 to 5.
 #' @param alpha Value applied specifically to permutation test.
 #' @param perm.test Whether or not to make a permutation test as stopping
 #'   criterion while clustering.
@@ -54,7 +52,6 @@ MonoClust <- function(toclust,
                       nclusters = nrow(toclust),
                       minbucket = round(minsplit / 3),
                       minsplit = 5,
-                      corders = 2,
                       alpha = 0.05,
                       perm.test = FALSE,
                       ran = 0) { # Tan 4/16 Added to control recursive call
@@ -66,14 +63,18 @@ MonoClust <- function(toclust,
     stop("minbucket must be less than minsplit.")
   }
 
+  # ADD: Tan, 9/9/2020, add to check that no categorical variables existed
+  if (!is.numeric(toclust))
+    stop("Function does not support categorical variables yet.")
+
   ## Tan, 5/27/16, argument checking (variables)
   if (!is.null(variables)) {
     if (!is.vector(variables)) {
-      stop("variables need to be a vector of variable names or indices.")
+      stop("Variables need to be a vector of variable names or indices.")
     }
     toclust1 <- toclust[variables]
     if (!is.data.frame(toclust1)) {
-      stop("undefined variables selected.")
+      stop("Undefined variables selected.")
     }
     if (variables %in% colnames(toclust)) {
       variables <- which(colnames(toclust) == variables)
@@ -85,12 +86,12 @@ MonoClust <- function(toclust,
   ## Tan, 4/10/17, argument checking (circular variables)
   if (!is.null(cir.var)) {
     if (!is.vector(cir.var)) {
-      stop("circular variables need to be a vector of variable names or
+      stop("Circular variables need to be a vector of variable names or
            indices.")
     }
     toclust1 <- toclust[cir.var]
     if (!is.data.frame(toclust1)) {
-      stop("undefined variables selected.")
+      stop("Undefined variables selected.")
     }
   }
 
@@ -100,20 +101,23 @@ MonoClust <- function(toclust,
   ## option.
   weights <- rep(1, nrow(toclust))
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## Categorical Variable Ordering
-  quali_ordered <- NULL
+  # quali_ordered <- NULL
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## REMOVE: Tan, 4/6/15. These codes haven't show usefulness, but R v1.3.1
   ## changed output of lapply to list, fail running.
   ## ADD: Tan, 9/6/20. Change to dplyr.
   ## See which variables are character and convert them to factors.
-  toclust <- purrr::modify_if(toclust, is.character, as.factor)
+  # toclust <- purrr::modify_if(toclust, is.character, as.factor)
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## If we have categorical variables we want to use Gower's distance unless
   ## otherwise specified.
-  if (any(purrr::map_lgl(toclust, is.factor)) && is.null(distmethod)) {
-    distmethod <- "gower"
-  }
+  # if (any(purrr::map_lgl(toclust, is.factor)) && is.null(distmethod)) {
+  #   distmethod <- "gower"
+  # }
 
   ## Tan 4/16/17, if there is a circular variable in the data set, use Gower's
   ## distance unless otherwise specified.
@@ -134,85 +138,87 @@ MonoClust <- function(toclust,
 
   toclust0 <- toclust
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## Determine whether we need to use PCAmix, or whether we only have
   ## quantitative variables.
-  factors <- purrr::map_lgl(toclust, is.factor)
-  qualtog <- any(factors)
-  quanttog <- any(!factors)
+  # factors <- purrr::map_lgl(toclust, is.factor)
+  # qualtog <- any(factors)
+  # quanttog <- any(!factors)
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   # If has at least one categorical variable
-  extracols <- NULL
-  catnames <- character(0)
+  # extracols <- NULL
+  # catnames <- character(0)
   # TODO: Candidate to move to a function
   # Input: toclust, factors, corders
   # Output: toclust, quantis
-  if (qualtog) {
-    ## Since we are going to have multiple factor orderings,
-    ## we need to consider each of these orderings a separate "explanatory"
-    ## variable, and determine the number of extra columns we will need based on
-    ## the number of orderings and the number of factors in the dataset.
-    num_factors <- sum(factors)
-    extracols <- ncol(toclust) + 1:(num_factors * (corders - 1))
-
-    ## Use PCAmix with quantitative variables the non-factors and qualitative
-    ## variables the factors.
-    pca <- PCAmixdata::PCAmix(X.quanti = toclust[, !factors],
-                              X.quali = toclust[, factors],
-                              graph = FALSE)
-
-    ## Get the number of levels of each factor.
-    numbyvar <- purrr::map_int(toclust[, factors], nlevels)
-
-    ## Get each factor variable name.
-    catnames <- colnames(toclust)[factors]
-
-    ## Sort the levels alphabetically as this is the way they will come out of
-    ## PCAmix.
-    catrepvarlevel <- purrr::flatten_chr(purrr::map(toclust[, factors],
-                                                    ~ sort(levels(.x))))
-    names(catrepvarlevel) <- rep(catnames, numbyvar)
-
-    ## Set up variables to be filled in the loop
-    ## This method seems a bit odd, but PCAmix looks at all levels of all
-    ## variables simultaneously, and some work must be done to keep the levels
-    ## with the factor they belong to.
-    catrepvarlevelordered <- character(0)
-    cuts_quali <- numeric(0)
-    position <- 0
-
-    for (j in 1:corders) {
-      ## Do this for each dimension that we want 1-5 (number of orderings)
-      ## Order and put them in columns
-      catrepvarlevel <- catrepvarlevel[order(pca$categ.coord[, j])]
-      catrepvarlevelordered <- cbind(catrepvarlevelordered, catrepvarlevel)
-
-      for (p in seq_len(num_factors)) {
-        position <- position + 1
-        quali_ordered[[position]] <-
-          catrepvarlevel[names(catrepvarlevel) == catnames[p]]
-
-        ## We want the orders and the cuts
-        ## The cuts are the ordered levels that we can use to partition the
-        ## dataset. They are numeric, but correspond to a division between two
-        ## levels of a categorical variable according to a particular ordering
-        ## from PCAmix.
-        fcolumn <- toclust[, which(factors)[p]]
-        cuts_quali <-
-          cbind(cuts_quali,
-                purrr::map_dbl(fcolumn,
-                               ~ match(.x, quali_ordered[[position]]) + 1))
-      }
-    }
-
-    qual_quant <- cuts_quali - 1
-    toclust[, factors] <- qual_quant[, 1:num_factors]
-    toclust[, extracols] <- qual_quant[, -c(1:num_factors)]
-
-  }
+  # if (qualtog) {
+  #   ## Since we are going to have multiple factor orderings,
+  #   ## we need to consider each of these orderings a separate "explanatory"
+  #   ## variable, and determine the number of extra columns we will need based on
+  #   ## the number of orderings and the number of factors in the dataset.
+  #   num_factors <- sum(factors)
+  #   extracols <- ncol(toclust) + 1:(num_factors * (corders - 1))
+  #
+  #   ## Use PCAmix with quantitative variables the non-factors and qualitative
+  #   ## variables the factors.
+  #   pca <- PCAmixdata::PCAmix(X.quanti = toclust[, !factors],
+  #                             X.quali = toclust[, factors],
+  #                             graph = FALSE)
+  #
+  #   ## Get the number of levels of each factor.
+  #   numbyvar <- purrr::map_int(toclust[, factors], nlevels)
+  #
+  #   ## Get each factor variable name.
+  #   catnames <- colnames(toclust)[factors]
+  #
+  #   ## Sort the levels alphabetically as this is the way they will come out of
+  #   ## PCAmix.
+  #   catrepvarlevel <- purrr::flatten_chr(purrr::map(toclust[, factors],
+  #                                                   ~ sort(levels(.x))))
+  #   names(catrepvarlevel) <- rep(catnames, numbyvar)
+  #
+  #   ## Set up variables to be filled in the loop
+  #   ## This method seems a bit odd, but PCAmix looks at all levels of all
+  #   ## variables simultaneously, and some work must be done to keep the levels
+  #   ## with the factor they belong to.
+  #   catrepvarlevelordered <- character(0)
+  #   cuts_quali <- numeric(0)
+  #   position <- 0
+  #
+  #   for (j in 1:corders) {
+  #     ## Do this for each dimension that we want 1-5 (number of orderings)
+  #     ## Order and put them in columns
+  #     catrepvarlevel <- catrepvarlevel[order(pca$categ.coord[, j])]
+  #     catrepvarlevelordered <- cbind(catrepvarlevelordered, catrepvarlevel)
+  #
+  #     for (p in seq_len(num_factors)) {
+  #       position <- position + 1
+  #       quali_ordered[[position]] <-
+  #         catrepvarlevel[names(catrepvarlevel) == catnames[p]]
+  #
+  #       ## We want the orders and the cuts
+  #       ## The cuts are the ordered levels that we can use to partition the
+  #       ## dataset. They are numeric, but correspond to a division between two
+  #       ## levels of a categorical variable according to a particular ordering
+  #       ## from PCAmix.
+  #       fcolumn <- toclust[, which(factors)[p]]
+  #       cuts_quali <-
+  #         cbind(cuts_quali,
+  #               purrr::map_dbl(fcolumn,
+  #                              ~ match(.x, quali_ordered[[position]]) + 1))
+  #     }
+  #   }
+  #
+  #   qual_quant <- cuts_quali - 1
+  #   toclust[, factors] <- qual_quant[, 1:num_factors]
+  #   toclust[, extracols] <- qual_quant[, -c(1:num_factors)]
+  #
+  # }
   ## Now, we have extra columns, we have to make sure that we do not consider
   ## them quantitative.
-  quantis <- !factors
-  quantis <- c(quantis, rep(FALSE, length(extracols)))
+  # quantis <- !factors
+  # quantis <- c(quantis, rep(FALSE, length(extracols)))
 
   # CLUSTERING ON CIRCULAR VARIABLE
   if (!is.null(cir.var)) {
@@ -264,15 +270,16 @@ MonoClust <- function(toclust,
     }
   }
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   # Clustering on common quantitative variables
-  cuts <- toclust
-  if (qualtog) cuts[, c(which(factors), extracols)] <- cuts_quali
-  if (quanttog) {
-    cuts_quant <- purrr::map_dfc(toclust %>%
-                                   dplyr::select(which(quantis)),
-                                 find_closest)
-    cuts[, which(quantis)] <- cuts_quant
-  }
+  # cuts <- toclust
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
+  # if (qualtog) cuts[, c(which(factors), extracols)] <- cuts_quali
+
+  # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
+  cuts <- purrr::map_dfc(toclust, find_closest)
+  # cuts[, which(quantis)] <- cuts_quant
+
   # if (!qualtog) catnames <- character(0)
 
   ## Variables that are simple derivatives of inputs that will be used a lot.
@@ -286,6 +293,7 @@ MonoClust <- function(toclust,
   ## which column to use in the distance matrix
   # distcols <- c(1:ncol(toclust0),rep(which(factors),corders-1))
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## Since we have multiple categorical orderings for each factor variable,
   ## We need to label each of these orderings. I chose to do it in a kind of
   ## bizarre way.
@@ -293,15 +301,15 @@ MonoClust <- function(toclust,
   ## This is odd so that we can replace the *~* in the end which is a unique
   ## character combination and likely wont interfere with any of the variable
   ## names.
-  if (length(catnames) > 0) {
-    othercolnames <- paste(colnames(toclust)[rep(which(factors), corders - 1)],
-                           rep(c(2:corders), each = sum(factors)),
-                           sep="*~*")
-    currcolnames  <- paste(colnames(toclust)[which(factors)], 1, sep="*~*")
-    colnames(toclust)[which(factors)] <- currcolnames
-    colnames(toclust)[-c(1:ncol(toclust0))] <- othercolnames
-    catnames <- c(currcolnames, othercolnames)
-  }
+  # if (length(catnames) > 0) {
+  #   othercolnames <- paste(colnames(toclust)[rep(which(factors), corders - 1)],
+  #                          rep(c(2:corders), each = sum(factors)),
+  #                          sep="*~*")
+  #   currcolnames  <- paste(colnames(toclust)[which(factors)], 1, sep="*~*")
+  #   colnames(toclust)[which(factors)] <- currcolnames
+  #   colnames(toclust)[-c(1:ncol(toclust0))] <- othercolnames
+  #   catnames <- c(currcolnames, othercolnames)
+  # }
 
   colnames(cuts) <- colnames(toclust)
 
@@ -360,8 +368,10 @@ MonoClust <- function(toclust,
   ## This loop runs until we have nclusters, have exhausted our observations or
   ## run into our minbucket/minsplit restrictions.
   while (sum(.Cluster_frame$var=="<leaf>") < nclusters) {
-    check <- checkem(toclust, cuts, distmats, catnames, variables, weights,
-                     minsplit, minbucket, split.order)
+
+    # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
+    check <- checkem(toclust, cuts, distmats, variables, weights, minsplit,
+                     minbucket, split.order)
     split.order <- split.order + 1
     if (check == 0) break
   }
@@ -386,8 +396,8 @@ MonoClust <- function(toclust,
   var <-.Cluster_frame2$var
   cattog <- .Cluster_frame2$category
 
-  splits<-which(var != '<leaf>')
-  cat_splits<-which(var != '<leaf>' & cattog == 1)
+  splits<-which(var != "<leaf>")
+  cat_splits<-which(var != "<leaf>" & cattog == 1)
 
   ## Piece together a vector of labels to be printed. Kind of a weird way to do this, but
   ## again, following rparts conventions, and we want to allow the user to have options
@@ -405,10 +415,11 @@ MonoClust <- function(toclust,
   .Cluster_frame2[which(.Cluster_frame2$var == colnames(toclust)[cir.var]), "cut"] <-
     cshift(.Cluster_frame2[which(.Cluster_frame2$var == colnames(toclust)[cir.var]), "cut"],  bestcircsplit$hour)
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## MODIFY: Tan, 12/14. Change input of getlevels. If getlevels doesn't see the whole structure of output, we can't
   ## set correct left and right node labels. See new getlevels function for more details.
   # labs<-c('root',sapply(splits,getlevels,cats = cat_splits,varnames=var, frame=.Cluster_frame2,catnames=catnames,quali_ordered=quali_ordered))
-  labs<-getlevels(splits, cats = cat_splits,varnames=var, frame=.Cluster_frame2,catnames=catnames,quali_ordered=quali_ordered, digits=digits)
+  labs<-getlevels(splits, cats = cat_splits, varnames=var, frame=.Cluster_frame2, quali_ordered=quali_ordered, digits=digits)
 
   ## name a column what I probably should hav already named it, but I don't want to change all the code.
   colnames(.Cluster_frame2)[4] <-"dev"
@@ -422,17 +433,19 @@ MonoClust <- function(toclust,
   ## Take variables' names out of original data set
   Terms <- colnames(toclust0)
 
+  # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
   ## ADD: Tan, 12/15, calculate the mean of each cluster
-  centroids <- find.centroid(toclust0, qualtog, quanttog)
+  centroids <- find.centroid(toclust0)
 
   ## ADD: Tan, 4/22/16, add medoids of each cluster
   medoids <- .Cluster_frame2[.Cluster_frame2$var =="<leaf>","medoid"]
   names(medoids) <- rownames(.Cluster_frame2[.Cluster_frame2$var =="<leaf>",])
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   # We will return a MonoClust object that also inherits from rpart with all of the neccesary components.
   ## MODIFY: Tan, 12/14, I don't know the difference between labels and labelsnum output
   ## although both of them are used in labels.MonoClust. Maybe for categorical variables?
-  rpartobj<-list("frame"=.Cluster_frame2,"labels"=labs,"labelsnum" = labs, "functions"=dendfxns,"qualordered"=quali_ordered, Membership =.Cloc, Dist=distmats, Catnames=catnames,
+  rpartobj<-list("frame"=.Cluster_frame2,"labels"=labs,"labelsnum" = labs, "functions"=dendfxns,"qualordered"=quali_ordered, Membership =.Cloc, Dist=distmats,
                  terms = Terms, # 12/9/14. Tan: add terms to keep track of variables name, in order to check the new data set
                  centroids = centroids, # 12/15. Tan: add centroids info, for prediction of quantitative
                  medoids = medoids, # 4/22/15. Tan: add medoids info
@@ -447,11 +460,14 @@ MonoClust <- function(toclust,
 
 }
 
+# MODIFY: Tan, 9/9/20. Remove categorical variable for now.
 ## ADD, Tan, 12/15, function to calculate the mean of each cluster.
 ## Currently do not work for categorical variables
-find.centroid <- function(toclust, qualtog, quanttog) {
+find.centroid <- function(toclust) {
+
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   # Don't calculate if there is qualitative variable
-  if (qualtog) NA
+  # if (qualtog) NA
 
   leaf <- .Cluster_frame[.Cluster_frame$var == "<leaf>", "number"]
   centroid.list <- as.numeric()
@@ -495,7 +511,7 @@ abbreviate.t <- function(string,abbrev){
 #     }
 # }
 
-getlevels <- function(ind,cats,varnames,frame,catnames,quali_ordered, digits=getOption('digits')){
+getlevels <- function(ind,cats,varnames,frame,quali_ordered, digits=getOption('digits')){
   ## A bit of a pain in the ass to get categorical ordering levels to print correctly.
   ## To be honest, I forgot what the last part here does, but I am certain it is neccesary.
 
@@ -509,17 +525,18 @@ getlevels <- function(ind,cats,varnames,frame,catnames,quali_ordered, digits=get
     lsplit[ind %in% cats == 0] <- paste(name,"<",round(level, digits),sep=" ")
     rsplit[ind %in% cats == 0] <- paste(name,">=",round(level, digits),sep=" ")
   }
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   # If there exists categorical cutpoint
-  if (any(ind %in% cats)) {
-    sind <- ind[ind %in% cats == 1]
-    for (i in sind) {
-      name <- varnames[i]
-      qualind <- which(catnames==varnames[i])
-      lsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][1:(frame$cut[i]-1)],collapse=" ")
-      rsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][-c(1:(frame$cut[i]-1))],collapse=" ")
-    }
-
-  }
+  # if (any(ind %in% cats)) {
+  #   sind <- ind[ind %in% cats == 1]
+  #   for (i in sind) {
+  #     name <- varnames[i]
+  #     qualind <- which(catnames==varnames[i])
+  #     lsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][1:(frame$cut[i]-1)],collapse=" ")
+  #     rsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][-c(1:(frame$cut[i]-1))],collapse=" ")
+  #   }
+  #
+  # }
 
   node <- as.numeric(row.names(frame))
   parent <- match(node%/%2, node[ind])
@@ -533,7 +550,7 @@ getlevels <- function(ind,cats,varnames,frame,catnames,quali_ordered, digits=get
 }
 
 
-splitter<-function(splitrow,data,cuts,dist,catnames,weights, split.order = 0){
+splitter<-function(splitrow,data,cuts,dist,weights, split.order = 0){
   ## This function does the actual act of partitioning, given the row that is to be split "splitrow"
 
   number <- .Cluster_frame$number[splitrow]
@@ -574,10 +591,12 @@ splitter<-function(splitrow,data,cuts,dist,catnames,weights, split.order = 0){
     variable <- strsplit(variable,"*~*",fixed=TRUE)[[1]]
   }
 
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## Is the split categorical?
-  if(variable %in% catnames){
-    .Cluster_frame[splitrow,12] <<- 1
-  }else { .Cluster_frame[splitrow,12] <<- 0 }
+  # if(variable %in% catnames){
+  #   .Cluster_frame[splitrow,12] <<- 1
+  # }else { .Cluster_frame[splitrow,12] <<- 0 }
+  .Cluster_frame[splitrow,12] <<- 0
 
   nr<-nrow(.Cluster_frame)
 
@@ -789,7 +808,6 @@ find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
 #' @param cuts Cuts data set, which has the next higher value of each variable
 #'   in the original data set.
 #' @param dist Distance matrix of all observations in the data.
-#' @param catnames Categorical variables' names.
 #' @param weights Weights on each observation. Hasn't been implemented in
 #' exported function yet. Vector of 1 for all observations.
 #' @param minsplit The minimum number of observations that must exist in a node
@@ -801,7 +819,7 @@ find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
 #'   used. However, if there is nothing left to split, it returns 0 to tell the
 #'   caller to stop running the loop.
 #' @keywords internal
-checkem <- function(data, cuts, dist, catnames, variables, weights, minsplit,
+checkem <- function(data, cuts, dist, variables, weights, minsplit,
                     minbucket, split.order = 0) {
 
   ## Current terminal nodes
@@ -824,7 +842,7 @@ checkem <- function(data, cuts, dist, catnames, variables, weights, minsplit,
 
   ## Make new clusters from that cluster
   # splitter(splitrow, data, cuts,dist,catnames,weights)
-  splitter(splitrow[1], data, cuts, dist, catnames, weights, split.order)
+  splitter(splitrow[1], data, cuts, dist, weights, split.order)
   # Tan, 9/24, in case there are more than one node equal to max
   # MG, 9/25, I thought the earlier code would make sure only one is identified
   # as top but that might not be true. It never caused a problem before.

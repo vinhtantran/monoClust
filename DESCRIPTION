@@ -30,7 +30,6 @@ Depends:
 Imports: 
     purrr,
     mice,
-    PCAmixdata,
     dplyr,
     cluster,
     foreach,
