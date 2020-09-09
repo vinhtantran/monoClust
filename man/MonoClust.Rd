@@ -9,19 +9,18 @@ MonoClust(
   cir.var = NULL,
   variables = NULL,
   distmethod = NULL,
-  labels = as.character(seq_len(length(toclust[, 1]))),
+  labels = NULL,
   digits = options("digits")$digits,
-  nclusters = nrow(toclust),
-  minbucket = round(minsplit/3),
+  nclusters = 2,
   minsplit = 5,
-  corders = 2,
-  alpha = 0.05,
+  minbucket = round(minsplit/3),
   perm.test = FALSE,
+  alpha = 0.05,
   ran = 0
 )
 }
 \arguments{
-\item{toclust}{Data set.}
+\item{toclust}{Data set as a data frame.}
 
 \item{cir.var}{Index or name of the circular variable in the data set.}
 
@@ -29,34 +28,32 @@ MonoClust(
 could be a vector of variable indexes, or a vector of variable names.}
 
 \item{distmethod}{Distance method to use with the data set. The default value
-is the Euclidean distance for quantitative variables and the Gower's
-distance for categorical variables.}
+is the Euclidean distance but Gower will be used if there is circular
+variable (\code{cir.var != NULL}).}
 
-\item{labels}{Displayed names of variables.}
+\item{labels}{Displayed names of observations. If not specified and data
+frame has row names, row names will be used. Otherwise, it is row index.}
 
-\item{digits}{Significant number of clusters created}
+\item{digits}{Significant decimal number printed in the output.}
 
-\item{nclusters}{Number of clusters created}
-
-\item{minbucket}{The minimum number of observations in any terminal leaf
-node. If only one of minbucket or minsplit is specified, the code either
-sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.}
+\item{nclusters}{Number of clusters created. Default is 2.}
 
 \item{minsplit}{The minimum number of observations that must exist in a node
-in order for a split to be attempted.}
+in order for a split to be attempted. Default is 5.}
 
-\item{corders}{For data set with categorical variables, the number of
-dimensions should be used from PCAMix. Taken a value from 1 to 5.}
-
-\item{alpha}{Value applied specifically to permutation test.}
+\item{minbucket}{The minimum number of observations in any terminal leaf
+node. If not specified, it is set to minsplit/3.#}
 
 \item{perm.test}{Whether or not to make a permutation test as stopping
-criterion while clustering.}
+criterion while clustering. Default is FALSE.}
 
-\item{ran}{This parameter should never be used}
+\item{alpha}{Value applied specifically to permutation test. Only valid when
+\code{perm.test = TRUE}.}
+
+\item{ran}{This parameter should never be used.}
 }
 \value{
-MonoClust object, an extension of rpart object
+MonoClust object, an extension of rpart object.
 }
 \description{
 Creates a MonoClust object after partitioning the data set using Monothetic
