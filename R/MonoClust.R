@@ -438,7 +438,7 @@ MonoClust <- function(toclust,
   ## MODIFY: Tan, 12/14. Change input of getlevels. If getlevels doesn't see the whole structure of output, we can't
   ## set correct left and right node labels. See new getlevels function for more details.
   # labs<-c('root',sapply(splits,getlevels,cats = cat_splits,varnames=var, frame=.Cluster_frame2,catnames=catnames,quali_ordered=quali_ordered))
-  labs<-getlevels(splits, cats = cat_splits, varnames=var, frame=.Cluster_frame2, quali_ordered=quali_ordered, digits=digits)
+  labs<-getlevels(splits, cats = cat_splits, varnames=var, frame=.Cluster_frame2, digits=digits)
 
   ## name a column what I probably should hav already named it, but I don't want to change all the code.
   colnames(.Cluster_frame2)[4] <-"dev"
@@ -464,7 +464,7 @@ MonoClust <- function(toclust,
   # We will return a MonoClust object that also inherits from rpart with all of the neccesary components.
   ## MODIFY: Tan, 12/14, I don't know the difference between labels and labelsnum output
   ## although both of them are used in labels.MonoClust. Maybe for categorical variables?
-  rpartobj<-list("frame"=.Cluster_frame2,"labels"=labs,"labelsnum" = labs, "functions"=dendfxns,"qualordered"=quali_ordered, Membership =.Cloc, Dist=dismat,
+  rpartobj<-list("frame"=.Cluster_frame2,"labels"=labs,"labelsnum" = labs, "functions"=dendfxns, Membership =.Cloc, Dist=dismat,
                  terms = Terms, # 12/9/14. Tan: add terms to keep track of variables name, in order to check the new data set
                  centroids = centroids, # 12/15. Tan: add centroids info, for prediction of quantitative
                  medoids = medoids, # 4/22/15. Tan: add medoids info
@@ -530,7 +530,7 @@ abbreviate.t <- function(string,abbrev){
 #     }
 # }
 
-getlevels <- function(ind,cats,varnames,frame,quali_ordered, digits=getOption('digits')){
+getlevels <- function(ind,cats,varnames,frame, digits=getOption('digits')){
   ## A bit of a pain in the ass to get categorical ordering levels to print correctly.
   ## To be honest, I forgot what the last part here does, but I am certain it is neccesary.
 
