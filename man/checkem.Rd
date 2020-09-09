@@ -4,17 +4,7 @@
 \alias{checkem}
 \title{First Gate Function}
 \usage{
-checkem(
-  data,
-  cuts,
-  dist,
-  catnames,
-  variables,
-  weights,
-  minsplit,
-  minbucket,
-  split.order = 0
-)
+checkem(data, cuts, dist, variables, weights, minsplit, minbucket, split.order)
 }
 \arguments{
 \item{data}{Original data set.}
@@ -23,8 +13,6 @@ checkem(
 in the original data set.}
 
 \item{dist}{Distance matrix of all observations in the data.}
-
-\item{catnames}{Categorical variables' names.}
 
 \item{variables}{List of variables selected for clustering procedure. It
 could be a vector of variable indexes, or a vector of variable names.}
@@ -36,8 +24,7 @@ exported function yet. Vector of 1 for all observations.}
 in order for a split to be attempted.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
-node. If only one of minbucket or minsplit is specified, the code either
-sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.}
+node. If not specified, it is set to minsplit/3.#}
 
 \item{split.order}{The control argument to see how many split has been done.}
 }

@@ -4,10 +4,14 @@
 \alias{find_split}
 \title{Find the Best Split}
 \usage{
-find_split(row, data, cuts, dist, variables, weights, minsplit, minbucket)
+find_split(row, frame, cloc, data, cuts, dist, variables, minsplit, minbucket)
 }
 \arguments{
 \item{row}{The row in .Cluster_frame that would be assessed.}
+
+\item{frame}{The split tree transferred as data frame.}
+
+\item{cloc}{Vector of current cluster membership.}
 
 \item{data}{Original data set.}
 
@@ -19,15 +23,11 @@ in the original data set.}
 \item{variables}{List of variables selected for clustering procedure. It
 could be a vector of variable indexes, or a vector of variable names.}
 
-\item{weights}{Weights on each observation. Hasn't been implemented in
-exported function yet. Vector of 1 for all observations.}
-
 \item{minsplit}{The minimum number of observations that must exist in a node
 in order for a split to be attempted.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
-node. If only one of minbucket or minsplit is specified, the code either
-sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.}
+node. If not specified, it is set to minsplit/3.#}
 }
 \value{
 This function changes the .Cluster_frame in global environment, it's

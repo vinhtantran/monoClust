@@ -3,27 +3,28 @@
 #' Creates a MonoClust object after partitioning the data set using Monothetic
 #' Clustering.
 #'
-#' @param toclust Data set.
+#' @param toclust Data set as a data frame.
 #' @param cir.var Index or name of the circular variable in the data set.
 #' @param variables List of variables selected for clustering procedure. It
 #'   could be a vector of variable indexes, or a vector of variable names.
 #' @param distmethod Distance method to use with the data set. The default value
-#'   is the Euclidean distance for quantitative variables and the Gower's
-#'   distance for categorical variables.
-#' @param labels Displayed names of variables.
-#' @param digits Significant number of clusters created
-#' @param nclusters Number of clusters created
-#' @param minbucket The minimum number of observations in any terminal leaf
-#'   node. If only one of minbucket or minsplit is specified, the code either
-#'   sets minsplit to minbucket*3 or minbucket to minsplit/3, as appropriate.
+#'   is the Euclidean distance but Gower will be used if there is circular
+#'   variable (`cir.var != NULL`).
+#' @param labels Displayed names of observations. If not specified and data
+#' frame has row names, row names will be used. Otherwise, it is row index.
+#' @param digits Significant decimal number printed in the output.
+#' @param nclusters Number of clusters created. Default is 2.
 #' @param minsplit The minimum number of observations that must exist in a node
-#'   in order for a split to be attempted.
-#' @param alpha Value applied specifically to permutation test.
+#'   in order for a split to be attempted. Default is 5.
+#' @param minbucket The minimum number of observations in any terminal leaf
+#'   node. If not specified, it is set to minsplit/3.#
 #' @param perm.test Whether or not to make a permutation test as stopping
-#'   criterion while clustering.
-#' @param ran This parameter should never be used
+#'   criterion while clustering. Default is FALSE.
+#' @param alpha Value applied specifically to permutation test. Only valid when
+#'   `perm.test = TRUE`.
+#' @param ran This parameter should never be used.
 #'
-#' @return MonoClust object, an extension of rpart object
+#' @return MonoClust object, an extension of rpart object.
 #' @importFrom dplyr `%>%`
 #' @export
 #'
@@ -47,14 +48,25 @@ MonoClust <- function(toclust,
                       cir.var = NULL,
                       variables = NULL,
                       distmethod = NULL,
-                      labels = as.character(seq_len(length(toclust[, 1]))),
+                      labels = NULL,
                       digits = options("digits")$digits,
-                      nclusters = nrow(toclust),
-                      minbucket = round(minsplit / 3),
+                      nclusters = 2,
                       minsplit = 5,
-                      alpha = 0.05,
+                      minbucket = round(minsplit / 3),
                       perm.test = FALSE,
+                      alpha = 0.05,
                       ran = 0) { # Tan 4/16 Added to control recursive call
+
+  if (!is.data.frame(toclust)) {
+    stop("toclust must be a data frame.")
+  } else {
+    if (is.null(labels)) {
+        labels <- ifelse(tibble::has_rownames(toclust),
+                         rownames(toclust),
+                         as.character(seq_len(nrow(toclust))))
+    }
+    toclust <- dplyr::as_tibble(toclust)
+  }
 
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad
   ## parameters are transferred
@@ -64,8 +76,9 @@ MonoClust <- function(toclust,
   }
 
   # ADD: Tan, 9/9/2020, add to check that no categorical variables existed
-  if (!is.numeric(toclust))
+  if (!all(purrr::map_lgl(toclust, is.numeric))) {
     stop("Function does not support categorical variables yet.")
+  }
 
   ## Tan, 5/27/16, argument checking (variables)
   if (!is.null(variables)) {
@@ -83,6 +96,15 @@ MonoClust <- function(toclust,
     variables <- seq_len(ncol(toclust))
   }
 
+  # Check the distmethod
+  if (is.null(distmethod)) {
+    # Tan 4/16/17, if there is a circular variable in the data set, use Gower's
+    ## distance unless otherwise specified.
+    distmethod <- ifelse(!is.null(cir.var), "gower", "euclidean")
+  } else {
+    distmethod <- match.arg(distmethod, c("euclidean", "manhattan", "gower"))
+  }
+
   ## Tan, 4/10/17, argument checking (circular variables)
   if (!is.null(cir.var)) {
     if (!is.vector(cir.var)) {
@@ -95,8 +117,9 @@ MonoClust <- function(toclust,
     }
   }
 
+  # R#EMOVE: Tan, 9/8/20. Don't see the benefits of this.
   ## Switch so we only give off one warning.
-  assign(".MonoClustwarn", 0, envir = .GlobalEnv)
+  # assign(".MonoClustwarn", 0, envir = .GlobalEnv)
   ## Right now, each observation has equal weight. This could be made into an
   ## option.
   weights <- rep(1, nrow(toclust))
@@ -119,12 +142,6 @@ MonoClust <- function(toclust,
   #   distmethod <- "gower"
   # }
 
-  ## Tan 4/16/17, if there is a circular variable in the data set, use Gower's
-  ## distance unless otherwise specified.
-  if (!is.null(cir.var) && is.null(distmethod)) {
-    distmethod <- "gower"
-  }
-
   ## For now, impute missing values so we have no missing data
   ## Emit warning that values were imputed.
   if (any(is.na(toclust))) {
@@ -135,8 +152,6 @@ MonoClust <- function(toclust,
     print(imputed$nmis)
     toclust <- mice::complete(imputed)
   }
-
-  toclust0 <- toclust
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## Determine whether we need to use PCAmix, or whether we only have
@@ -221,6 +236,9 @@ MonoClust <- function(toclust,
   # quantis <- c(quantis, rep(FALSE, length(extracols)))
 
   # CLUSTERING ON CIRCULAR VARIABLE
+  # Keep an original copy of toclust before applying circular sp;it
+  toclust0 <- toclust
+
   if (!is.null(cir.var)) {
 
     # This only works on **one** circular variable
@@ -283,11 +301,11 @@ MonoClust <- function(toclust,
   # if (!qualtog) catnames <- character(0)
 
   ## Variables that are simple derivatives of inputs that will be used a lot.
-  labs <- labels
-  nobs <- dim(toclust)[1]
+  # labs <- labels
+  nobs <- nrow(toclust)
   # nvars <- dim(toclust)[2]
 
-  distmats <- matrix()
+  # dismat <- matrix()
   # data <- as.data.frame(toclust)
 
   ## which column to use in the distance matrix
@@ -311,7 +329,8 @@ MonoClust <- function(toclust,
   #   catnames <- c(currcolnames, othercolnames)
   # }
 
-  colnames(cuts) <- colnames(toclust)
+  # REMOVE: Tan 9/8/20, no need to assign colnames due to tibble's benefits
+  # colnames(cuts) <- colnames(toclust)
 
   ## Tan 4/10/17, add metric argument to daisy and circular distance
   if (!is.null(cir.var)) {
@@ -333,7 +352,7 @@ MonoClust <- function(toclust,
   } else
     distmat0 <- cluster::daisy(toclust0, metric = distmethod)
 
-  distmats <- as.matrix(distmat0)
+  dismat <- as.matrix(distmat0)
 
   members <- seq_len(nobs)
 
@@ -341,7 +360,7 @@ MonoClust <- function(toclust,
   ## environment, but this will be deleted at the end of this function. Using
   ## global environment allows us to modify things recursively as we partition
   ## clusters.
-  assign(".Cloc", rep(1,nobs), envir = .GlobalEnv)
+  assign(".Cloc", rep(1, nobs), envir = .GlobalEnv)
 
   ## Likewise, set up the first (entire dataset) cluster in our Cluster frame
   ## where we keep track of each of the clusters and the partitioning.
@@ -350,13 +369,13 @@ MonoClust <- function(toclust,
                     var = "<leaf>",
                     n = nobs,
                     wt = sum(weights[members]),
-                    inertia = inertia_calc(distmats[members, members]),
+                    inertia = inertia_calc(dismat[members, members]),
                     bipartvar = "NA",
                     bipartsplitrow = NA,
                     bipartsplitcol = NA,
                     inertiadel = 0,
                     yval = 1,
-                    medoid = medoid(members, distmats),
+                    medoid = medoid(members, dismat),
                     category = NA,
                     cut = NA,
                     loc = 0.1,
@@ -367,10 +386,10 @@ MonoClust <- function(toclust,
   split.order <- 1
   ## This loop runs until we have nclusters, have exhausted our observations or
   ## run into our minbucket/minsplit restrictions.
-  while (sum(.Cluster_frame$var=="<leaf>") < nclusters) {
+  while (sum(.Cluster_frame$var == "<leaf>") < nclusters) {
 
     # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
-    check <- checkem(toclust, cuts, distmats, variables, weights, minsplit,
+    check <- checkem(toclust, cuts, dismat, variables, weights, minsplit,
                      minbucket, split.order)
     split.order <- split.order + 1
     if (check == 0) break
@@ -445,7 +464,7 @@ MonoClust <- function(toclust,
   # We will return a MonoClust object that also inherits from rpart with all of the neccesary components.
   ## MODIFY: Tan, 12/14, I don't know the difference between labels and labelsnum output
   ## although both of them are used in labels.MonoClust. Maybe for categorical variables?
-  rpartobj<-list("frame"=.Cluster_frame2,"labels"=labs,"labelsnum" = labs, "functions"=dendfxns,"qualordered"=quali_ordered, Membership =.Cloc, Dist=distmats,
+  rpartobj<-list("frame"=.Cluster_frame2,"labels"=labs,"labelsnum" = labs, "functions"=dendfxns,"qualordered"=quali_ordered, Membership =.Cloc, Dist=dismat,
                  terms = Terms, # 12/9/14. Tan: add terms to keep track of variables name, in order to check the new data set
                  centroids = centroids, # 12/15. Tan: add centroids info, for prediction of quantitative
                  medoids = medoids, # 4/22/15. Tan: add medoids info
@@ -681,22 +700,22 @@ splitter<-function(splitrow,data,cuts,dist,weights, split.order = 0){
 #' computation time .
 #'
 #' @param row The row in .Cluster_frame that would be assessed.
+#' @param frame The split tree transferred as data frame.
+#' @param cloc Vector of current cluster membership.
 #' @inheritParams checkem
 #'
 #' @return This function changes the .Cluster_frame in global environment, it's
 #'   not supposed to return anything.
 #' @importFrom foreach `%dopar%`
 #' @keywords internal
-find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
+find_split <- function(row, frame, cloc, data, cuts, dist, variables, minsplit,
                        minbucket) {
 
-  frame <- .Cluster_frame
-  bycol <- numeric()
-  number <- frame[row, 1]
-  mems <- which(.Cloc == number)
-  inertiap <- frame[row, 5]
+  number <- frame$number[row]
+  mems <- which(cloc == number)
+  inertiap <- frame$inertia[row]
 
-  if (inertiap == 0 | frame[row, 3] < minsplit | frame[row, 3] == 1) {
+  if (inertiap == 0 | frame$n[row] < minsplit | frame$n[row] == 1) {
     # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop
     # checkem forever.
     # MG, 9/25 I think this means we won't explore this node again. But make it
@@ -704,28 +723,27 @@ find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
     # Yup, but we waste resources by keep checking them again and again. The
     # "candidates" of checkem keeps getting longer (at most n) instead of just 2
     # new splits.
-    frame[row, 7] <- 0
-    .Cluster_frame <<- frame
-    return(0)
+    frame$bipartsplitrow[row] <- 0
+    return(frame[row, ])
   }
 
   ## Subset the data and cut matricies
   # MODIFY: Tan, 7/3/16, add search space limit
   # datamems<-data[mems,]
   # cutsmems<-cuts[mems,]
-  datamems <- data.frame(data[mems, variables])
-  cutsmems <- data.frame(cuts[mems, variables])
+  datamems <- data[mems, variables]
+  cutsmems <- cuts[mems, variables]
 
   ## For each possible cut, calculate the inertia. This is where using a
   ## discrete optimization algorithm would help a lot.
-  bycol <- foreach::foreach(i = seq_len(ncol(datamems)),
+  bycol <- foreach::foreach(index = seq_len(ncol(datamems)),
                    .combine = cbind,
-                   .exports = c("datamems", "cutsmems", "dist", "mems")) %dopar%
-    function(index) {
-      data_col <- datamems[, index]
-      cuts_col <- cutsmems[, index]
+                   .export = c("datamems", "cutsmems", "dist", "mems")) %dopar%
+    {
+      data_col <- dplyr::pull(datamems, index)
+      cuts_col <- dplyr::pull(cutsmems, index)
 
-      sapply(cuts_col, function(x) {
+      new_inertia <- purrr::map_dbl(cuts_col, function(x) {
         memsA <- mems[which(data_col < x)]
         memsB <- setdiff(mems, memsA)
         ifelse(length(memsA) * length(memsB) == 0,
@@ -733,6 +751,8 @@ find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
                inertia_calc(dist[memsA, memsA]) +
                  inertia_calc(dist[memsB, memsB]))
       })
+
+      return(new_inertia)
     }
 
   # for (i in seq_len(ncol(datamems))) {
@@ -750,52 +770,52 @@ find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
   # }
   # Difference between current cluster and the possible splits
   vals <- inertiap - bycol
-  ## Say no diference if we have NA or infinite (happens when no split is possible)
+  ## Say no difference if we have NA or infinite (happens when no split is possible)
   vals[!is.finite(vals) | is.na(vals)] <- 0
 
   ## This is the best split.
   maxval <- max(vals)
 
-  ## This is the maximum inertia change indep
-  ind <- which((inertiap - bycol) == maxval, arr.ind= TRUE)
+  ## This is the maximum inertia change index
+  ind <- which((inertiap - bycol) == maxval, arr.ind = TRUE)
 
   ## Add one more column to check minbucket
-  ind <- cbind(ind, TRUE)
+  ind_1 <- cbind(ind, minbucket = TRUE)
 
-  for (i in 1:nrow(ind)) {
-    split <- ind[i, ]
-    left.size <- sum(datamems[, split[2]] < cutsmems[split[1], split[2]])
-    right.size <- length(mems) - left.size
-    if (left.size < minbucket | right.size < minbucket) ind[i, 3] <- FALSE
+  for (i in 1:nrow(ind_1)) {
+    split <- ind_1[i, ]
+    left_size <- sum(datamems[, split[2]] < cutsmems[[split[1], split[2]]])
+    right_size <- length(mems) - left_size
+    if (left_size < minbucket | right_size < minbucket) ind_1[i, 3] <- FALSE
   }
 
   ## Remove all row doesn't satisfy minbucket and make sure output is always a matrix even though it has only one row
-  ind <- matrix(ind[!ind[,3] == FALSE, ], ncol = 3)
+  ind_1 <- matrix(ind_1[!ind_1[,3] == FALSE, ], ncol = 3)
 
   ## If multiple splits produce the same inertia change output a warning.
   #if(nrow(ind) > 1 & .MonoClustwarn==0){.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
 
-  # If there is some row that satisfies minbucket
-  if (nrow(ind) != 0) {
-    split <- ind[1, ]
+  # If there is at least one row that satisfies minbucket, pick the first one
+  if (nrow(ind_1) != 0) {
+    split <- ind_1[1, ]
 
-    memsA <- mems[which(datamems[,split[2]] < cutsmems[split[1], split[2]])]
+    memsA <- mems[which(datamems[, split[2]] < cutsmems[[split[1], split[2]]])]
     memsB <- setdiff(mems, memsA)
 
     # calculate our change in inertia
     inertiadel <- inertiap -
-      inertia_calc(dist[memsA,memsA]) -
-      inertia_calc(dist[memsB,memsB])
+      inertia_calc(dist[memsA, memsA]) -
+      inertia_calc(dist[memsB, memsB])
 
     ## Update our frame
-    frame[row,7] <- split[1]
-    frame[row,8] <- variables[split[2]]
-    frame[row,9] <- inertiadel
+    frame$bipartsplitrow[row] <- split[1]
+    # Save colname, not colindex
+    frame$bipartsplitcol[row] <- variables[split[2]]
+    frame$inertiadel[row] <- inertiadel
   } else  # Otherwise, stop as a leaf
-    frame[row,7] <- 0
+    frame$bipartsplitrow[row] <- 0
 
-
-  .Cluster_frame <<- frame
+  return(frame[row, ])
 }
 
 #' First Gate Function
@@ -819,30 +839,31 @@ find_split <- function(row, data, cuts, dist, variables, weights, minsplit,
 #'   used. However, if there is nothing left to split, it returns 0 to tell the
 #'   caller to stop running the loop.
 #' @keywords internal
-checkem <- function(data, cuts, dist, variables, weights, minsplit,
-                    minbucket, split.order = 0) {
+checkem <- function(data, cuts, dist, variables, weights, minsplit, minbucket,
+                    split.order) {
 
+  frame <- .Cluster_frame
+  cloc <- .Cloc
   ## Current terminal nodes
-  candidates <- which(.Cluster_frame$var == "<leaf>" &&
-                        is.na(.Cluster_frame$bipartsplitrow))
+  candidates <- which(frame$var == "<leaf>" &&
+                        is.na(frame$bipartsplitrow))
   ## Split the best one. Return to nada which never gets output.
-  nada <- purrr::map(candidates,
-                     ~ find_split(.x, data, cuts, dist, variables, weights,
+  frame[candidates, ] <- purrr::map_dfr(candidates,
+                     ~ find_split(.x, frame, cloc, data, cuts, dist, variables,
                                   minsplit, minbucket))
+
+  .Cluster_frame <<- frame
   ## See which ones are left.
-  candidates2 <- which(.Cluster_frame$var == "<leaf>" &&
-                         .Cluster_frame$bipartsplitrow != 0)
+  candidates2 <- which(frame$var == "<leaf>" && frame$bipartsplitrow != 0)
   ## If nothing's left, stop running.
   if (length(candidates2) == 0) return(0)
 
   ## Find the best inertia change of all that are possible
-  maxone <- max(.Cluster_frame$inertiadel[candidates2], na.rm = TRUE)
-  splitrow <- candidates2[which(.Cluster_frame$inertiadel[candidates2] ==
-                                  maxone)]
+  splitrow <- candidates2[which.max(frame$inertiadel[candidates2])]
 
   ## Make new clusters from that cluster
   # splitter(splitrow, data, cuts,dist,catnames,weights)
-  splitter(splitrow[1], data, cuts, dist, weights, split.order)
+  splitter(splitrow, data, cuts, dist, weights, split.order)
   # Tan, 9/24, in case there are more than one node equal to max
   # MG, 9/25, I thought the earlier code would make sure only one is identified
   # as top but that might not be true. It never caused a problem before.
