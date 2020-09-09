@@ -58,7 +58,7 @@ inertia_calc <- function(X) {
   # (y-mean(y))^2, then maybe set the return to 0?
   if (!is.numeric(X) && !is.matrix(X)) stop("X has to be a numerical value or matrix.")
 
-  inertia_value <- ifelse(length(X) > 0 && is.numeric(X),
+  inertia_value <- ifelse(length(X) == 1 && is.numeric(X),
                           0,
                           sum(X^2) / (dim(X)[1] * 2))
   return(inertia_value)
