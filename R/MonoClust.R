@@ -28,6 +28,12 @@
 #' @importFrom dplyr `%>%`
 #' @export
 #'
+#' @references
+#' 1. Chavent, M. (1998). A monothetic clustering method. Pattern Recognition
+#' Letters, 19(11), 989–996. https://doi.org/10.1016/S0167-8655(98)00087-7
+#' 2. Tran, T. V. (2019). Monothetic Cluster Analysis with Extensions to
+#' Circular and Functional Data. Montana State University - Bozeman.
+#'
 #' @examples
 #' # Very simple data set
 #' data(cluster::ruspini)
