@@ -111,3 +111,49 @@ medoid <- function(members, dist_mat) {
 
   return(index)
 }
+
+#' Create A New Node for Split Data Frame
+#'
+#' This function is just a helper to make sure that the default values of the
+#' split data frame is correct when unspecified. It helps reduce type error,
+#' especially when moving to use dplyr which is stricter in data types.
+#'
+#' @param number NA
+#' @param var NA
+#' @param cut NA
+#' @param n NA
+#' @param wt NA
+#' @param inertia NA
+#' @param bipartvar NA
+#' @param bipartsplitrow NA
+#' @param bipartsplitcol NA
+#' @param inertiadel NA
+#' @param yval NA
+#' @param medoid NA
+#' @param category Whether splitting variable is categorical (1) or not (0).
+#' @param loc NA
+#' @param split.order NA
+#'
+#' @return A tibble with only one row and correct data type for even an
+#'   unspecified variables.
+#' @keywords internal
+new_node <- function(number = 1,
+                     var = "<leaf>",
+                     cut = NA,
+                     n = nobs,
+                     wt = sum(weights[members]),
+                     inertia = inertia_calc(dismat[members, members]),
+                     bipartvar = "NA",
+                     bipartsplitrow = -99,
+                     bipartsplitcol = -99,
+                     inertiadel = 0,
+                     yval = 1,
+                     medoid = medoid(members, dismat),
+                     category = 0,
+                     loc = 0.1,
+                     split.order = 0) {
+
+  return(dplyr::tibble(
+    number, var, cut, n, wt, inertia, bipartvar, bipartsplitrow,
+    bipartsplitcol, inertiadel, yval, medoid, category, loc, split.order))
+}
