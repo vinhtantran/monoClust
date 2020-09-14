@@ -56,7 +56,8 @@ inertia_calc <- function(X) {
   # dist[1,1] is a numeric value, not matrix.
   #MG, 9/25: Should this then return a value of 0 for inertia? If you go back to
   # (y-mean(y))^2, then maybe set the return to 0?
-  if (!is.numeric(X) && !is.matrix(X)) stop("X has to be a numerical value or matrix.")
+  if (!is.numeric(X) && !is.matrix(X))
+    stop("X has to be a numerical value or matrix.")
 
   inertia_value <- ifelse(length(X) == 1 && is.numeric(X),
                           0,
@@ -73,6 +74,7 @@ inertia_calc <- function(X) {
 #'
 #' @return object of class "dist"
 #' @keywords internal
+#' @importFrom stats as.dist
 circ_dist <- function(x) {
   # Assumes x is just a single variable
   dist1 <- matrix(0, nrow = length(x), ncol = length(x))
@@ -81,7 +83,7 @@ circ_dist <- function(x) {
       dist1[j, i] = min(abs(x[i] - x[j]), (360 - abs(x[i] - x[j])))/180
     }
   }
-  return(as.dist(dist1))
+  return(stats::as.dist(dist1))
 }
 
 #' Find Medoid of the Cluster
@@ -118,42 +120,79 @@ medoid <- function(members, dist_mat) {
 #' split data frame is correct when unspecified. It helps reduce type error,
 #' especially when moving to use dplyr which is stricter in data types.
 #'
-#' @param number NA
-#' @param var NA
-#' @param cut NA
+#' @param number Row index of the data frame.
+#' @param var Whether it is a leaf, or the name of the next split variable.
+#' @param cut The splitting value, so values (of `bipartvar`) smaller than that
+#'   go to left branch while values greater than that go to right branch.
 #' @param n NA
 #' @param wt NA
-#' @param inertia NA
-#' @param bipartvar NA
+#' @param inertia Inertia value of the cluster at that node.
+#' @param bipartvar Name of the next split variable, match `var` if `var` is not
+#'   a leaf.
 #' @param bipartsplitrow NA
 #' @param bipartsplitcol NA
-#' @param inertiadel NA
+#' @param inertiadel The proportion of inertia value of the cluster at that node
+#'   to the inertia of the root.
 #' @param yval NA
 #' @param medoid NA
 #' @param category Whether splitting variable is categorical (1) or not (0).
-#' @param loc NA
-#' @param split.order NA
+#' @param loc y-coordinate of the splitting node to facilitate showing on the
+#'   tree. See [plot.MonoClust()] for details.
+#' @param split.order Order of the splits. Root is 0, and increasing.
 #'
 #' @return A tibble with only one row and correct data type for even an
 #'   unspecified variables.
 #' @keywords internal
-new_node <- function(number = 1,
-                     var = "<leaf>",
+new_node <- function(number,
+                     var,
                      cut = NA,
-                     n = nobs,
-                     wt = sum(weights[members]),
-                     inertia = inertia_calc(dismat[members, members]),
-                     bipartvar = "NA",
+                     n,
+                     wt,
+                     inertia,
+                     bipartvar = "",
                      bipartsplitrow = -99,
                      bipartsplitcol = -99,
                      inertiadel = 0,
-                     yval = 1,
-                     medoid = medoid(members, dismat),
+                     yval,
+                     medoid,
                      category = 0,
-                     loc = 0.1,
-                     split.order = 0) {
+                     loc,
+                     split.order = -99) {
 
-  return(dplyr::tibble(
+  one_row_table <- dplyr::tibble(
     number, var, cut, n, wt, inertia, bipartvar, bipartsplitrow,
-    bipartsplitcol, inertiadel, yval, medoid, category, loc, split.order))
+    bipartsplitcol, inertiadel, yval, medoid, category, loc, split.order)
+
+  return(one_row_table)
+}
+
+#' Find Centroid of the Cluster
+#'
+#' Centroid is point whose coordinates are the means of their cluster values.
+#'
+#' @inheritParams checkem
+#'
+#' @return A data frame with coordinates of centroids
+#' @keywords internal
+centroid <- function(data, frame, cloc) {
+
+  # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
+  ## ADD, Tan, 12/15, function to calculate the mean of each cluster.
+  ## Currently do not work for categorical variables
+  # Don't calculate if there is qualitative variable
+  # if (qualtog) NA
+
+  leaves <- frame$number[frame$var == "<leaf>"]
+  names(leaves) <- leaves
+  centroid.list <- vector("list", length(leaves))
+
+  centroid_list <-
+    purrr::map_dfr(leaves, function(x) {
+      cluster <- data[cloc == x, ]
+      centroid <- purrr::map_dbl(cluster, mean)
+      return(centroid)
+    },
+    .id = "cname")
+
+  return(centroid_list)
 }

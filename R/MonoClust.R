@@ -19,7 +19,7 @@
 #' @param minbucket The minimum number of observations in any terminal leaf
 #'   node. If not specified, it is set to minsplit/3.#
 #' @param perm.test Whether or not to make a permutation test as stopping
-#'   criterion while clustering. Default is FALSE.
+#'   criterion while clustering. Default is FALSE. See [perm.test()].
 #' @param alpha Value applied specifically to permutation test. Only valid when
 #'   `perm.test = TRUE`.
 #' @param ran This parameter should never be used.
@@ -243,8 +243,8 @@ MonoClust <- function(toclust,
   # quantis <- c(quantis, rep(FALSE, length(extracols)))
 
   # CLUSTERING ON CIRCULAR VARIABLE
-  # Keep an original copy of toclust before applying circular sp;it
-  toclust0 <- toclust
+  # Keep an original copy of toclust before applying circular split
+  # toclust0 <- toclust
 
   if (!is.null(cir.var)) {
 
@@ -290,7 +290,7 @@ MonoClust <- function(toclust,
       # Shift the circular variable to the hour pivot. That turns the circular
       # to linear variable. The first best split would be the minute split,
       # which was already found, together with hour, to be the best arcs. Will
-      # shift back later by modifying .Cluster_frame2
+      # shift back later by modifying cluster_frame
       toclust[, cir.var] <- cshift(variable, -bestcircsplit$hour)
     }
   }
@@ -344,71 +344,66 @@ MonoClust <- function(toclust,
     # I have to split because R coerce the distance matrix to one value when
     # using ifelse with a 0.
     # distmat1: distance matrix of pure quantitative variables
-    if (ncol(toclust0[, -cir.var]) != 0) {
-      distmat1 <- cluster::daisy(toclust0[, -cir.var], metric = distmethod) *
-        dim(toclust0[, -cir.var])[2]
+    if (ncol(toclust[, -cir.var]) != 0) {
+      distmat1 <- cluster::daisy(toclust[, -cir.var], metric = distmethod) *
+        dim(toclust[, -cir.var])[2]
     } else {
       distmat1 <- 0
     }
     # distmat2: distance matrix of circular variables
     # TODO cir.var has to be one value
-    distmat2 <- circ_dist(toclust0[, cir.var])
+    distmat2 <- circ_dist(toclust[, cir.var])
 
     # distmat0: combined from 1 and 2 as the mean distances
-    distmat0 <- (distmat1 + distmat2) / dim(toclust0)[2]
+    distmat0 <- (distmat1 + distmat2) / dim(toclust)[2]
   } else
-    distmat0 <- cluster::daisy(toclust0, metric = distmethod)
+    distmat0 <- cluster::daisy(toclust, metric = distmethod)
 
   dismat <- as.matrix(distmat0)
 
   members <- seq_len(nobs)
 
+  # MODIFY: Tan, 9/13/20. No need to use Global Environment
   ## Set up a vector containing each observation's membership. Put into global
   ## environment, but this will be deleted at the end of this function. Using
   ## global environment allows us to modify things recursively as we partition
   ## clusters.
-  assign(".Cloc", rep(1, nobs), envir = .GlobalEnv)
+  # assign("c_loc", rep(1, nobs), envir = .GlobalEnv)
+  c_loc <- rep(1, nobs)
 
+  # MODIFY: Tan, 9/13/20. No need to use Global Environment
   ## Likewise, set up the first (entire dataset) cluster in our Cluster frame
   ## where we keep track of each of the clusters and the partitioning.
-  assign(".Cluster_frame",
-         data.frame(number = 1,
-                    var = "<leaf>",
-                    n = nobs,
-                    wt = sum(weights[members]),
-                    inertia = inertia_calc(dismat[members, members]),
-                    bipartvar = "NA",
-                    bipartsplit_row = NA,
-                    bipartsplitcol = NA,
-                    inertiadel = 0,
-                    yval = 1,
-                    medoid = medoid(members, dismat),
-                    category = NA,
-                    cut = NA,
-                    loc = 0.1,
-                    stringsAsFactors = FALSE,
-                    split.order = 0),
-         envir = .GlobalEnv)
+  cluster_frame <-
+    new_node(number = 1,
+             var = "<leaf>",
+             n = nobs,
+             wt = sum(weights[members]),
+             inertia = inertia_calc(dismat[members, members]),
+             yval = 1,
+             medoid = medoid(members, dismat),
+             loc = 0.1,
+             split.order = 0)
 
   split_order <- 1
   done_running <- FALSE
   ## This loop runs until we have nclusters, have exhausted our observations or
   ## run into our minbucket/minsplit restrictions.
-  while (sum(.Cluster_frame$var == "<leaf>") < nclusters & !done_running) {
+  while (sum(cluster_frame$var == "<leaf>") < nclusters & !done_running) {
 
     # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
-    checkem_ret <- checkem(toclust, cuts, .Cluster_frame, .Cloc, dismat,
+    checkem_ret <- checkem(toclust, cuts, cluster_frame, c_loc, dismat,
                            variables, weights, minsplit, minbucket, split_order)
     split_order <- split_order + 1
 
     # Use cloc because it is only ran in splitter
-    if (!identical(.Cloc, checkem_ret$cloc)) {
-      .Cluster_frame <- checkem_ret$frame
+    if (!identical(c_loc, checkem_ret$cloc)) {
+      cluster_frame <- checkem_ret$frame
     } else {
       done_running <- TRUE
     }
 
-    .Cloc <- checkem_ret$cloc
+    c_loc <- checkem_ret$cloc
   }
 
   ## Most of the rest of the function does some bizarre text operations
@@ -416,23 +411,27 @@ MonoClust <- function(toclust,
   ## so we need to follow their text and labeling conventions to that our
   ## objects which inherit from rpart can print and plot correctly.
 
+  # TODO: For now, keep number column. In the future, (1) stop using rownames and
+  # use number variable directly, (2) output a tibble.
   ## Change the number column to rownames...
-  rownames(.Cluster_frame) <- .Cluster_frame[[number]]
-  .Cluster_frame[[number]] <- NULL
+  cluster_frame <- as.data.frame(cluster_frame)
+  rownames(cluster_frame) <- cluster_frame$number
+  # cluster_frame[["number"]] <- NULL
 
   ## This is what will print at each terminal node on the dendrogram
   ## (See plot.MonoClust).
-  textfxn<-function(yval,dev,wt,ylevel,digits,n,meds,names, use.n){
-    paste("\n  n=", n,"\n  M=",meds, sep="")
-  }
+  # textfxn <- function(yval, dev, wt, ylevel, digits, n, meds, names, use.n) {
+  #   paste("\n  n=", n, "\n  M=", meds, sep = "")
+  # }
 
+  # REMOVE: Tan, 9/13/20. Remove categorical variable for now.
   ## Seperate categorical and quantitative splits as the text and plot
   ## functions must treat them a bit differently
-  var <-.Cluster_frame2$var
-  cattog <- .Cluster_frame2$category
-
-  splits<-which(var != "<leaf>")
-  cat_splits<-which(var != "<leaf>" & cattog == 1)
+  # var <- cluster_frame$var
+  # cattog <- cluster_frame$category
+  #
+  # splits <- which(var != "<leaf>")
+  # cat_splits <- which(var != "<leaf>" & cattog == 1)
 
   ## Piece together a vector of labels to be printed. Kind of a weird way to do this, but
   ## again, following rparts conventions, and we want to allow the user to have options
@@ -440,102 +439,101 @@ MonoClust <- function(toclust,
 
   ## REMOVE: Tan, 12/14. The following lines are obviously useless. They have no use anywhere.
   # ineq<-rep(c('<','>='),length(splits))
-  # level<-.Cluster_frame2$cut[splits]
+  # level<-cluster_frame$cut[splits]
   # level<-rep(level,each=2)
   # vars<-rep(var[splits],each=2)
   # labsnum <- c('root',paste(vars,ineq,level,sep=' '))
 
   ## Tan, 4/16/17
-  ## Modify the Cluster_frame to shift the circular variable's cut back to the original values
-  .Cluster_frame2[which(.Cluster_frame2$var == colnames(toclust)[cir.var]), "cut"] <-
-    cshift(.Cluster_frame2[which(.Cluster_frame2$var == colnames(toclust)[cir.var]), "cut"],  bestcircsplit$hour)
+  ## Modify the Cluster_frame to shift the circular variable's cut back to the
+  ## original values
+  if (!is.null(cir.var)) {
+    cir_pos <- which(cluster_frame$var == colnames(toclust)[cir.var])
+    cluster_frame$cut[cir_pos] <-
+      cshift(cluster_frame$cut[cir_pos],
+             bestcircsplit$hour)
+  }
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
-  ## MODIFY: Tan, 12/14. Change input of getlevels. If getlevels doesn't see the whole structure of output, we can't
-  ## set correct left and right node labels. See new getlevels function for more details.
-  # labs<-c('root',sapply(splits,getlevels,cats = cat_splits,varnames=var, frame=.Cluster_frame2,catnames=catnames,quali_ordered=quali_ordered))
-  labs<-getlevels(splits, cats = cat_splits, varnames=var, frame=.Cluster_frame2, digits=digits)
+  ## MODIFY: Tan, 12/14. Change input of getlevels. If getlevels doesn't see the
+  ## whole structure of output, we can't set correct left and right node labels.
+  ## See new getlevels function for more details.
+  # labs<-c('root',sapply(splits,getlevels,cats = cat_splits,varnames=var, frame=cluster_frame,catnames=catnames,quali_ordered=quali_ordered))
+  # labs<-getlevels(splits, cats = cat_splits, varnames=var, frame=cluster_frame, digits=digits)
 
   ## name a column what I probably should hav already named it, but I don't want to change all the code.
-  colnames(.Cluster_frame2)[4] <-"dev"
+  # colnames(cluster_frame)[4] <- "dev"
 
   ## Reorder the columns so they print out nicely, again because I don't want to go back and change things.
-  .Cluster_frame2 <- .Cluster_frame2[,c(1,12,2,3,4,5,6,7,8,9,10,11,13,14)]
+  # cluster_frame <- cluster_frame[,c(1,12,2,3,4,5,6,7,8,9,10,11,13,14)]
+
 
   ## This follows somewhat odd rpart conventions.
-  dendfxns<-list("text"=textfxn)
+  # dendfxns<-list("text"=textfxn)
 
-  ## Take variables' names out of original data set
-  Terms <- colnames(toclust0)
-
-  # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
-  ## ADD: Tan, 12/15, calculate the mean of each cluster
-  centroids <- find.centroid(toclust0)
-
+  # TODO: Why not keep as it is inside the frame:
   ## ADD: Tan, 4/22/16, add medoids of each cluster
-  medoids <- .Cluster_frame2[.Cluster_frame2$var =="<leaf>","medoid"]
-  names(medoids) <- rownames(.Cluster_frame2[.Cluster_frame2$var =="<leaf>",])
+  medoids <- cluster_frame$medoid[cluster_frame$var == "<leaf>"]
+  names(medoids) <- cluster_frame$number[cluster_frame$var == "<leaf>"]
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   # We will return a MonoClust object that also inherits from rpart with all of the neccesary components.
   ## MODIFY: Tan, 12/14, I don't know the difference between labels and labelsnum output
   ## although both of them are used in labels.MonoClust. Maybe for categorical variables?
-  rpartobj<-list("frame"=.Cluster_frame2,"labels"=labs,"labelsnum" = labs, "functions"=dendfxns, Membership =.Cloc, Dist=dismat,
-                 terms = Terms, # 12/9/14. Tan: add terms to keep track of variables name, in order to check the new data set
-                 centroids = centroids, # 12/15. Tan: add centroids info, for prediction of quantitative
-                 medoids = medoids, # 4/22/15. Tan: add medoids info
-                 circularroot = list(var = cir.var, cut = bestcircsplit$hour) # 4/16/17. Tan: add the starting cut for circular variable
-  )
-  class(rpartobj)<-c("MonoClust","rpart")
+  MonoClust_obj <-
+    list(frame = cluster_frame,
+         # TODO: Why the same as below?
+         labels = labels,
+         # TODO: Why the same as above?
+         labelsnum = labels,
+         # REMOVE: Tan, 9/14/20. Don't know why need this.
+         # functions = dendfxns,
+         # TODO: uncapitalized
+         Membership = c_loc,
+         # TODO: uncapitalized
+         Dist = dismat,
+         # 12/9/14. Tan: add terms to keep track of variables
+         # name, in order to check the new data set
+         terms = colnames(toclust),
+         # 12/15. Tan: add centroids info, for prediction of
+         # quantitative.
+         # TODO: Why not add it directly into frame?
+         centroids = centroid(toclust, cluster_frame, c_loc),
+         # 4/22/15. Tan: add medoids info
+         # TODO: Why not add directly into frame?
+         medoids = medoids,
+         # 4/16/17. Tan: add the starting cut for circular variable
+         circularroot = list(var = cir.var, cut = bestcircsplit$hour)
+    )
+
+  # TODO: Remove rpart from this
+  class(MonoClust_obj) <- c("MonoClust", "rpart")
 
   ## Get rid of our global assignments.
-  rm(list = c(".Cluster_frame", ".Cloc"), envir = globalenv())
+  # rm(list = c("cluster_frame", "c_loc"), envir = globalenv())
 
-  return(rpartobj)
+  return(MonoClust_obj)
 
 }
 
-# MODIFY: Tan, 9/9/20. Remove categorical variable for now.
-## ADD, Tan, 12/15, function to calculate the mean of each cluster.
-## Currently do not work for categorical variables
-find.centroid <- function(toclust) {
-
-  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
-  # Don't calculate if there is qualitative variable
-  # if (qualtog) NA
-
-  leaf <- .Cluster_frame[.Cluster_frame$var == "<leaf>", "number"]
-  centroid.list <- as.numeric()
-  centroid.list <- vector("list", length(leaf))
-  for (i in seq_along(leaf)) {
-    cluster <- as.matrix(toclust[.Cloc == leaf[i],])
-    centroid <- apply(cluster, 2, mean)
-    centroid.list[[i]] <- c(leaf[i], centroid)
-  }
-  centroid.list <- data.frame(matrix(unlist(centroid.list), nrow=length(leaf), byrow = T))
-  colnames(centroid.list) <- c("cname", rep("", ncol(centroid.list)-1))
-  centroid.list
-}
-
-
-abbreviate.t <- function(string,abbrev){
-  ## This function abbreviates the text. We want to handle categories, which rpart is not really prepared for
-  ## so we use somewhat uneccesary regular expressions to get rid of unwanted characters in our categorical orderings.
-  charvec <- strsplit(string," ",fixed=TRUE)[[1]]
-  abbreviated <- sapply(charvec,function(x)if( x != "<" & x != ">=" & grepl("^\\s*[^0-9]",x,perl=TRUE) ) substr(x,1,abbrev)
-                        else x)
-  paste(abbreviated,collapse=" ")
-}
+# abbreviate.t <- function(string,abbrev) {
+#   ## This function abbreviates the text. We want to handle categories, which rpart is not really prepared for
+#   ## so we use somewhat uneccesary regular expressions to get rid of unwanted characters in our categorical orderings.
+#   charvec <- strsplit(string," ",fixed=TRUE)[[1]]
+#   abbreviated <- sapply(charvec,function(x)if( x != "<" & x != ">=" & grepl("^\\s*[^0-9]",x,perl=TRUE) ) substr(x,1,abbrev)
+#                         else x)
+#   paste(abbreviated,collapse=" ")
+# }
 
 ## MODIFY: Tan, 12/14. Change input as a vector instead of one value.
 ## getlevels needs to see the whole structure to decide correct labels
 ## NOTE: quantitative case has been changed significantly, categorical case is only slightly changed to refect the input change
 
-# getlevels <- function(sind,cats,varnames,frame,catnames,quali_ordered){
+# getlevels <- function(sind,cats,varnames,frame,catnames,quali_ordered) {
 #     ## A bit of a pain in the ass to get categorical ordering levels to print correctly.
 #     ## To be honest, I forgot what the last part here does, but I am certain it is neccesary.
 #     name <- varnames[sind]
-#     if(sind %in% cats == 0){
+#     if(sind %in% cats == 0) {
 #         level <- frame$cut[sind]
 #         labs <- c(paste(name,"<",level,sep=" "),paste(name,">=",level,sep=" "))
 #         return(labs)
@@ -546,43 +544,44 @@ abbreviate.t <- function(string,abbrev){
 #     }
 # }
 
-getlevels <- function(ind,cats,varnames,frame, digits=getOption('digits')){
-  ## A bit of a pain in the ass to get categorical ordering levels to print correctly.
-  ## To be honest, I forgot what the last part here does, but I am certain it is neccesary.
-
-  # These codes are modified version of rpart:::labels.rpart
-  lsplit <- rsplit <- character(length(ind))
-  # If there exists quantitative cutpoint
-  if (any(!ind %in% cats)) {
-    sind <- ind[ind %in% cats == 0]
-    name <- varnames[sind]
-    level <- frame$cut[sind]
-    lsplit[ind %in% cats == 0] <- paste(name,"<",round(level, digits),sep=" ")
-    rsplit[ind %in% cats == 0] <- paste(name,">=",round(level, digits),sep=" ")
-  }
-  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
-  # If there exists categorical cutpoint
-  # if (any(ind %in% cats)) {
-  #   sind <- ind[ind %in% cats == 1]
-  #   for (i in sind) {
-  #     name <- varnames[i]
-  #     qualind <- which(catnames==varnames[i])
-  #     lsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][1:(frame$cut[i]-1)],collapse=" ")
-  #     rsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][-c(1:(frame$cut[i]-1))],collapse=" ")
-  #   }
-  #
-  # }
-
-  node <- as.numeric(row.names(frame))
-  parent <- match(node%/%2, node[ind])
-  odd <- (as.logical(node%%2))
-
-  labels <- character(nrow(frame))
-  labels[odd] <- rsplit[parent[odd]]
-  labels[!odd] <- lsplit[parent[!odd]]
-  labels[1] <- "root"
-  labels
-}
+# REMOVE: Tan, 9/13/20. Remove categorical variable for now.
+# getlevels <- function(ind,cats,varnames,frame, digits=getOption('digits')) {
+#   ## A bit of a pain in the ass to get categorical ordering levels to print correctly.
+#   ## To be honest, I forgot what the last part here does, but I am certain it is neccesary.
+#
+#   # These codes are modified version of rpart:::labels.rpart
+#   lsplit <- rsplit <- character(length(ind))
+#   # If there exists quantitative cutpoint
+#   if (any(!ind %in% cats)) {
+#     sind <- ind[ind %in% cats == 0]
+#     name <- varnames[sind]
+#     level <- frame$cut[sind]
+#     lsplit[ind %in% cats == 0] <- paste(name,"<",round(level, digits),sep=" ")
+#     rsplit[ind %in% cats == 0] <- paste(name,">=",round(level, digits),sep=" ")
+#   }
+#   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
+#   # If there exists categorical cutpoint
+#   # if (any(ind %in% cats)) {
+#   #   sind <- ind[ind %in% cats == 1]
+#   #   for (i in sind) {
+#   #     name <- varnames[i]
+#   #     qualind <- which(catnames==varnames[i])
+#   #     lsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][1:(frame$cut[i]-1)],collapse=" ")
+#   #     rsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][-c(1:(frame$cut[i]-1))],collapse=" ")
+#   #   }
+#   #
+#   # }
+#
+#   node <- as.numeric(row.names(frame))
+#   parent <- match(node%/%2, node[ind])
+#   odd <- (as.logical(node%%2))
+#
+#   labels <- character(nrow(frame))
+#   labels[odd] <- rsplit[parent[odd]]
+#   labels[!odd] <- lsplit[parent[!odd]]
+#   labels[1] <- "root"
+#   labels
+# }
 
 #' Split Function
 #'
@@ -603,7 +602,7 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
 
   node_number <- frame$number[split_row]
   mems <- which(cloc == node_number)
-  split <- c(frame$bipartsplit_row[split_row],
+  split <- c(frame$bipartsplitrow[split_row],
               frame$bipartsplitcol[split_row])
 
   # Extract data and cuts to split
@@ -629,8 +628,8 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
   #                         cutsmems[split[1], split[2]], split[2]]
   # datamems_B <- setdiff(datamems[, split[2]], datamems_A)
   # mid_cutpoint <- (max(datamems_A) + min(datamems_B)) / 2
-  mid_cutpoint <- mean(datamems[[split[1], split[2]]],
-                       cutsmems[[split[1], split[2]]])
+  mid_cutpoint <- mean(c(datamems[[split[1], split[2]]],
+                         cutsmems[[split[1], split[2]]]))
 
   ## Make the new clusters.
   node_number_A <- node_number * 2
@@ -668,32 +667,36 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
   ## All the comment or new one will be noted carefully so that it can be
   ## rollbacked easily
 
-  # Initialize two new empty rows
-  new_frame <- frame[rep(1, 2), ]
-  new_frame[, ] <- NA
+  # New cluster 1
+  node_A <-
+    new_node(
+      number  = node_number_A,
+      var     = "<leaf>",
+      n       = length(mems_A),
+      wt      = sum(weights[mems_A]),
+      inertia = inertia_calc(dist[mems_A, mems_A]),
+      yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
+      medoid  = medoid(mems_A, dist),
+      loc     = frame$loc[split_row] - 1 / nrow(frame)
+    )
 
-  ## New cluster 1 gets some new attributes
-  new_frame$number[1]  <- node_number_A
-  new_frame$var[1]     <- "<leaf>"
-  new_frame$n[1]       <- length(mems_A)
-  new_frame$wt[1]      <- sum(weights[mems_A])
-  new_frame$inertia[1] <- inertia_calc(dist[mems_A, mems_A])
-  new_frame$yval[1]    <- 1 - frame[split_row, 9] / frame[1, 5]
-  new_frame$medoid[1]  <- medoid(mems_A, dist)
-  new_frame$loc[1]     <- frame[split_row, 14] - 1/nrow(frame)
-
-  ## As does new cluster 2.
-  new_frame$number[2]  <- node_number_B
-  new_frame$var[2]     <- "<leaf>"
-  new_frame$n[2]       <- length(mems_B)
-  new_frame$wt[2]      <- sum(weights[mems_B])
-  new_frame$inertia[2] <- inertia_calc(dist[mems_B, mems_B])
-  new_frame$yval[2]    <- 1 - frame[split_row, 9] / frame[1, 5]
-  new_frame$medoid[2]  <- medoid(mems_B, dist)
-  new_frame$loc[2]     <- frame[split_row, 14] + 1/nrow(frame)
+  # New cluster 2
+  node_B <-
+    new_node(
+      number  = node_number_B,
+      var     = "<leaf>",
+      n       = length(mems_B),
+      wt      = sum(weights[mems_B]),
+      inertia = inertia_calc(dist[mems_B, mems_B]),
+      yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
+      medoid  = medoid(mems_B, dist),
+      loc     = frame$loc[split_row] + 1 / nrow(frame)
+    )
 
   # Insert two new rows right after split row
-  frame <- dplyr::add_row(frame, new_frame, .after = split_row)
+  frame <- dplyr::add_row(frame,
+                          dplyr::add_row(node_A, node_B),
+                          .after = split_row)
 
   return(list(frame = frame, cloc = cloc))
 }
@@ -726,14 +729,14 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   inertiap <- frame_row$inertia
 
   if (inertiap == 0 | frame_row$n < minsplit | frame_row$n == 1) {
-    # Tan 9/24 This is one obs cluster. Set bipartsplit_row value 0 to stop
+    # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop
     # checkem forever.
     # MG, 9/25 I think this means we won't explore this node again. But make it
     # doesn't stop the search into other nodes.
     # Yup, but we waste resources by keep checking them again and again. The
     # "candidates" of checkem keeps getting longer (at most n) instead of just 2
     # new splits.
-    frame_row$bipartsplit_row <- 0
+    frame_row$bipartsplitrow <- 0
     return(frame_row)
   }
 
@@ -746,24 +749,28 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
 
   ## For each possible cut, calculate the inertia. This is where using a
   ## discrete optimization algorithm would help a lot.
-  bycol <- foreach::foreach(index = seq_len(ncol(datamems)),
-                   .combine = cbind,
-                   .export = c("datamems", "cutsmems", "dist", "mems")) %dopar%
-    {
-      data_col <- dplyr::pull(datamems, index)
-      cuts_col <- dplyr::pull(cutsmems, index)
 
-      new_inertia <- purrr::map_dbl(cuts_col, function(x) {
-        mems_A <- mems[which(data_col < x)]
-        mems_B <- setdiff(mems, mems_A)
-        ifelse(length(mems_A) * length(mems_B) == 0,
-               NA,
-               inertia_calc(dist[mems_A, mems_A]) +
-                 inertia_calc(dist[mems_B, mems_B]))
-      })
+  mult_inertia <- function(i, datamems, cutsmems, dist, mems) {
+    data_col <- dplyr::pull(datamems, i)
+    cuts_col <- dplyr::pull(cutsmems, i)
 
-      return(new_inertia)
-    }
+    new_inertia <- purrr::map_dbl(cuts_col, function(x) {
+      mems_A <- mems[which(data_col < x)]
+      mems_B <- setdiff(mems, mems_A)
+      ifelse(length(mems_A) * length(mems_B) == 0,
+             NA,
+             inertia_calc(dist[mems_A, mems_A]) +
+               inertia_calc(dist[mems_B, mems_B]))
+    })
+
+    return(new_inertia)
+  }
+
+  bycol <-
+    foreach::foreach(
+      i = seq_len(ncol(datamems)),
+      .combine = cbind) %dopar%
+    mult_inertia(i, datamems, cutsmems, dist, mems)
 
   # for (i in seq_len(ncol(datamems))) {
   #
@@ -792,18 +799,19 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   ## Add one more column to check minbucket
   ind_1 <- cbind(ind, minbucket = TRUE)
 
-  for (i in 1:nrow(ind_1)) {
+  for (i in seq_len(nrow(ind_1))) {
     split <- ind_1[i, ]
     left_size <- sum(datamems[, split[2]] < cutsmems[[split[1], split[2]]])
     right_size <- length(mems) - left_size
     if (left_size < minbucket | right_size < minbucket) ind_1[i, 3] <- FALSE
   }
 
-  ## Remove all row doesn't satisfy minbucket and make sure output is always a matrix even though it has only one row
+  ## Remove all row doesn't satisfy minbucket and make sure output is always a
+  ## matrix even though it has only one row
   ind_1 <- matrix(ind_1[!ind_1[,3] == FALSE, ], ncol = 3)
 
   ## If multiple splits produce the same inertia change output a warning.
-  #if(nrow(ind) > 1 & .MonoClustwarn==0){.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
+  #if(nrow(ind) > 1 & .MonoClustwarn==0) {.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
 
   # If there is at least one row that satisfies minbucket, pick the first one
   if (nrow(ind_1) != 0) {
@@ -818,12 +826,12 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
       inertia_calc(dist[mems_B, mems_B])
 
     ## Update our frame
-    frame_row$bipartsplit_row <- split[1]
+    frame_row$bipartsplitrow <- split[1]
     # Save colname, not colindex
     frame_row$bipartsplitcol <- variables[split[2]]
     frame_row$inertiadel <- inertiadel
   } else  # Otherwise, stop as a leaf
-    frame_row$bipartsplit_row <- 0
+    frame_row$bipartsplitrow <- 0
 
   return(frame_row)
 }
@@ -855,8 +863,8 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
                     minbucket, split_order) {
 
   ## Current terminal nodes
-  candidates <- which(frame$var == "<leaf>" &&
-                        is.na(frame$bipartsplit_row))
+  candidates <- which(frame$var == "<leaf>" &
+                        frame$bipartsplitrow == -99)
   ## Split the best one. Return to nada which never gets output.
   frame[candidates, ] <-
     purrr::map_dfr(candidates,
@@ -865,13 +873,11 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
 
 
   ## See which ones are left.
-  candidates2 <- which(frame$var == "<leaf>" && frame$bipartsplit_row != 0)
-  ## If nothing's left, stop running.
-  check <- ifelse(length(candidates2) == 0, 0, 1)
+  candidates2 <- which(frame$var == "<leaf>" & frame$bipartsplitrow != 0)
 
-  # otherwise, frame and cloc are not updated, cloc is used to check if done
-  # running
-  if (length(candidates2) != 0) {
+  # if there is something, run. Otherwise, frame and cloc are not updated, cloc
+  # is used to check if done running
+  if (length(candidates2) > 0) {
     ## Find the best inertia change of all that are possible
     split_row <- candidates2[which.max(frame$inertiadel[candidates2])]
 
@@ -880,10 +886,10 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
     splitter_ret <- splitter(data, cuts, split_row, frame, cloc, dist, weights,
                              split_order)
     # Tan, 9/24, in case there are more than one node equal to max
-    # MG, 9/25, I thought the earlier code would make sure only one is identified
-    # as top but that might not be true. It never caused a problem before.
-    # Maybe because we fixed inertia fn, equal inertias occurred for small
-    # clusters
+    # MG, 9/25, I thought the earlier code would make sure only one is
+    # identified as top but that might not be true. It never caused a problem
+    # before. Maybe because we fixed inertia fn, equal inertias occurred for
+    # small clusters.
 
     frame <- splitter_ret$frame
     cloc <- splitter_ret$cloc

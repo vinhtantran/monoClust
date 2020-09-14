@@ -45,7 +45,7 @@ in order for a split to be attempted. Default is 5.}
 node. If not specified, it is set to minsplit/3.#}
 
 \item{perm.test}{Whether or not to make a permutation test as stopping
-criterion while clustering. Default is FALSE.}
+criterion while clustering. Default is FALSE. See \code{\link[=perm.test]{perm.test()}}.}
 
 \item{alpha}{Value applied specifically to permutation test. Only valid when
 \code{perm.test = TRUE}.}

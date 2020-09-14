@@ -12,7 +12,7 @@ A data frame with 13391 rows and 6 variables:
 \item{Day}{day of the month indicated in Column Month (Fair, Good, Very Good, Premium, Ideal)}
 \item{Extent}{daily ice extent, to three decimal places}
 \item{Missing}{whether a day is missing (1) or not (0))}
-\item{Source}{data source in NOAA database}
+\item{Source Data}{data source in NOAA database}
 }
 }
 \source{

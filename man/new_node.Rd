@@ -5,43 +5,46 @@
 \title{Create A New Node for Split Data Frame}
 \usage{
 new_node(
-  number = 1,
-  var = "<leaf>",
+  number,
+  var,
   cut = NA,
-  n = nobs,
-  wt = sum(weights[members]),
-  inertia = inertia_calc(dismat[members, members]),
-  bipartvar = "NA",
+  n,
+  wt,
+  inertia,
+  bipartvar = "",
   bipartsplitrow = -99,
   bipartsplitcol = -99,
   inertiadel = 0,
-  yval = 1,
-  medoid = medoid(members, dismat),
+  yval,
+  medoid,
   category = 0,
-  loc = 0.1,
-  split.order = 0
+  loc,
+  split.order = -99
 )
 }
 \arguments{
-\item{number}{NA}
+\item{number}{Row index of the data frame.}
 
-\item{var}{NA}
+\item{var}{Whether it is a leaf, or the name of the next split variable.}
 
-\item{cut}{NA}
+\item{cut}{The splitting value, so values (of \code{bipartvar}) smaller than that
+go to left branch while values greater than that go to right branch.}
 
 \item{n}{NA}
 
 \item{wt}{NA}
 
-\item{inertia}{NA}
+\item{inertia}{Inertia value of the cluster at that node.}
 
-\item{bipartvar}{NA}
+\item{bipartvar}{Name of the next split variable, match \code{var} if \code{var} is not
+a leaf.}
 
 \item{bipartsplitrow}{NA}
 
 \item{bipartsplitcol}{NA}
 
-\item{inertiadel}{NA}
+\item{inertiadel}{The proportion of inertia value of the cluster at that node
+to the inertia of the root.}
 
 \item{yval}{NA}
 
@@ -49,9 +52,10 @@ new_node(
 
 \item{category}{Whether splitting variable is categorical (1) or not (0).}
 
-\item{loc}{NA}
+\item{loc}{y-coordinate of the splitting node to facilitate showing on the
+tree. See \code{\link[=plot.MonoClust]{plot.MonoClust()}} for details.}
 
-\item{split.order}{NA}
+\item{split.order}{Order of the splits. Root is 0, and increasing.}
 }
 \value{
 A tibble with only one row and correct data type for even an

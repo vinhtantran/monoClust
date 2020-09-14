@@ -33,6 +33,7 @@ Imports:
     cluster,
     foreach,
     fpc,
-    permute
+    permute,
+    tibble
 Suggests: 
     testthat
