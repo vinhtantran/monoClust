@@ -4,19 +4,17 @@
 \alias{find_split}
 \title{Find the Best Split}
 \usage{
-find_split(row, frame, cloc, data, cuts, dist, variables, minsplit, minbucket)
+find_split(data, cuts, frame_row, cloc, dist, variables, minsplit, minbucket)
 }
 \arguments{
-\item{row}{The row in .Cluster_frame that would be assessed.}
-
-\item{frame}{The split tree transferred as data frame.}
-
-\item{cloc}{Vector of current cluster membership.}
-
 \item{data}{Original data set.}
 
 \item{cuts}{Cuts data set, which has the next higher value of each variable
 in the original data set.}
+
+\item{frame_row}{One row of the split tree as data frame.}
+
+\item{cloc}{Vector of current cluster membership.}
 
 \item{dist}{Distance matrix of all observations in the data.}
 
@@ -30,7 +28,7 @@ in order for a split to be attempted.}
 node. If not specified, it is set to minsplit/3.#}
 }
 \value{
-This function changes the .Cluster_frame in global environment, it's
+This function changes the frame in global environment, it's
 not supposed to return anything.
 }
 \description{

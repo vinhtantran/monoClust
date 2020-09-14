@@ -36,7 +36,8 @@
 #'
 #' @examples
 #' # Very simple data set
-#' data(cluster::ruspini)
+#' library(cluster)
+#' data(ruspini)
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 #' ruspini4sol
 #'
@@ -377,7 +378,7 @@ MonoClust <- function(toclust,
                     wt = sum(weights[members]),
                     inertia = inertia_calc(dismat[members, members]),
                     bipartvar = "NA",
-                    bipartsplitrow = NA,
+                    bipartsplit_row = NA,
                     bipartsplitcol = NA,
                     inertiadel = 0,
                     yval = 1,
@@ -389,26 +390,35 @@ MonoClust <- function(toclust,
                     split.order = 0),
          envir = .GlobalEnv)
 
-  split.order <- 1
+  split_order <- 1
+  done_running <- FALSE
   ## This loop runs until we have nclusters, have exhausted our observations or
   ## run into our minbucket/minsplit restrictions.
-  while (sum(.Cluster_frame$var == "<leaf>") < nclusters) {
+  while (sum(.Cluster_frame$var == "<leaf>") < nclusters & !done_running) {
 
     # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
-    check <- checkem(toclust, cuts, dismat, variables, weights, minsplit,
-                     minbucket, split.order)
-    split.order <- split.order + 1
-    if (check == 0) break
+    checkem_ret <- checkem(toclust, cuts, .Cluster_frame, .Cloc, dismat,
+                           variables, weights, minsplit, minbucket, split_order)
+    split_order <- split_order + 1
+
+    # Use cloc because it is only ran in splitter
+    if (!identical(.Cloc, checkem_ret$cloc)) {
+      .Cluster_frame <- checkem_ret$frame
+    } else {
+      done_running <- TRUE
+    }
+
+    .Cloc <- checkem_ret$cloc
   }
 
   ## Most of the rest of the function does some bizarre text operations
   ## the reason for this is because I stole a lot of code from rpart,
-  ## so we need to follow their text and labelling conventions to that our objects
-  ## which inherit from rpart can print and plot correctly.
+  ## so we need to follow their text and labeling conventions to that our
+  ## objects which inherit from rpart can print and plot correctly.
 
   ## Change the number column to rownames...
-  rownames(.Cluster_frame)<-.Cluster_frame$number
-  .Cluster_frame2<-.Cluster_frame[,-1]
+  rownames(.Cluster_frame) <- .Cluster_frame[[number]]
+  .Cluster_frame[[number]] <- NULL
 
   ## This is what will print at each terminal node on the dendrogram
   ## (See plot.MonoClust).
@@ -574,122 +584,118 @@ getlevels <- function(ind,cats,varnames,frame, digits=getOption('digits')){
   labels
 }
 
+#' Split Function
+#'
+#' Given the Cluster's frame's row position to split at `split_row`, this
+#' function performs the split, calculate all necessary information for the
+#' splitting tree and cluster memberships.
+#'
+#' @param split_row The row index in frame that would be split on.
+#' @inheritParams checkem
+#'
+#' @return Updated `frame` and `cloc` saved in a list.
+#'
+#' @keywords internal
+splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
+                     split_order = 0) {
+  ## This function does the actual act of partitioning, given the row that is
+  ## to be split "split_row"
 
-splitter<-function(splitrow,data,cuts,dist,weights, split.order = 0){
-  ## This function does the actual act of partitioning, given the row that is to be split "splitrow"
+  node_number <- frame$number[split_row]
+  mems <- which(cloc == node_number)
+  split <- c(frame$bipartsplit_row[split_row],
+              frame$bipartsplitcol[split_row])
 
-  number <- .Cluster_frame$number[splitrow]
-  mems   <- which(.Cloc == number)
-  split  <- c(.Cluster_frame$bipartsplitrow[splitrow],.Cluster_frame$bipartsplitcol[splitrow])
+  # Extract data and cuts to split
+  datamems <- data[mems, ]
+  cutsmems <- cuts[mems, ]
 
-  datamems<-data.frame(data[mems,])
-  cutsmems<-cuts[mems,]
+  # Split into data rows of lower half (A) and upper half (B)
+  mems_A <- mems[which(datamems[[split[2]]] < cutsmems[[split[1], split[2]]])]
+  mems_B <- setdiff(mems, mems_A)
 
-
-  memsA <- mems[which(datamems[,split[2]] < cutsmems[split[1],split[2]])]
-  memsB <-setdiff(mems,memsA)
-
-  # Tan, 2/17, call the permutation test function to test on the newly created group
-  # perm.test condition should be uncommented later when successfully tested
+  # Tan, 2/17, call the permutation test function to test on the newly created
+  # group perm.test condition should be uncommented later when successfully
+  # tested
   # if (perm.test) {
-  # ptest.result <- permtest(split[2], data, memsA, memsB)
+  # ptest.result <- permtest(split[2], data, mems_A, mems_B)
   # ptest.result$aov.tab[1,6]
   # }
 
-  # Tan, 10/3, cutpoint is the middle point between two closest points in two clusters
-  datamemsA <- datamems[datamems[,split[2]] < cutsmems[split[1],split[2]], split[2]]
-  datamemsB <- setdiff(datamems[,split[2]], datamemsA)
-  mid.cutpoint <- (max(datamemsA) + min(datamemsB))/2
+  # UPDATE: Tan, 9/13/20, cutpoint is simply value between two jump values
+  # Tan, 10/3, cutpoint is the middle point between two closest points in two
+  # clusters
+  # datamems_A <- datamems[datamems[, split[2]] <
+  #                         cutsmems[split[1], split[2]], split[2]]
+  # datamems_B <- setdiff(datamems[, split[2]], datamems_A)
+  # mid_cutpoint <- (max(datamems_A) + min(datamems_B)) / 2
+  mid_cutpoint <- mean(datamems[[split[1], split[2]]],
+                       cutsmems[[split[1], split[2]]])
 
   ## Make the new clusters.
-  Anum<-number*2
-  Bnum<-number*2+1
+  node_number_A <- node_number * 2
+  node_number_B <- node_number * 2 + 1
 
-  .Cloc[memsA]<<-Anum
-  .Cloc[memsB]<<-Bnum
+  cloc[mems_A] <- node_number_A
+  cloc[mems_B] <- node_number_B
 
-  variable <- colnames(data)[.Cluster_frame$bipartsplitcol[splitrow]]
+  variable_name <- colnames(data)[frame$bipartsplitcol[split_row]]
 
+  # REMOVE: Tan, 9/13/20. Remove categorical variable for now.
   ## This seperates the categorical variable from the level.
   ## Probably bad coding, parsing strings over and over.
-  if(grepl(variable,"*~*",fixed=TRUE)){
-    variable <- strsplit(variable,"*~*",fixed=TRUE)[[1]]
-  }
+  # if (grepl(variable_name, "*~*", fixed = TRUE)) {
+  #   variable_name <- strsplit(variable_name, "*~*", fixed = TRUE)[[1]]
+  # }
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## Is the split categorical?
-  # if(variable %in% catnames){
-  #   .Cluster_frame[splitrow,12] <<- 1
-  # }else { .Cluster_frame[splitrow,12] <<- 0 }
-  .Cluster_frame[splitrow,12] <<- 0
-
-  nr<-nrow(.Cluster_frame)
+  # if(variable_name %in% catnames) {
+  #   frame[split_row,12] <<- 1
+  # }else { frame[split_row,12] <<- 0 }
+  frame$category[split_row]    <- 0
 
   ## The old cluster now changes some attributes after splitting.
-  .Cluster_frame[splitrow,2] <<- variable
-  .Cluster_frame[splitrow,6] <<- variable
-  #.Cluster_frame[splitrow,13] <<- cutsmems[split[1],split[2]]
-  .Cluster_frame[splitrow,13] <<- mid.cutpoint # Use new cutpoint
-  .Cluster_frame[splitrow,15] <<- split.order
+  frame$var[split_row]         <- variable_name
+  frame$bipartvar[split_row]   <- variable_name
+  frame$cut[split_row]         <- mid_cutpoint # Use new cutpoint
+  frame$split.order[split_row] <- split_order
 
   ## Tan, 12/14, trying to change the order of rows in Cluster_frame, so that
-  ## the children will stay right after the parent, instead of at the very end of the table
+  ## the children will stay right after the parent, instead of at the very end
+  ## of the table
   ## Reason: mimic rpart, help print, and plot.
-  ## All the comment or new one will be noted carefully so that it can be rollbacked easily
+  ## All the comment or new one will be noted carefully so that it can be
+  ## rollbacked easily
 
-  # ADD: Tan, 12/14.
-  # If current row is not the last row in the table, shift all the rows two rows down to make space for the children
-  # Otherwise, proceed normally
-  if (splitrow < nrow(.Cluster_frame)) {
-    emptyrows <- rbind(.Cluster_frame[1,], .Cluster_frame[1,])
-    emptyrows[,] <- NA
-    .Cluster_frame <<- rbind(head(.Cluster_frame, splitrow),
-                             emptyrows,
-                             tail(.Cluster_frame, -splitrow))
-  }
+  # Initialize two new empty rows
+  new_frame <- frame[rep(1, 2), ]
+  new_frame[, ] <- NA
 
-  ## This part is the same as the commented code, just replace nr by splitrow
   ## New cluster 1 gets some new attributes
-  .Cluster_frame[splitrow+1,1] <<- Anum
-  .Cluster_frame[splitrow+1,2] <<- "<leaf>"
-  .Cluster_frame[splitrow+1,3] <<- length(memsA)
-  .Cluster_frame[splitrow+1,4] <<- sum(weights[memsA])
-  .Cluster_frame[splitrow+1,5] <<- inertia_calc(dist[memsA,memsA])
-  .Cluster_frame[splitrow+1,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
-  .Cluster_frame[splitrow+1,11] <<- medoid(memsA,dist)
-  .Cluster_frame[splitrow+1,14] <<- .Cluster_frame[splitrow,14] - 1/nr
+  new_frame$number[1]  <- node_number_A
+  new_frame$var[1]     <- "<leaf>"
+  new_frame$n[1]       <- length(mems_A)
+  new_frame$wt[1]      <- sum(weights[mems_A])
+  new_frame$inertia[1] <- inertia_calc(dist[mems_A, mems_A])
+  new_frame$yval[1]    <- 1 - frame[split_row, 9] / frame[1, 5]
+  new_frame$medoid[1]  <- medoid(mems_A, dist)
+  new_frame$loc[1]     <- frame[split_row, 14] - 1/nrow(frame)
 
   ## As does new cluster 2.
-  .Cluster_frame[splitrow+2,1] <<- Bnum
-  .Cluster_frame[splitrow+2,2] <<- "<leaf>"
-  .Cluster_frame[splitrow+2,3] <<- length(memsB)
-  .Cluster_frame[splitrow+2,4] <<- sum(weights[memsB])
-  .Cluster_frame[splitrow+2,5] <<- inertia_calc(dist[memsB,memsB])
-  .Cluster_frame[splitrow+2,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
-  .Cluster_frame[splitrow+2,11] <<- medoid(memsB,dist)
-  .Cluster_frame[splitrow+2,14] <<- .Cluster_frame[splitrow,14] + 1/nr
+  new_frame$number[2]  <- node_number_B
+  new_frame$var[2]     <- "<leaf>"
+  new_frame$n[2]       <- length(mems_B)
+  new_frame$wt[2]      <- sum(weights[mems_B])
+  new_frame$inertia[2] <- inertia_calc(dist[mems_B, mems_B])
+  new_frame$yval[2]    <- 1 - frame[split_row, 9] / frame[1, 5]
+  new_frame$medoid[2]  <- medoid(mems_B, dist)
+  new_frame$loc[2]     <- frame[split_row, 14] + 1/nrow(frame)
 
+  # Insert two new rows right after split row
+  frame <- dplyr::add_row(frame, new_frame, .after = split_row)
 
-  #     ## REMOVE: Tan, 12/14 New cluster 1 gets some new attributes
-  #     .Cluster_frame[nr+1,1] <<- Anum
-  #     .Cluster_frame[nr+1,2] <<- "<leaf>"
-  #     .Cluster_frame[nr+1,3] <<- length(memsA)
-  #     .Cluster_frame[nr+1,4] <<- sum(weights[memsA])
-  #     .Cluster_frame[nr+1,5] <<- inertia_calc(dist[memsA,memsA])
-  #     .Cluster_frame[nr+1,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
-  #     .Cluster_frame[nr+1,11] <<- medoid(memsA,dist)
-  #     .Cluster_frame[nr+1,14] <<- .Cluster_frame[splitrow,14] - 1/nr
-  #
-  #     ## As does new cluster 2.
-  #     .Cluster_frame[nr+2,1] <<- Bnum
-  #     .Cluster_frame[nr+2,2] <<- "<leaf>"
-  #     .Cluster_frame[nr+2,3] <<- length(memsB)
-  #     .Cluster_frame[nr+2,4] <<- sum(weights[memsB])
-  #     .Cluster_frame[nr+2,5] <<- inertia_calc(dist[memsB,memsB])
-  #     .Cluster_frame[nr+2,10] <<- 1-.Cluster_frame[splitrow,9]/.Cluster_frame[1,5]
-  #     .Cluster_frame[nr+2,11] <<- medoid(memsB,dist)
-  #     .Cluster_frame[nr+2,14] <<- .Cluster_frame[splitrow,14] + 1/nr
-
+  return(list(frame = frame, cloc = cloc))
 }
 
 #' Find the Best Split
@@ -705,32 +711,30 @@ splitter<-function(splitrow,data,cuts,dist,weights, split.order = 0){
 #' This is a fairly simple discrete optimization problem and could reduce
 #' computation time .
 #'
-#' @param row The row in .Cluster_frame that would be assessed.
-#' @param frame The split tree transferred as data frame.
-#' @param cloc Vector of current cluster membership.
+#' @param frame_row One row of the split tree as data frame.
 #' @inheritParams checkem
 #'
-#' @return This function changes the .Cluster_frame in global environment, it's
+#' @return This function changes the frame in global environment, it's
 #'   not supposed to return anything.
 #' @importFrom foreach `%dopar%`
 #' @keywords internal
-find_split <- function(row, frame, cloc, data, cuts, dist, variables, minsplit,
+find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
                        minbucket) {
 
-  number <- frame$number[row]
-  mems <- which(cloc == number)
-  inertiap <- frame$inertia[row]
+  node_number <- frame_row$number
+  mems <- which(cloc == node_number)
+  inertiap <- frame_row$inertia
 
-  if (inertiap == 0 | frame$n[row] < minsplit | frame$n[row] == 1) {
-    # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop
+  if (inertiap == 0 | frame_row$n < minsplit | frame_row$n == 1) {
+    # Tan 9/24 This is one obs cluster. Set bipartsplit_row value 0 to stop
     # checkem forever.
     # MG, 9/25 I think this means we won't explore this node again. But make it
     # doesn't stop the search into other nodes.
     # Yup, but we waste resources by keep checking them again and again. The
     # "candidates" of checkem keeps getting longer (at most n) instead of just 2
     # new splits.
-    frame$bipartsplitrow[row] <- 0
-    return(frame[row, ])
+    frame_row$bipartsplit_row <- 0
+    return(frame_row)
   }
 
   ## Subset the data and cut matricies
@@ -750,12 +754,12 @@ find_split <- function(row, frame, cloc, data, cuts, dist, variables, minsplit,
       cuts_col <- dplyr::pull(cutsmems, index)
 
       new_inertia <- purrr::map_dbl(cuts_col, function(x) {
-        memsA <- mems[which(data_col < x)]
-        memsB <- setdiff(mems, memsA)
-        ifelse(length(memsA) * length(memsB) == 0,
+        mems_A <- mems[which(data_col < x)]
+        mems_B <- setdiff(mems, mems_A)
+        ifelse(length(mems_A) * length(mems_B) == 0,
                NA,
-               inertia_calc(dist[memsA, memsA]) +
-                 inertia_calc(dist[memsB, memsB]))
+               inertia_calc(dist[mems_A, mems_A]) +
+                 inertia_calc(dist[mems_B, mems_B]))
       })
 
       return(new_inertia)
@@ -767,11 +771,11 @@ find_split <- function(row, frame, cloc, data, cuts, dist, variables, minsplit,
   #   cuts_col <- cutsmems[, i]
   #
   #   bycol <- cbind(bycol, sapply(cuts_col, function(x) {
-  #     memsA <- mems[which(data_col < x)]
-  #     memsB <- setdiff(mems, memsA)
-  #     ifelse(length(memsA) * length(memsB) == 0,
+  #     mems_A <- mems[which(data_col < x)]
+  #     mems_B <- setdiff(mems, mems_A)
+  #     ifelse(length(mems_A) * length(mems_B) == 0,
   #            NA,
-  #            inertia_calc(dist[memsA, memsA]) + inertia_calc(dist[memsB, memsB]))
+  #            inertia_calc(dist[mems_A, mems_A]) + inertia_calc(dist[mems_B, mems_B]))
   #     }))
   # }
   # Difference between current cluster and the possible splits
@@ -805,23 +809,23 @@ find_split <- function(row, frame, cloc, data, cuts, dist, variables, minsplit,
   if (nrow(ind_1) != 0) {
     split <- ind_1[1, ]
 
-    memsA <- mems[which(datamems[, split[2]] < cutsmems[[split[1], split[2]]])]
-    memsB <- setdiff(mems, memsA)
+    mems_A <- mems[which(datamems[, split[2]] < cutsmems[[split[1], split[2]]])]
+    mems_B <- setdiff(mems, mems_A)
 
     # calculate our change in inertia
     inertiadel <- inertiap -
-      inertia_calc(dist[memsA, memsA]) -
-      inertia_calc(dist[memsB, memsB])
+      inertia_calc(dist[mems_A, mems_A]) -
+      inertia_calc(dist[mems_B, mems_B])
 
     ## Update our frame
-    frame$bipartsplitrow[row] <- split[1]
+    frame_row$bipartsplit_row <- split[1]
     # Save colname, not colindex
-    frame$bipartsplitcol[row] <- variables[split[2]]
-    frame$inertiadel[row] <- inertiadel
+    frame_row$bipartsplitcol <- variables[split[2]]
+    frame_row$inertiadel <- inertiadel
   } else  # Otherwise, stop as a leaf
-    frame$bipartsplitrow[row] <- 0
+    frame_row$bipartsplit_row <- 0
 
-  return(frame[row, ])
+  return(frame_row)
 }
 
 #' First Gate Function
@@ -833,46 +837,58 @@ find_split <- function(row, frame, cloc, data, cuts, dist, variables, minsplit,
 #' @param data Original data set.
 #' @param cuts Cuts data set, which has the next higher value of each variable
 #'   in the original data set.
+#' @param frame The split tree transferred as data frame.
+#' @param cloc Vector of current cluster membership.
 #' @param dist Distance matrix of all observations in the data.
 #' @param weights Weights on each observation. Hasn't been implemented in
 #' exported function yet. Vector of 1 for all observations.
 #' @param minsplit The minimum number of observations that must exist in a node
 #'   in order for a split to be attempted.
-#' @param split.order The control argument to see how many split has been done.
+#' @param split_order The control argument to see how many split has been done.
 #' @inheritParams MonoClust
 #'
 #' @return It is not supposed to return anything because global environment was
 #'   used. However, if there is nothing left to split, it returns 0 to tell the
 #'   caller to stop running the loop.
 #' @keywords internal
-checkem <- function(data, cuts, dist, variables, weights, minsplit, minbucket,
-                    split.order) {
+checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
+                    minbucket, split_order) {
 
-  frame <- .Cluster_frame
-  cloc <- .Cloc
   ## Current terminal nodes
   candidates <- which(frame$var == "<leaf>" &&
-                        is.na(frame$bipartsplitrow))
+                        is.na(frame$bipartsplit_row))
   ## Split the best one. Return to nada which never gets output.
-  frame[candidates, ] <- purrr::map_dfr(candidates,
-                     ~ find_split(.x, frame, cloc, data, cuts, dist, variables,
-                                  minsplit, minbucket))
+  frame[candidates, ] <-
+    purrr::map_dfr(candidates,
+                   ~ find_split(data, cuts, frame[.x, ], cloc, dist, variables,
+                                minsplit, minbucket))
 
-  .Cluster_frame <<- frame
+
   ## See which ones are left.
-  candidates2 <- which(frame$var == "<leaf>" && frame$bipartsplitrow != 0)
+  candidates2 <- which(frame$var == "<leaf>" && frame$bipartsplit_row != 0)
   ## If nothing's left, stop running.
-  if (length(candidates2) == 0) return(0)
+  check <- ifelse(length(candidates2) == 0, 0, 1)
 
-  ## Find the best inertia change of all that are possible
-  splitrow <- candidates2[which.max(frame$inertiadel[candidates2])]
+  # otherwise, frame and cloc are not updated, cloc is used to check if done
+  # running
+  if (length(candidates2) != 0) {
+    ## Find the best inertia change of all that are possible
+    split_row <- candidates2[which.max(frame$inertiadel[candidates2])]
 
-  ## Make new clusters from that cluster
-  # splitter(splitrow, data, cuts,dist,catnames,weights)
-  splitter(splitrow, data, cuts, dist, weights, split.order)
-  # Tan, 9/24, in case there are more than one node equal to max
-  # MG, 9/25, I thought the earlier code would make sure only one is identified
-  # as top but that might not be true. It never caused a problem before.
-  # Maybe because we fixed inertia fn, equal inertias occurred for small
-  # clusters
+    ## Make new clusters from that cluster
+    # splitter(split_row, data, cuts,dist,catnames,weights)
+    splitter_ret <- splitter(data, cuts, split_row, frame, cloc, dist, weights,
+                             split_order)
+    # Tan, 9/24, in case there are more than one node equal to max
+    # MG, 9/25, I thought the earlier code would make sure only one is identified
+    # as top but that might not be true. It never caused a problem before.
+    # Maybe because we fixed inertia fn, equal inertias occurred for small
+    # clusters
+
+    frame <- splitter_ret$frame
+    cloc <- splitter_ret$cloc
+  }
+
+
+  return(list(frame = frame, cloc = cloc))
 }
