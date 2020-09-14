@@ -59,7 +59,7 @@ rpartco=function (tree, parms = paste(".rpart.parms", dev.cur(), sep = "."))
     frame <- tree$frame
     method <- tree$method
     node <- as.numeric(row.names(frame))
-    depth <- tree.depth(node)
+    depth <- tree_depth(node)
     is.leaf <- (frame$var == "<leaf>")
     if (exists(parms, envir = .GlobalEnv)) {
         parms <- get(parms, envir = .GlobalEnv)
@@ -166,12 +166,6 @@ rpartco=function (tree, parms = paste(".rpart.parms", dev.cur(), sep = "."))
     }
     compress(1, 1)
     list(x = x, y = y)
-}
-
-tree.depth=function (nodes)
-{
-    depth <- floor(log(nodes, base = 2) + 1e-07)
-    as.vector(depth - min(depth))
 }
 
 rpart.branch=function (x, y, node, branch)

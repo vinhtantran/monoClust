@@ -41,11 +41,6 @@
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 #' ruspini4sol
 #'
-#' # data with categorical variable
-#' data(iris)
-#' iris_cat <- MonoClust(iris, nclusters = 3)
-#' iris_cat
-#'
 #' # data with circular variable
 #' data(wind_sensit_2007)
 #'
@@ -57,20 +52,20 @@ MonoClust <- function(toclust,
                       distmethod = NULL,
                       labels = NULL,
                       digits = options("digits")$digits,
-                      nclusters = 2,
-                      minsplit = 5,
-                      minbucket = round(minsplit / 3),
+                      nclusters = 2L,
+                      minsplit = 5L,
+                      minbucket = round(minsplit / 3L),
                       perm.test = FALSE,
                       alpha = 0.05,
-                      ran = 0) { # Tan 4/16 Added to control recursive call
+                      ran = 0L) { # Tan 4/16 Added to control recursive call
 
   if (!is.data.frame(toclust)) {
     stop("toclust must be a data frame.")
   } else {
     if (is.null(labels)) {
-        labels <- ifelse(tibble::has_rownames(toclust),
-                         rownames(toclust),
-                         as.character(seq_len(nrow(toclust))))
+      labels <- ifelse(tibble::has_rownames(toclust),
+                       rownames(toclust),
+                       as.character(seq_len(nrow(toclust))))
     }
     toclust <- dplyr::as_tibble(toclust)
   }
@@ -129,7 +124,7 @@ MonoClust <- function(toclust,
   # assign(".MonoClustwarn", 0, envir = .GlobalEnv)
   ## Right now, each observation has equal weight. This could be made into an
   ## option.
-  weights <- rep(1, nrow(toclust))
+  weights <- rep(1L, nrow(toclust))
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## Categorical Variable Ordering
@@ -245,7 +240,8 @@ MonoClust <- function(toclust,
   # CLUSTERING ON CIRCULAR VARIABLE
   # Keep an original copy of toclust before applying circular split
   # toclust0 <- toclust
-
+  # Whether or not having circular variable, this is a part of output
+  bestcircsplit <- NULL
   if (!is.null(cir.var)) {
 
     # This only works on **one** circular variable
@@ -264,22 +260,22 @@ MonoClust <- function(toclust,
         # TODO: Have to call MonoClust with ran = 1 to find the best split for
         # the shifted variables. Should be improved.
         out <- MonoClust(data.frame(variable_shift),
-                         cir.var = 1,
-                         nclusters = 2,
-                         ran = 1)
+                         cir.var = 1L,
+                         nclusters = 2L,
+                         ran = 1L)
         cut <- out$frame$cut[1]
         inertia <-
-          inertia_calc(out$dist[which(out$Membership == 2),
-                                which(out$Membership == 2)]) +
-          inertia_calc(out$dist[which(out$Membership == 3),
-                                which(out$Membership == 3)])
+          inertia_calc(out$dist[which(out$Membership == 2L),
+                                which(out$Membership == 2L)]) +
+          inertia_calc(out$dist[which(out$Membership == 3L),
+                                which(out$Membership == 3L)])
 
         if (min_inertia > inertia) {
           min_inertia <- inertia
           bestcircsplit <- list(hour = min_value,
-                                minute = ifelse((cut + min_value) < 360,
+                                minute = ifelse((cut + min_value) < 360L,
                                                 cut + min_value,
-                                                cut + min_value - 360),
+                                                cut + min_value - 360L),
                                 intertia = inertia)
         }
 
@@ -344,7 +340,7 @@ MonoClust <- function(toclust,
     # I have to split because R coerce the distance matrix to one value when
     # using ifelse with a 0.
     # distmat1: distance matrix of pure quantitative variables
-    if (ncol(toclust[, -cir.var]) != 0) {
+    if (ncol(toclust[, -cir.var]) != 0L) {
       distmat1 <- cluster::daisy(toclust[, -cir.var], metric = distmethod) *
         dim(toclust[, -cir.var])[2]
     } else {
@@ -375,7 +371,7 @@ MonoClust <- function(toclust,
   ## Likewise, set up the first (entire dataset) cluster in our Cluster frame
   ## where we keep track of each of the clusters and the partitioning.
   cluster_frame <-
-    new_node(number = 1,
+    new_node(number = 1L,
              var = "<leaf>",
              n = nobs,
              wt = sum(weights[members]),
@@ -383,9 +379,9 @@ MonoClust <- function(toclust,
              yval = 1,
              medoid = medoid(members, dismat),
              loc = 0.1,
-             split.order = 0)
+             split.order = 0L)
 
-  split_order <- 1
+  split_order <- 1L
   done_running <- FALSE
   ## This loop runs until we have nclusters, have exhausted our observations or
   ## run into our minbucket/minsplit restrictions.
@@ -394,7 +390,7 @@ MonoClust <- function(toclust,
     # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
     checkem_ret <- checkem(toclust, cuts, cluster_frame, c_loc, dismat,
                            variables, weights, minsplit, minbucket, split_order)
-    split_order <- split_order + 1
+    split_order <- split_order + 1L
 
     # Use cloc because it is only ran in splitter
     if (!identical(c_loc, checkem_ret$cloc)) {
@@ -596,14 +592,14 @@ MonoClust <- function(toclust,
 #'
 #' @keywords internal
 splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
-                     split_order = 0) {
+                     split_order = 0L) {
   ## This function does the actual act of partitioning, given the row that is
   ## to be split "split_row"
 
   node_number <- frame$number[split_row]
   mems <- which(cloc == node_number)
   split <- c(frame$bipartsplitrow[split_row],
-              frame$bipartsplitcol[split_row])
+             frame$bipartsplitcol[split_row])
 
   # Extract data and cuts to split
   datamems <- data[mems, ]
@@ -632,8 +628,8 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
                          cutsmems[[split[1], split[2]]]))
 
   ## Make the new clusters.
-  node_number_A <- node_number * 2
-  node_number_B <- node_number * 2 + 1
+  node_number_A <- node_number * 2L
+  node_number_B <- node_number * 2L + 1L
 
   cloc[mems_A] <- node_number_A
   cloc[mems_B] <- node_number_B
@@ -652,7 +648,7 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
   # if(variable_name %in% catnames) {
   #   frame[split_row,12] <<- 1
   # }else { frame[split_row,12] <<- 0 }
-  frame$category[split_row]    <- 0
+  frame$category[split_row]    <- 0L
 
   ## The old cluster now changes some attributes after splitting.
   frame$var[split_row]         <- variable_name
@@ -728,7 +724,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   mems <- which(cloc == node_number)
   inertiap <- frame_row$inertia
 
-  if (inertiap == 0 | frame_row$n < minsplit | frame_row$n == 1) {
+  if (inertiap == 0 | frame_row$n < minsplit | frame_row$n == 1L) {
     # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop
     # checkem forever.
     # MG, 9/25 I think this means we won't explore this node again. But make it
@@ -736,7 +732,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
     # Yup, but we waste resources by keep checking them again and again. The
     # "candidates" of checkem keeps getting longer (at most n) instead of just 2
     # new splits.
-    frame_row$bipartsplitrow <- 0
+    frame_row$bipartsplitrow <- 0L
     return(frame_row)
   }
 
@@ -808,7 +804,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
 
   ## Remove all row doesn't satisfy minbucket and make sure output is always a
   ## matrix even though it has only one row
-  ind_1 <- matrix(ind_1[!ind_1[,3] == FALSE, ], ncol = 3)
+  ind_1 <- matrix(ind_1[!ind_1[, 3] == FALSE, ], ncol = 3)
 
   ## If multiple splits produce the same inertia change output a warning.
   #if(nrow(ind) > 1 & .MonoClustwarn==0) {.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
@@ -864,7 +860,7 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
 
   ## Current terminal nodes
   candidates <- which(frame$var == "<leaf>" &
-                        frame$bipartsplitrow == -99)
+                        frame$bipartsplitrow == -99L)
   ## Split the best one. Return to nada which never gets output.
   frame[candidates, ] <-
     purrr::map_dfr(candidates,
@@ -873,7 +869,7 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
 
 
   ## See which ones are left.
-  candidates2 <- which(frame$var == "<leaf>" & frame$bipartsplitrow != 0)
+  candidates2 <- which(frame$var == "<leaf>" & frame$bipartsplitrow != 0L)
 
   # if there is something, run. Otherwise, frame and cloc are not updated, cloc
   # is used to check if done running

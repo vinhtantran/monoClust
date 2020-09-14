@@ -66,11 +66,6 @@ data(ruspini)
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 ruspini4sol
 
-# data with categorical variable
-data(iris)
-iris_cat <- MonoClust(iris, nclusters = 3)
-iris_cat
-
 # data with circular variable
 data(wind_sensit_2007)
 

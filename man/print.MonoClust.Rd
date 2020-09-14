@@ -2,27 +2,28 @@
 % Please edit documentation in R/print.MonoClust.R
 \name{print.MonoClust}
 \alias{print.MonoClust}
-\title{Print the result of MonoClust clustering}
+\title{Print Monothetic Clustering Results}
 \usage{
-\method{print}{MonoClust}(x, abbrev = 0, spaces = 2, digits = options("digits")$digits, ...)
+\method{print}{MonoClust}(x, abbrev = 0, spaces = 2, digits = options("digits")$digits)
 }
 \arguments{
-\item{x}{MonoClust result object}
+\item{x}{MonoClust result object.}
 
-\item{abbrev}{whether print the abbreviated version of labels}
+\item{abbrev}{Whether print the abbreviated version of labels.}
 
-\item{spaces}{spaces between 2 tree levels}
+\item{spaces}{Spaces between 2 tree levels.}
 
-\item{digits}{number of digits shown on the tree}
-
-\item{...}{other args, sending to labels function}
+\item{digits}{Number of digits shown on the tree.}
 }
 \value{
-The print result
+Splitting tree displayed nicely.
 }
 \description{
-Print the result of MonoClust clustering
+Print Monothetic Clustering Results
 }
 \examples{
-NULL
+library(cluster)
+data(ruspini)
+ruspini4sol <- MonoClust(ruspini, nclusters = 4)
+print(ruspini4sol)
 }

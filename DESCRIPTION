@@ -34,6 +34,7 @@ Imports:
     foreach,
     fpc,
     permute,
-    tibble
+    tibble,
+    stringr
 Suggests: 
     testthat

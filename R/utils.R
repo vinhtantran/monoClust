@@ -196,3 +196,20 @@ centroid <- function(data, frame, cloc) {
 
   return(centroid_list)
 }
+
+#' Find Tree Depth Based on Node Indices
+#'
+#' @param nodes Vector of node indices in the tree.
+#'
+#' @details
+#' When building MonoClust tree, the node index was created with the rule that
+#'   new node indices are the split node times 2 plus 0 (left) and 1 (right).
+#'   Therefore, this function is just a back-transform, taking a log base 2.
+#'
+#' @return Depth of the node, with 0 is the root relative to the input.
+#'
+#' @keywords internal
+tree_depth <- function(nodes) {
+  depth <- floor(log2(nodes) + 1e-07)
+  return(depth - min(depth))
+}
