@@ -32,7 +32,7 @@ print.MonoClust <- function(x, abbrev = 0, spaces = 2L,
   # 2L is because of 1 number (1 or 2 digits) and the bracket
   indent <- stringr::str_pad(stringr::str_c(node, ")"), depth * spaces + 2L)
 
-  # REMOVE: Tan, 9/14/20. Not necessary
+  # MODIFY: Tan, 9/14/20. Not necessary
   # tfun <- (x$functions)$print
   # if (!is.null(tfun)) {
   #   if (is.null(frame$yval2))
@@ -54,20 +54,23 @@ print.MonoClust <- function(x, abbrev = 0, spaces = 2L,
   ## round((1-as.numeric(yval)/1),digits=2), term)
   if (has_pvalue) {
     z <- paste(indent, z, n, format(signif(frame$dev, digits = digits)),
-               round((1 - as.numeric(yval)/1),
-                     digits = 2), frame$p.value, term)
+               round((1 - as.numeric(yval)/1), digits = digits),
+               frame$p.value, term)
   } else {
     z <- paste(indent, z, n, format(signif(frame$dev, digits = digits)),
-               round((1 - as.numeric(yval)/1),
-                     digits = 2), term)
+               round((1 - as.numeric(yval)/1), digits = digits),
+               term)
   }
 
-  omit <- x$na.action
-  if (length(omit)) {
-    cat("n=", n[1L], " (", naprint(omit), ")\n\n", sep = "")
-  } else {
-    cat("n=", n[1L], "\n\n")
-  }
+  # MODIDY: Tan, 9/14/20. Not necessary.
+  # omit <- x$na.action
+  # if (length(omit)) {
+  #   cat("n=", n[1L], " (", naprint(omit), ")\n\n", sep = "")
+  # } else {
+  #   cat("n=", n[1L], "\n\n")
+  # }
+
+  cat("n=", n[1L], "\n\n")
 
   cat("Node, N, Within Cluster Deviance, Proportion Deviance Explained,",
       ifelse(has_pvalue, "Bonferroni adj. p-value", ""), "\n")

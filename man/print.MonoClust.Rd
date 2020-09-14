@@ -4,16 +4,16 @@
 \alias{print.MonoClust}
 \title{Print Monothetic Clustering Results}
 \usage{
-\method{print}{MonoClust}(x, abbrev = 0, spaces = 2, digits = options("digits")$digits)
+\method{print}{MonoClust}(x, abbrev = 0, spaces = 2L, digits = getOption("digits"))
 }
 \arguments{
 \item{x}{MonoClust result object.}
 
 \item{abbrev}{Whether print the abbreviated version of labels.}
 
-\item{spaces}{Spaces between 2 tree levels.}
+\item{spaces}{Spaces indent between 2 tree levels.}
 
-\item{digits}{Number of digits shown on the tree.}
+\item{digits}{Number of significant digits to print.}
 }
 \value{
 Splitting tree displayed nicely.

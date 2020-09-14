@@ -478,9 +478,10 @@ MonoClust <- function(toclust,
   ## although both of them are used in labels.MonoClust. Maybe for categorical variables?
   MonoClust_obj <-
     list(frame = cluster_frame,
-         # TODO: Why the same as below?
+         # row name, the labels of each observation
          labels = labels,
-         # TODO: Why the same as above?
+         # the variable names, designed because of categorical variables were
+         # split into levels column PCAmixdata
          labelsnum = labels,
          # REMOVE: Tan, 9/14/20. Don't know why need this.
          # functions = dendfxns,

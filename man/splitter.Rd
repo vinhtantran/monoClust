@@ -4,7 +4,7 @@
 \alias{splitter}
 \title{Split Function}
 \usage{
-splitter(data, cuts, split_row, frame, cloc, dist, weights, split_order = 0)
+splitter(data, cuts, split_row, frame, cloc, dist, weights, split_order = 0L)
 }
 \arguments{
 \item{data}{Original data set.}

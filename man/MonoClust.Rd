@@ -11,12 +11,12 @@ MonoClust(
   distmethod = NULL,
   labels = NULL,
   digits = options("digits")$digits,
-  nclusters = 2,
-  minsplit = 5,
-  minbucket = round(minsplit/3),
+  nclusters = 2L,
+  minsplit = 5L,
+  minbucket = round(minsplit/3L),
   perm.test = FALSE,
   alpha = 0.05,
-  ran = 0
+  ran = 0L
 )
 }
 \arguments{
