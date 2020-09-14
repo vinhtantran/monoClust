@@ -4,13 +4,28 @@
 \alias{checkem}
 \title{First Gate Function}
 \usage{
-checkem(data, cuts, dist, variables, weights, minsplit, minbucket, split.order)
+checkem(
+  data,
+  cuts,
+  frame,
+  cloc,
+  dist,
+  variables,
+  weights,
+  minsplit,
+  minbucket,
+  split_order
+)
 }
 \arguments{
 \item{data}{Original data set.}
 
 \item{cuts}{Cuts data set, which has the next higher value of each variable
 in the original data set.}
+
+\item{frame}{The split tree transferred as data frame.}
+
+\item{cloc}{Vector of current cluster membership.}
 
 \item{dist}{Distance matrix of all observations in the data.}
 
@@ -26,7 +41,7 @@ in order for a split to be attempted.}
 \item{minbucket}{The minimum number of observations in any terminal leaf
 node. If not specified, it is set to minsplit/3.#}
 
-\item{split.order}{The control argument to see how many split has been done.}
+\item{split_order}{The control argument to see how many split has been done.}
 }
 \value{
 It is not supposed to return anything because global environment was

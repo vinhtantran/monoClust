@@ -9,14 +9,14 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-9881-6339")),
     person(given = "Brian",
            family = "McGuire",
-           role = c("aut")),
-    person(given = "Garland",
-           family = "Will",
-           role = c("ctb")),       
+           role = c("aut")),       
     person(given = "Mark",
            family = "Greenwood",
            role = c("aut"),
-           email = "mark.greenwood@montana.edu")     
+           email = "mark.greenwood@montana.edu"),
+    person(given = "Garland",
+           family = "Will",
+           role = c("ctb"))     
     )
 Description: This package runs Monothetic Clustering on a data set.
 License: GPL-3

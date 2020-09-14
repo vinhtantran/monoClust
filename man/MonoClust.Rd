@@ -61,7 +61,8 @@ Clustering.
 }
 \examples{
 # Very simple data set
-data(cluster::ruspini)
+library(cluster)
+data(ruspini)
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 ruspini4sol
 
