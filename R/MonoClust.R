@@ -26,6 +26,7 @@
 #'
 #' @return MonoClust object, an extension of rpart object.
 #' @importFrom dplyr `%>%`
+#' @importFrom rlang .data
 #' @export
 #'
 #' @references
@@ -42,6 +43,7 @@
 #' ruspini4sol
 #'
 #' # data with circular variable
+#' library(monoClust)
 #' data(wind_sensit_2007)
 #'
 #' circular_wind <- MonoClust(wind_sensit_2007, cir.var = 3, nclusters = 2)
@@ -60,26 +62,30 @@ MonoClust <- function(toclust,
                       ran = 0L) { # Tan 4/16 Added to control recursive call
 
   if (!is.data.frame(toclust)) {
-    stop("toclust must be a data frame.")
-  } else {
-    if (is.null(labels)) {
-      labels <- ifelse(tibble::has_rownames(toclust),
-                       rownames(toclust),
-                       as.character(seq_len(nrow(toclust))))
-    }
-    toclust <- dplyr::as_tibble(toclust)
+    stop("\"toclust\" must be a data frame.")
   }
+
+  toclust <- dplyr::as_tibble(toclust)
 
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad
   ## parameters are transferred
   ## Ensure that important options make sense
   if (minbucket >= minsplit) {
-    stop("minbucket must be less than minsplit.")
+    stop("\"minbucket\" must be less than \"minsplit\".")
   }
 
   # ADD: Tan, 9/9/2020, add to check that no categorical variables existed
   if (!all(purrr::map_lgl(toclust, is.numeric))) {
     stop("Function does not support categorical variables yet.")
+  }
+
+  if (is.null(labels)) {
+    labels <- colnames(toclust)
+    names(labels) <- labels
+  } else if (length(labels) != ncol(toclust)) {
+    stop("\"labels\" has to have the same number of columns of \"toclust\".")
+  } else {
+    names(labels) <- colnames(toclust)
   }
 
   ## Tan, 5/27/16, argument checking (variables)
@@ -371,15 +377,18 @@ MonoClust <- function(toclust,
   ## Likewise, set up the first (entire dataset) cluster in our Cluster frame
   ## where we keep track of each of the clusters and the partitioning.
   cluster_frame <-
-    new_node(number = 1L,
-             var = "<leaf>",
-             n = nobs,
-             wt = sum(weights[members]),
-             inertia = inertia_calc(dismat[members, members]),
-             yval = 1,
-             medoid = medoid(members, dismat),
-             loc = 0.1,
-             split.order = 0L)
+    new_node(number            = 1L,
+             var               = "<leaf>",
+             n                 = nobs,
+             # Remove because it's not implemented
+             # wt                = sum(weights[members]),
+             inertia           = inertia_calc(dismat[members, members]),
+             # TODO: replace yval by inertia_explained
+             yval              = 1,
+             inertia_explained = 0,
+             medoid            = medoid(members, dismat),
+             loc               = 0.1,
+             split.order       = 0L)
 
   split_order <- 1L
   done_running <- FALSE
@@ -472,6 +481,9 @@ MonoClust <- function(toclust,
   medoids <- cluster_frame$medoid[cluster_frame$var == "<leaf>"]
   names(medoids) <- cluster_frame$number[cluster_frame$var == "<leaf>"]
 
+  # For display purpose, all -99 is turned to NA
+  cluster_frame <- cluster_frame %>% replace(.data == -99, NA)
+
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   # We will return a MonoClust object that also inherits from rpart with all of the neccesary components.
   ## MODIFY: Tan, 12/14, I don't know the difference between labels and labelsnum output
@@ -481,8 +493,9 @@ MonoClust <- function(toclust,
          # row name, the labels of each observation
          labels = labels,
          # the variable names, designed because of categorical variables were
-         # split into levels column PCAmixdata
-         labelsnum = labels,
+         # split into levels column PCAmixdata.
+         # TODO: Remove this
+         labelsnum = colnames(toclust),
          # REMOVE: Tan, 9/14/20. Don't know why need this.
          # functions = dendfxns,
          # TODO: uncapitalized
@@ -513,6 +526,7 @@ MonoClust <- function(toclust,
 
 }
 
+# REMOVE: Tan, 9/14/20. Use for categorical variables only.
 # abbreviate.t <- function(string,abbrev) {
 #   ## This function abbreviates the text. We want to handle categories, which rpart is not really prepared for
 #   ## so we use somewhat uneccesary regular expressions to get rid of unwanted characters in our categorical orderings.
@@ -649,12 +663,12 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
   # if(variable_name %in% catnames) {
   #   frame[split_row,12] <<- 1
   # }else { frame[split_row,12] <<- 0 }
-  frame$category[split_row]    <- 0L
-
+  # frame$category[split_row]    <- 0L
   ## The old cluster now changes some attributes after splitting.
   frame$var[split_row]         <- variable_name
+  # Use new cutpoint
+  frame$cut[split_row]         <- mid_cutpoint
   frame$bipartvar[split_row]   <- variable_name
-  frame$cut[split_row]         <- mid_cutpoint # Use new cutpoint
   frame$split.order[split_row] <- split_order
 
   ## Tan, 12/14, trying to change the order of rows in Cluster_frame, so that
@@ -670,8 +684,10 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
       number  = node_number_A,
       var     = "<leaf>",
       n       = length(mems_A),
-      wt      = sum(weights[mems_A]),
+      # Remove because it is not implemented
+      # wt      = sum(weights[mems_A]),
       inertia = inertia_calc(dist[mems_A, mems_A]),
+      # TODO: Remove yval
       yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
       medoid  = medoid(mems_A, dist),
       loc     = frame$loc[split_row] - 1 / nrow(frame)
@@ -683,8 +699,10 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
       number  = node_number_B,
       var     = "<leaf>",
       n       = length(mems_B),
-      wt      = sum(weights[mems_B]),
+      # Remove because it's not implemented
+      # wt      = sum(weights[mems_B]),
       inertia = inertia_calc(dist[mems_B, mems_B]),
+      # TODO: Remove yval
       yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
       medoid  = medoid(mems_B, dist),
       loc     = frame$loc[split_row] + 1 / nrow(frame)
@@ -694,6 +712,12 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
   frame <- dplyr::add_row(frame,
                           dplyr::add_row(node_A, node_B),
                           .after = split_row)
+
+  # This has to be updated last because it needs leaf nodes list
+  # See Chavent (2007) for definition. Basically,
+  # 1 - (sum(current inertia)/inertial[1])
+  frame$inertia_explained[split_row] <-
+    1 - sum(frame$inertia[frame$var == "<leaf>"])/frame$inertia[1]
 
   return(list(frame = frame, cloc = cloc))
 }
@@ -725,7 +749,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   mems <- which(cloc == node_number)
   inertiap <- frame_row$inertia
 
-  if (inertiap == 0 | frame_row$n < minsplit | frame_row$n == 1L) {
+  if (inertiap == 0L | frame_row$n < minsplit | frame_row$n == 1L) {
     # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop
     # checkem forever.
     # MG, 9/25 I think this means we won't explore this node again. But make it
@@ -754,7 +778,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
     new_inertia <- purrr::map_dbl(cuts_col, function(x) {
       mems_A <- mems[which(data_col < x)]
       mems_B <- setdiff(mems, mems_A)
-      ifelse(length(mems_A) * length(mems_B) == 0,
+      ifelse(length(mems_A) * length(mems_B) == 0L,
              NA,
              inertia_calc(dist[mems_A, mems_A]) +
                inertia_calc(dist[mems_B, mems_B]))
@@ -785,7 +809,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   # Difference between current cluster and the possible splits
   vals <- inertiap - bycol
   ## Say no difference if we have NA or infinite (happens when no split is possible)
-  vals[!is.finite(vals) | is.na(vals)] <- 0
+  vals[!is.finite(vals) | is.na(vals)] <- 0L
 
   ## This is the best split.
   maxval <- max(vals)
@@ -798,23 +822,23 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
 
   for (i in seq_len(nrow(ind_1))) {
     split <- ind_1[i, ]
-    left_size <- sum(datamems[, split[2]] < cutsmems[[split[1], split[2]]])
+    left_size <- sum(datamems[, split[2L]] < cutsmems[[split[1L], split[2L]]])
     right_size <- length(mems) - left_size
-    if (left_size < minbucket | right_size < minbucket) ind_1[i, 3] <- FALSE
+    if (left_size < minbucket | right_size < minbucket) ind_1[i, 3L] <- FALSE
   }
 
   ## Remove all row doesn't satisfy minbucket and make sure output is always a
   ## matrix even though it has only one row
-  ind_1 <- matrix(ind_1[!ind_1[, 3] == FALSE, ], ncol = 3)
+  ind_1 <- matrix(ind_1[!ind_1[, 3L] == FALSE, ], ncol = 3L)
 
   ## If multiple splits produce the same inertia change output a warning.
   #if(nrow(ind) > 1 & .MonoClustwarn==0) {.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
 
   # If there is at least one row that satisfies minbucket, pick the first one
-  if (nrow(ind_1) != 0) {
-    split <- ind_1[1, ]
+  if (nrow(ind_1) != 0L) {
+    split <- ind_1[1L, ]
 
-    mems_A <- mems[which(datamems[, split[2]] < cutsmems[[split[1], split[2]]])]
+    mems_A <- mems[which(datamems[, split[2L]] < cutsmems[[split[1L], split[2L]]])]
     mems_B <- setdiff(mems, mems_A)
 
     # calculate our change in inertia
@@ -823,12 +847,11 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
       inertia_calc(dist[mems_B, mems_B])
 
     ## Update our frame
-    frame_row$bipartsplitrow <- split[1]
-    # Save colname, not colindex
-    frame_row$bipartsplitcol <- variables[split[2]]
+    frame_row$bipartsplitrow <- split[1L]
+    frame_row$bipartsplitcol <- variables[split[2L]]
     frame_row$inertiadel <- inertiadel
   } else  # Otherwise, stop as a leaf
-    frame_row$bipartsplitrow <- 0
+    frame_row$bipartsplitrow <- 0L
 
   return(frame_row)
 }
@@ -874,7 +897,7 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
 
   # if there is something, run. Otherwise, frame and cloc are not updated, cloc
   # is used to check if done running
-  if (length(candidates2) > 0) {
+  if (length(candidates2) > 0L) {
     ## Find the best inertia change of all that are possible
     split_row <- candidates2[which.max(frame$inertiadel[candidates2])]
 

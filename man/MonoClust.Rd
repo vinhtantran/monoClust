@@ -67,6 +67,7 @@ ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 ruspini4sol
 
 # data with circular variable
+library(monoClust)
 data(wind_sensit_2007)
 
 circular_wind <- MonoClust(wind_sensit_2007, cir.var = 3, nclusters = 2)

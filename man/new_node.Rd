@@ -7,19 +7,18 @@
 new_node(
   number,
   var,
-  cut = NA,
+  cut = -99L,
   n,
-  wt,
   inertia,
   bipartvar = "",
-  bipartsplitrow = -99,
-  bipartsplitcol = -99,
+  bipartsplitrow = -99L,
+  bipartsplitcol = -99L,
   inertiadel = 0,
   yval,
+  inertia_explained = -99,
   medoid,
-  category = 0,
   loc,
-  split.order = -99
+  split.order = -99L
 )
 }
 \arguments{
@@ -30,27 +29,29 @@ new_node(
 \item{cut}{The splitting value, so values (of \code{bipartvar}) smaller than that
 go to left branch while values greater than that go to right branch.}
 
-\item{n}{NA}
-
-\item{wt}{NA}
+\item{n}{Cluster size. Number of observations in that cluster.}
 
 \item{inertia}{Inertia value of the cluster at that node.}
 
 \item{bipartvar}{Name of the next split variable, match \code{var} if \code{var} is not
 a leaf.}
 
-\item{bipartsplitrow}{NA}
+\item{bipartsplitrow}{Position of the next split row in the data set (that
+position will belong to left node (smaller)).}
 
-\item{bipartsplitcol}{NA}
+\item{bipartsplitcol}{Position of the next split variable in the data set.}
 
 \item{inertiadel}{The proportion of inertia value of the cluster at that node
 to the inertia of the root.}
 
-\item{yval}{NA}
+\item{yval}{In rpart, it's the estimated response value. Here in MonoClust,
+it has no meaning. Will be removed in the future.}
 
-\item{medoid}{NA}
+\item{inertia_explained}{Percent inertia explained as described in Chavent
+(2007)}
 
-\item{category}{Whether splitting variable is categorical (1) or not (0).}
+\item{medoid}{Position of the data point regarded as the medoid of its
+cluster.}
 
 \item{loc}{y-coordinate of the splitting node to facilitate showing on the
 tree. See \code{\link[=plot.MonoClust]{plot.MonoClust()}} for details.}
@@ -58,12 +59,19 @@ tree. See \code{\link[=plot.MonoClust]{plot.MonoClust()}} for details.}
 \item{split.order}{Order of the splits. Root is 0, and increasing.}
 }
 \value{
-A tibble with only one row and correct data type for even an
+A tibble with only one row and correct default data type for even an
 unspecified variables.
 }
 \description{
 This function is just a helper to make sure that the default values of the
 split data frame is correct when unspecified. It helps reduce type error,
 especially when moving to use dplyr which is stricter in data types.
+}
+\references{
+\itemize{
+\item Chavent, M., Lechevallier, Y., & Briant, O. (2007). DIVCLUS-T: A monothetic
+divisive hierarchical clustering method. Computational Statistics & Data
+Analysis, 52(2), 687–701. https://doi.org/10.1016/j.csda.2007.03.013
+}
 }
 \keyword{internal}

@@ -59,6 +59,7 @@ inertia_calc <- function(X) {
   if (!is.numeric(X) && !is.matrix(X))
     stop("X has to be a numerical value or matrix.")
 
+  # If singleton cluster, inertia is 0
   inertia_value <- ifelse(length(X) == 1 && is.numeric(X),
                           0,
                           sum(X^2) / (dim(X)[1] * 2))
@@ -124,44 +125,61 @@ medoid <- function(members, dist_mat) {
 #' @param var Whether it is a leaf, or the name of the next split variable.
 #' @param cut The splitting value, so values (of `bipartvar`) smaller than that
 #'   go to left branch while values greater than that go to right branch.
-#' @param n NA
-#' @param wt NA
+#' @param n Cluster size. Number of observations in that cluster.
 #' @param inertia Inertia value of the cluster at that node.
 #' @param bipartvar Name of the next split variable, match `var` if `var` is not
 #'   a leaf.
-#' @param bipartsplitrow NA
-#' @param bipartsplitcol NA
+#' @param bipartsplitrow Position of the next split row in the data set (that
+#'   position will belong to left node (smaller)).
+#' @param bipartsplitcol Position of the next split variable in the data set.
 #' @param inertiadel The proportion of inertia value of the cluster at that node
 #'   to the inertia of the root.
-#' @param yval NA
-#' @param medoid NA
-#' @param category Whether splitting variable is categorical (1) or not (0).
+#' @param yval In rpart, it's the estimated response value. Here in MonoClust,
+#'   it has no meaning. Will be removed in the future.
+#' @param medoid Position of the data point regarded as the medoid of its
+#'   cluster.
 #' @param loc y-coordinate of the splitting node to facilitate showing on the
 #'   tree. See [plot.MonoClust()] for details.
 #' @param split.order Order of the splits. Root is 0, and increasing.
+#' @param inertia_explained Percent inertia explained as described in Chavent
+#'   (2007)
 #'
-#' @return A tibble with only one row and correct data type for even an
+#' @references
+#' * Chavent, M., Lechevallier, Y., & Briant, O. (2007). DIVCLUS-T: A monothetic
+#' divisive hierarchical clustering method. Computational Statistics & Data
+#' Analysis, 52(2), 687–701. https://doi.org/10.1016/j.csda.2007.03.013
+#'
+#' @return A tibble with only one row and correct default data type for even an
 #'   unspecified variables.
 #' @keywords internal
 new_node <- function(number,
                      var,
-                     cut = NA,
+                     cut = -99L,
                      n,
-                     wt,
+                     # Remove it is not implemented
+                     # wt,
                      inertia,
                      bipartvar = "",
-                     bipartsplitrow = -99,
-                     bipartsplitcol = -99,
+                     bipartsplitrow = -99L,
+                     bipartsplitcol = -99L,
                      inertiadel = 0,
+                     # TODO: Replace yval by inertia_explained
                      yval,
+                     inertia_explained = -99,
                      medoid,
-                     category = 0,
+                     # Remove later because there's no categorical
+                     # category = 0,
                      loc,
-                     split.order = -99) {
+                     split.order = -99L) {
 
   one_row_table <- dplyr::tibble(
-    number, var, cut, n, wt, inertia, bipartvar, bipartsplitrow,
-    bipartsplitcol, inertiadel, yval, medoid, category, loc, split.order)
+    number, var, cut, n,
+    # wt,
+    inertia, bipartvar, bipartsplitrow,
+    bipartsplitcol, inertiadel, yval, inertia_explained, medoid,
+    # category,
+    loc,
+    split.order)
 
   return(one_row_table)
 }

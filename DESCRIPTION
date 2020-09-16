@@ -35,6 +35,7 @@ Imports:
     fpc,
     permute,
     tibble,
-    stringr
+    stringr,
+    rlang
 Suggests: 
     testthat

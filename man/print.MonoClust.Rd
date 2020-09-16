@@ -4,22 +4,40 @@
 \alias{print.MonoClust}
 \title{Print Monothetic Clustering Results}
 \usage{
-\method{print}{MonoClust}(x, abbrev = 0, spaces = 2L, digits = getOption("digits"))
+\method{print}{MonoClust}(
+  x,
+  abbrev = c("no", "short", "abbreviate"),
+  spaces = 2L,
+  digits = getOption("digits"),
+  ...
+)
 }
 \arguments{
 \item{x}{MonoClust result object.}
 
-\item{abbrev}{Whether print the abbreviated version of labels.}
+\item{abbrev}{Whether to print the abbreviated versions of variable names.
+Can be either "no" (default), "short", or "abbreviate". Short forms of them
+can also be used.
+
+If "no", the labels recorded in \code{x$labels} are used.
+
+If "short", variable names will be turned into "V1", "V2", ...
+
+If "abbreviate", \code{\link[=abbreviate]{abbreviate()}} function will be used. Use the optional
+arguments for this function.}
 
 \item{spaces}{Spaces indent between 2 tree levels.}
 
 \item{digits}{Number of significant digits to print.}
+
+\item{...}{Optional arguments to \code{\link[=abbreviate]{abbreviate()}}}
 }
 \value{
-Splitting tree displayed nicely.
+A nicely displayed MonoClust split tree.
 }
 \description{
-Print Monothetic Clustering Results
+Render the \code{MonoClust} split tree in an easy to read format with important
+information such as terminal nodes, p-value (if possible), etc.
 }
 \examples{
 library(cluster)
