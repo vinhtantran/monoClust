@@ -22,7 +22,6 @@
 #'   criterion while clustering. Default is FALSE. See [perm.test()].
 #' @param alpha Value applied specifically to permutation test. Only valid when
 #'   `perm.test = TRUE`.
-#' @param ran This parameter should never be used.
 #'
 #' @return MonoClust object, an extension of rpart object.
 #' @importFrom dplyr `%>%`
@@ -60,8 +59,7 @@ MonoClust <- function(toclust,
                       minsplit = 5L,
                       minbucket = round(minsplit / 3L),
                       perm.test = FALSE,
-                      alpha = 0.05,
-                      ran = 0L) { # Tan 4/16 Added to control recursive call
+                      alpha = 0.05) {
 
   if (!is.data.frame(toclust)) {
     stop("\"toclust\" must be a data frame.")
@@ -260,67 +258,67 @@ MonoClust <- function(toclust,
     inertia_circ <- inertia_calc(distmat_circ)
     ## Tan 4/16/17, discreetly find the first split for the circular variable to
     ## nail the the first split
-    if (ran == 0) {
-      # TODO: Starting from here, one variable is supported. Use more maps.
-      variable <- toclust[[cir.var]]
-      min_value <- min(variable)
-      max_value <- max(variable)
-      min_inertia <- Inf
-      # Check all starting value to find the best split
-      # The best split will be recorded in output with the pivot is hour
-      while (min_value < max_value) {
 
-        # Set the hour hand
-        variable_shift <- variable %circ-% min_value
-        # TODO: Have to call MonoClust with ran = 1 to find the best split for
-        # the shifted variables. Should be improved.
-        # Goal: find the next split on only variable_shift, then find the new
-        # total inertial
+    # TODO: Starting from here, one variable is supported. Use more maps.
+    variable <- toclust[[cir.var]]
+    min_value <- min(variable)
+    max_value <- max(variable)
+    min_inertia <- Inf
+    # Check all starting value to find the best split
+    # The best split will be recorded in output with the pivot is hour
+    while (min_value < max_value) {
 
-        new_toclust <- dplyr::tibble(variable_shift)
-        out <-
-          checkem(data = new_toclust,
-                  cuts = purrr::map_dfc(new_toclust, find_closest),
-                  frame = new_node(number            = 1L,
-                                   var               = "<leaf>",
-                                   n                 = nrow(new_toclust),
-                                   inertia           = inertia_circ,
-                                   inertia_explained = 0,
-                                   medoid            = 1,
-                                   # TODO Remove
-                                   yval              = 1,
-                                   loc               = 0.1,
-                                   split.order       = 0L),
-                  cloc = rep(1, nrow(new_toclust)),
-                  dist = distmat_circ,
-                  variables = 1,
-                  minsplit = minsplit,
-                  minbucket = minbucket,
-                  split_order = 0)
-        # out <- MonoClust(data.frame(variable_shift),
-        #                  cir.var = 1L,
-        #                  nclusters = 2L,
-        #                  ran = 1L)
-        cut <- out$frame$cut[1]
-        inertia <- sum(out$frame[out$frame$var == "<leaf>", "inertia"])
+      # Set the hour hand
+      variable_shift <- variable %circ-% min_value
+      # TODO: Have to call MonoClust with ran = 1 to find the best split for
+      # the shifted variables. Should be improved.
+      # Goal: find the next split on only variable_shift, then find the new
+      # total inertial
 
-        if (min_inertia > inertia) {
-          min_inertia <- inertia
-          bestcircsplit <- list(hour = min_value,
-                                minute = cut %circ+% min_value,
-                                intertia = inertia)
-        }
-        # Increase min_value to the next higher value
-        min_value <- dplyr::pull(next_value[which(variable == min_value), 1])[1]
-        print(min_value)
+      new_toclust <- dplyr::tibble(variable_shift)
+      out <-
+        checkem(data = new_toclust,
+                cuts = purrr::map_dfc(new_toclust, find_closest),
+                frame = new_node(number            = 1L,
+                                 var               = "<leaf>",
+                                 n                 = nrow(new_toclust),
+                                 inertia           = inertia_circ,
+                                 inertia_explained = 0,
+                                 medoid            = 1,
+                                 # TODO Remove
+                                 yval              = 1,
+                                 loc               = 0.1,
+                                 split.order       = 0L),
+                cloc = rep(1, nrow(new_toclust)),
+                dist = distmat_circ,
+                variables = 1,
+                minsplit = minsplit,
+                minbucket = minbucket,
+                split_order = 0)
+      # out <- MonoClust(data.frame(variable_shift),
+      #                  cir.var = 1L,
+      #                  nclusters = 2L,
+      #                  ran = 1L)
+      cut <- out$frame$cut[1]
+      inertia <- sum(out$frame[out$frame$var == "<leaf>", "inertia"])
+
+      if (min_inertia > inertia) {
+        min_inertia <- inertia
+        bestcircsplit <- list(hour = min_value,
+                              minute = cut %circ+% min_value,
+                              intertia = inertia)
       }
-
-      # Shift the circular variable to the hour pivot. That turns the circular
-      # to linear variable. The first best split would be the minute split,
-      # which was already found, together with hour, to be the best arcs. Will
-      # shift back later by modifying cluster_frame
-      toclust[, cir.var] <- variable %circ-% bestcircsplit$hour
+      # Increase min_value to the next higher value
+      min_value <- dplyr::pull(next_value[which(variable == min_value), 1])[1]
+      print(min_value)
     }
+
+    # Shift the circular variable to the hour pivot. That turns the circular
+    # to linear variable. The first best split would be the minute split,
+    # which was already found, together with hour, to be the best arcs. Will
+    # shift back later by modifying cluster_frame
+    toclust[, cir.var] <- variable %circ-% bestcircsplit$hour
+
   }
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
