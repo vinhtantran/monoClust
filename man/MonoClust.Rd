@@ -15,8 +15,7 @@ MonoClust(
   minsplit = 5L,
   minbucket = round(minsplit/3L),
   perm.test = FALSE,
-  alpha = 0.05,
-  ran = 0L
+  alpha = 0.05
 )
 }
 \arguments{
@@ -49,8 +48,6 @@ criterion while clustering. Default is FALSE. See \code{\link[=perm.test]{perm.t
 
 \item{alpha}{Value applied specifically to permutation test. Only valid when
 \code{perm.test = TRUE}.}
-
-\item{ran}{This parameter should never be used.}
 }
 \value{
 MonoClust object, an extension of rpart object.
