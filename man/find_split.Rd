@@ -16,7 +16,8 @@ in the original data set.}
 
 \item{cloc}{Vector of current cluster membership.}
 
-\item{dist}{Distance matrix of all observations in the data.}
+\item{dist}{Distance matrix of all observations in the data.
+exported function yet. Vector of 1 for all observations.}
 
 \item{variables}{List of variables selected for clustering procedure. It
 could be a vector of variable indexes, or a vector of variable names.}

@@ -69,8 +69,10 @@ ruspini4sol
 # data with circular variable
 library(monoClust)
 data(wind_sensit_2007)
-
-circular_wind <- MonoClust(wind_sensit_2007, cir.var = 3, nclusters = 2)
+# Use a small data set
+set.seed(12345)
+wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]
+circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 circular_wind
 }
 \references{

@@ -45,8 +45,10 @@
 #' # data with circular variable
 #' library(monoClust)
 #' data(wind_sensit_2007)
-#'
-#' circular_wind <- MonoClust(wind_sensit_2007, cir.var = 3, nclusters = 2)
+#' # Use a small data set
+#' set.seed(12345)
+#' wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]
+#' circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 #' circular_wind
 MonoClust <- function(toclust,
                       cir.var = NULL,
@@ -118,9 +120,11 @@ MonoClust <- function(toclust,
     if (!is.vector(cir.var)) {
       stop("Circular variables need to be a vector of variable names or
            indices.")
+    } else if (length(cir.var) > 1) {
+      # TODO: Upgrade to more than 1 circular variable
+      stop("MonoClust supports only one circular variable in the data set.")
     }
-    toclust1 <- toclust[cir.var]
-    if (!is.data.frame(toclust1)) {
+    if (!is.data.frame(toclust[cir.var])) {
       stop("Undefined variables selected.")
     }
   }
@@ -130,7 +134,7 @@ MonoClust <- function(toclust,
   # assign(".MonoClustwarn", 0, envir = .GlobalEnv)
   ## Right now, each observation has equal weight. This could be made into an
   ## option.
-  weights <- rep(1L, nrow(toclust))
+  # weights <- rep(1L, nrow(toclust))
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   ## Categorical Variable Ordering
@@ -250,50 +254,72 @@ MonoClust <- function(toclust,
   bestcircsplit <- NULL
   if (!is.null(cir.var)) {
 
-    # This only works on **one** circular variable
-    next_value <- find_closest(toclust[, cir.var])
+    next_value <- purrr::map_dfc(toclust[cir.var], find_closest)
     bestcircsplit <- list(hour = 0, minute = 0, inertia = 0)
+    distmat_circ <- as.matrix(circ_dist(toclust[, cir.var]) * length(cir.var))
+    inertia_circ <- inertia_calc(distmat_circ)
     ## Tan 4/16/17, discreetly find the first split for the circular variable to
     ## nail the the first split
     if (ran == 0) {
-      variable <- toclust[, cir.var]
+      # TODO: Starting from here, one variable is supported. Use more maps.
+      variable <- toclust[[cir.var]]
       min_value <- min(variable)
-      min_inertia <- 9999
+      max_value <- max(variable)
+      min_inertia <- Inf
       # Check all starting value to find the best split
       # The best split will be recorded in output with the pivot is hour
-      while (min_value < max(variable)) {
-        variable_shift <- cshift(variable, -min_value)
+      while (min_value < max_value) {
+
+        # Set the hour hand
+        variable_shift <- variable %circ-% min_value
         # TODO: Have to call MonoClust with ran = 1 to find the best split for
         # the shifted variables. Should be improved.
-        out <- MonoClust(data.frame(variable_shift),
-                         cir.var = 1L,
-                         nclusters = 2L,
-                         ran = 1L)
+        # Goal: find the next split on only variable_shift, then find the new
+        # total inertial
+
+        new_toclust <- dplyr::tibble(variable_shift)
+        out <-
+          checkem(data = new_toclust,
+                  cuts = purrr::map_dfc(new_toclust, find_closest),
+                  frame = new_node(number            = 1L,
+                                   var               = "<leaf>",
+                                   n                 = nrow(new_toclust),
+                                   inertia           = inertia_circ,
+                                   inertia_explained = 0,
+                                   medoid            = 1,
+                                   # TODO Remove
+                                   yval              = 1,
+                                   loc               = 0.1,
+                                   split.order       = 0L),
+                  cloc = rep(1, nrow(new_toclust)),
+                  dist = distmat_circ,
+                  variables = 1,
+                  minsplit = minsplit,
+                  minbucket = minbucket,
+                  split_order = 0)
+        # out <- MonoClust(data.frame(variable_shift),
+        #                  cir.var = 1L,
+        #                  nclusters = 2L,
+        #                  ran = 1L)
         cut <- out$frame$cut[1]
-        inertia <-
-          inertia_calc(out$dist[which(out$Membership == 2L),
-                                which(out$Membership == 2L)]) +
-          inertia_calc(out$dist[which(out$Membership == 3L),
-                                which(out$Membership == 3L)])
+        inertia <- sum(out$frame[out$frame$var == "<leaf>", "inertia"])
 
         if (min_inertia > inertia) {
           min_inertia <- inertia
           bestcircsplit <- list(hour = min_value,
-                                minute = ifelse((cut + min_value) < 360L,
-                                                cut + min_value,
-                                                cut + min_value - 360L),
+                                minute = cut %circ+% min_value,
                                 intertia = inertia)
         }
-
         # Increase min_value to the next higher value
-        min_value <- as.numeric(next_value[which(variable == min_value)])[1]
+        min_value <- dplyr::pull(next_value[which(variable == min_value), 1])[1]
+        print(min_value)
       }
 
       # Shift the circular variable to the hour pivot. That turns the circular
       # to linear variable. The first best split would be the minute split,
       # which was already found, together with hour, to be the best arcs. Will
       # shift back later by modifying cluster_frame
-      toclust[, cir.var] <- cshift(variable, -bestcircsplit$hour)
+      toclust[, cir.var] <- variable %circ-% bestcircsplit$hour
     }
   }
 
@@ -314,7 +340,7 @@ MonoClust <- function(toclust,
   nobs <- nrow(toclust)
   # nvars <- dim(toclust)[2]
 
-  # dismat <- matrix()
+  # distmat <- matrix()
   # data <- as.data.frame(toclust)
 
   ## which column to use in the distance matrix
@@ -353,15 +379,15 @@ MonoClust <- function(toclust,
       distmat1 <- 0
     }
     # distmat2: distance matrix of circular variables
-    # TODO cir.var has to be one value
-    distmat2 <- circ_dist(toclust[, cir.var])
+    # circ_var accepts multiple circular variables
+    distmat2 <- circ_dist(toclust[, cir.var]) * length(cir.var)
 
     # distmat0: combined from 1 and 2 as the mean distances
     distmat0 <- (distmat1 + distmat2) / dim(toclust)[2]
   } else
     distmat0 <- cluster::daisy(toclust, metric = distmethod)
 
-  dismat <- as.matrix(distmat0)
+  distmat <- as.matrix(distmat0)
 
   members <- seq_len(nobs)
 
@@ -382,11 +408,11 @@ MonoClust <- function(toclust,
              n                 = nobs,
              # Remove because it's not implemented
              # wt                = sum(weights[members]),
-             inertia           = inertia_calc(dismat[members, members]),
+             inertia           = inertia_calc(distmat[members, members]),
              # TODO: replace yval by inertia_explained
              yval              = 1,
              inertia_explained = 0,
-             medoid            = medoid(members, dismat),
+             medoid            = medoid(members, distmat),
              loc               = 0.1,
              split.order       = 0L)
 
@@ -397,8 +423,10 @@ MonoClust <- function(toclust,
   while (sum(cluster_frame$var == "<leaf>") < nclusters & !done_running) {
 
     # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
-    checkem_ret <- checkem(toclust, cuts, cluster_frame, c_loc, dismat,
-                           variables, weights, minsplit, minbucket, split_order)
+    checkem_ret <- checkem(toclust, cuts, cluster_frame, c_loc, distmat,
+                           variables,
+                           # weights,
+                           minsplit, minbucket, split_order)
     split_order <- split_order + 1L
 
     # Use cloc because it is only ran in splitter
@@ -455,8 +483,7 @@ MonoClust <- function(toclust,
   if (!is.null(cir.var)) {
     cir_pos <- which(cluster_frame$var == colnames(toclust)[cir.var])
     cluster_frame$cut[cir_pos] <-
-      cshift(cluster_frame$cut[cir_pos],
-             bestcircsplit$hour)
+      cluster_frame$cut[cir_pos] %circ+% bestcircsplit$hour
   }
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
@@ -501,7 +528,7 @@ MonoClust <- function(toclust,
          # TODO: uncapitalized
          Membership = c_loc,
          # TODO: uncapitalized
-         Dist = dismat,
+         Dist = distmat,
          # 12/9/14. Tan: add terms to keep track of variables
          # name, in order to check the new data set
          terms = colnames(toclust),
@@ -606,7 +633,8 @@ MonoClust <- function(toclust,
 #' @return Updated `frame` and `cloc` saved in a list.
 #'
 #' @keywords internal
-splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
+splitter <- function(data, cuts, split_row, frame, cloc, dist,
+                     # weights,
                      split_order = 0L) {
   ## This function does the actual act of partitioning, given the row that is
   ## to be split "split_row"
@@ -740,7 +768,6 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist, weights,
 #'
 #' @return This function changes the frame in global environment, it's
 #'   not supposed to return anything.
-#' @importFrom foreach `%dopar%`
 #' @keywords internal
 find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
                        minbucket) {
@@ -787,10 +814,12 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
     return(new_inertia)
   }
 
+  `%op%` <- getOper(foreach::getDoParWorkers() > 1)
+
   bycol <-
     foreach::foreach(
       i = seq_len(ncol(datamems)),
-      .combine = cbind) %dopar%
+      .combine = cbind) %op%
     mult_inertia(i, datamems, cutsmems, dist, mems)
 
   # for (i in seq_len(ncol(datamems))) {
@@ -824,12 +853,14 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
     split <- ind_1[i, ]
     left_size <- sum(datamems[, split[2L]] < cutsmems[[split[1L], split[2L]]])
     right_size <- length(mems) - left_size
-    if (left_size < minbucket | right_size < minbucket) ind_1[i, 3L] <- FALSE
+    if (left_size < minbucket | right_size < minbucket)
+      ind_1[i, ncol(ind_1)] <- FALSE
   }
 
   ## Remove all row doesn't satisfy minbucket and make sure output is always a
   ## matrix even though it has only one row
-  ind_1 <- matrix(ind_1[!ind_1[, 3L] == FALSE, ], ncol = 3L)
+  ind_1 <- matrix(ind_1[ind_1[, ncol(ind_1)] != FALSE, ],
+                  ncol = ncol(ind_1))
 
   ## If multiple splits produce the same inertia change output a warning.
   #if(nrow(ind) > 1 & .MonoClustwarn==0) {.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
@@ -868,7 +899,6 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
 #' @param frame The split tree transferred as data frame.
 #' @param cloc Vector of current cluster membership.
 #' @param dist Distance matrix of all observations in the data.
-#' @param weights Weights on each observation. Hasn't been implemented in
 #' exported function yet. Vector of 1 for all observations.
 #' @param minsplit The minimum number of observations that must exist in a node
 #'   in order for a split to be attempted.
@@ -879,7 +909,9 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
 #'   used. However, if there is nothing left to split, it returns 0 to tell the
 #'   caller to stop running the loop.
 #' @keywords internal
-checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
+checkem <- function(data, cuts, frame, cloc, dist, variables,
+                    # weights,
+                    minsplit,
                     minbucket, split_order) {
 
   ## Current terminal nodes
@@ -903,7 +935,8 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, weights, minsplit,
 
     ## Make new clusters from that cluster
     # splitter(split_row, data, cuts,dist,catnames,weights)
-    splitter_ret <- splitter(data, cuts, split_row, frame, cloc, dist, weights,
+    splitter_ret <- splitter(data, cuts, split_row, frame, cloc, dist,
+                             # weights,
                              split_order)
     # Tan, 9/24, in case there are more than one node equal to max
     # MG, 9/25, I thought the earlier code would make sure only one is

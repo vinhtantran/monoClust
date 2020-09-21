@@ -2,18 +2,30 @@
 % Please edit documentation in R/utils.R
 \name{circ_dist}
 \alias{circ_dist}
-\title{Circular Distance using Gower's}
+\title{Distance Matrix of Circular Variables}
 \usage{
-circ_dist(x)
+circ_dist(frame)
 }
 \arguments{
-\item{x}{a numeric vector of circular values}
+\item{frame}{A data frame with all columns are circular.}
 }
 \value{
-object of class "dist"
+Object of class "dist".
 }
 \description{
-calculates the distance matrix within a circular variable using Gower's
-distance. Written by Garland Will.
+Calculates the distance matrix of observations with circular variables using
+an adapted version of Gower's distance. This distance should be compatible
+with the Gower's distance for other variable types.
 }
-\keyword{internal}
+\details{
+The distance between two observations {i} and {j} of a circular variable {q}
+is suggested to be
+
+\deqn{(y_{iq}, y_{jq}) = \frac{180 - |180 - |y_{iq} - y_{jq}||}{180}.}
+}
+\references{
+\itemize{
+\item Tran, T. V. (2019). Chapter 3. Monothetic Cluster Analysis with Extensions
+to Circular and Functional Data. Montana State University - Bozeman.
+}
+}

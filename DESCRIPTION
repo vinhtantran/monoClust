@@ -13,10 +13,7 @@ Authors@R: c(
     person(given = "Mark",
            family = "Greenwood",
            role = c("aut"),
-           email = "mark.greenwood@montana.edu"),
-    person(given = "Garland",
-           family = "Will",
-           role = c("ctb"))     
+           email = "mark.greenwood@montana.edu")    
     )
 Description: This package runs Monothetic Clustering on a data set.
 License: GPL-3

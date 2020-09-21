@@ -4,7 +4,7 @@
 \alias{splitter}
 \title{Split Function}
 \usage{
-splitter(data, cuts, split_row, frame, cloc, dist, weights, split_order = 0L)
+splitter(data, cuts, split_row, frame, cloc, dist, split_order = 0L)
 }
 \arguments{
 \item{data}{Original data set.}
@@ -18,9 +18,7 @@ in the original data set.}
 
 \item{cloc}{Vector of current cluster membership.}
 
-\item{dist}{Distance matrix of all observations in the data.}
-
-\item{weights}{Weights on each observation. Hasn't been implemented in
+\item{dist}{Distance matrix of all observations in the data.
 exported function yet. Vector of 1 for all observations.}
 
 \item{split_order}{The control argument to see how many split has been done.}

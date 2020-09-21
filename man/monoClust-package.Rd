@@ -31,10 +31,5 @@ Authors:
   \item Mark Greenwood \email{mark.greenwood@montana.edu}
 }
 
-Other contributors:
-\itemize{
-  \item Garland Will [contributor]
-}
-
 }
 \keyword{internal}

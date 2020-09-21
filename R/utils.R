@@ -15,29 +15,33 @@ find_closest <- function(col) {
                                min(col[which(col - .x > 0)])))
 }
 
-#' Add/Subtract From A Circular Value
+#' Add/Subtract Circular Values in Degrees
 #'
-#' Add a value to a circular value or variable. When the value reaches 360 or 0,
-#' it will become 0.
+#' Add/subtract two circular variables.
 #'
-#' @param variable circular variable (in degree 0-360).
-#' @param shift the added value to the circular variable, can be positive or
-#'   negative if want to subtract.
+#' @param x,y Circular values in degrees.
 #'
-#' @return shifted circular value or variable.
-#' @keywords internal
-cshift <- function(variable, shift) {
-  # In case shift is larger a full circle
-  shift_less_360 <- shift %/% 360
-  # Add value
-  variable_shifted <- variable + shift_less_360
-  variable_shifted <- ifelse(variable_shifted < 0,
-                             variable_shifted + 360,
-                             variable_shifted)
-  variable_shifted <- ifelse(variable_shifted >= 360,
-                             variable_shifted - 360,
-                             variable_shifted)
-  return(variable_shifted)
+#' @return A value between [0, 360).
+#' @name circ_arith
+#' @examples
+#' 90 %circ+% 90
+#'
+#' 250 %circ+% 200
+#'
+#' 25 %circ-% 80
+#'
+NULL
+
+#' @export
+#' @rdname circ_arith
+`%circ+%` <- function(x, y) {
+  return((x + y) %% 360)
+}
+
+#' @export
+#' @rdname circ_arith
+`%circ-%` <- function(x, y) {
+  return((x - y) %% 360)
 }
 
 #' Cluster Inertia Calculation
@@ -66,25 +70,60 @@ inertia_calc <- function(X) {
   return(inertia_value)
 }
 
-#' Circular Distance using Gower's
+#' Distance Matrix of Circular Variables
 #'
-#' calculates the distance matrix within a circular variable using Gower's
-#' distance. Written by Garland Will.
+#' Calculates the distance matrix of observations with circular variables using
+#' an adapted version of Gower's distance. This distance should be compatible
+#' with the Gower's distance for other variable types.
 #'
-#' @param x a numeric vector of circular values
+#' @param frame A data frame with all columns are circular.
 #'
-#' @return object of class "dist"
-#' @keywords internal
-#' @importFrom stats as.dist
-circ_dist <- function(x) {
-  # Assumes x is just a single variable
-  dist1 <- matrix(0, nrow = length(x), ncol = length(x))
-  for (i in seq_len((length(x) - 1))) {
-    for (j in (i+1):length(x)) {
-      dist1[j, i] = min(abs(x[i] - x[j]), (360 - abs(x[i] - x[j])))/180
-    }
-  }
-  return(stats::as.dist(dist1))
+#' @details
+#' The distance between two observations {i} and {j} of a circular variable {q}
+#' is suggested to be
+#'
+#' \deqn{(y_{iq}, y_{jq}) = \frac{180 - |180 - |y_{iq} - y_{jq}||}{180}.}
+#'
+#' @return Object of class "dist".
+#' @references
+#' * Tran, T. V. (2019). Chapter 3. Monothetic Cluster Analysis with Extensions
+#' to Circular and Functional Data. Montana State University - Bozeman.
+#' @export
+circ_dist <- function(frame) {
+  # Assumes x is a data frame with columns are all circular variables
+  # TODO Extend it to more than one circular variable
+
+  if (is.null(frame))
+    stop("frame has to be a data set with all columns are circular.")
+
+  frame <- frame %circ+% 0
+
+  gower_circ <- function(x, y) abs(180 - abs(180 - abs(x - y))) / 180
+
+  list_dist <-
+    purrr::map(frame, function(x) {
+
+      dist <- matrix(0, ncol = length(x), nrow = length(x))
+
+      for (i in seq_len(length(x) - 1))
+        for (j in (i + 1):length(x))
+          dist[j, i] <- gower_circ(x[i], x[j])
+
+      return(dist)
+
+
+      # pairs_of_obs <- purrr::cross2(x, x)
+      #
+      # dist_flat <- purrr::flatten_dbl(
+      #   purrr::map(pairs_of_obs,
+      #              ~ dplyr::if_else(.x[[1]] > .x[[2]],
+      #                               gower_circ(.x[[1]], .x[[2]]),
+      #                               0)))
+      # return(dist_flat)
+    })
+
+  ret <- matrix(purrr::pmap_dbl(list_dist, sum)/length(list_dist), ncol = nrow(frame))
+  return(stats::as.dist(ret))
 }
 
 #' Find Medoid of the Cluster
@@ -230,4 +269,17 @@ centroid <- function(data, frame, cloc) {
 tree_depth <- function(nodes) {
   depth <- floor(log2(nodes) + 1e-07)
   return(depth - min(depth))
+}
+
+#' What to Use with ForEach
+#'
+#' @param x A binary output of [getDoParWorkers()].
+#'
+#' @return Appropriate operator depending on whether parallel processing is
+#'   activated or not.
+#' @importFrom foreach `%dopar%`
+#' @importFrom foreach `%do%`
+#' @keywords internal
+getOper <- function(x) {
+  if(x) `%dopar%` else `%do%`
 }
