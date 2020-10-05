@@ -7,10 +7,12 @@
 \method{plot}{MonoClust}(
   x,
   uniform = FALSE,
-  margin,
-  which,
-  abbrev = 4,
+  branch = 1,
+  margin = 0,
+  minbranch = 0.3,
   text = TRUE,
+  which,
+  abbrev = c("no", "short", "abbreviate"),
   cols = NULL,
   rel.loc.x = TRUE,
   ...
@@ -19,11 +21,25 @@
 \arguments{
 \item{x}{MonoClust result object.}
 
-\item{uniform}{if TRUE, uniform vertical spacing of the nodes is used; this
+\item{uniform}{If TRUE, uniform vertical spacing of the nodes is used; this
 may be less cluttered when fitting a large plot onto a page. The default is
-to use a non-uniform spacing proportional to the error in the fit.}
+to use a non-uniform spacing proportional to the inertia in the fit.}
 
-\item{margin}{Margins to the border of the graphics machine}
+\item{branch}{Controls the shape of the branches from parent to child node.
+Any number from 0 to 1 is allowed. A value of 1 gives square shouldered
+branches, a value of 0 give V shaped branches, with other values being
+intermediate.}
+
+\item{margin}{An extra fraction of white space to leave around the borders of
+the tree. (Long labels sometimes get cut off by the default computation).}
+
+\item{minbranch}{Set the minimum length for a branch to \code{minbranch} times the
+average branch length. This parameter is ignored if \code{uniform=TRUE}.
+Sometimes a split will give very little improvement, or even no improvement
+at all. A tree with branch lengths strictly proportional to improvement
+leaves no room to squeeze in node labels.}
+
+\item{text}{Whether to print the labels on the tree.}
 
 \item{which}{Fill in later}
 
@@ -37,8 +53,6 @@ If "short", variable names will be turned into "V1", "V2", ...
 
 If "abbreviate", \code{\link[=abbreviate]{abbreviate()}} function will be used. Use the optional
 arguments for this function.}
-
-\item{text}{Whether to print the labels on the tree.}
 
 \item{cols}{Whether to use color on the labels or not. Only works when \code{text}
 is \code{TRUE}.}

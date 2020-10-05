@@ -109,7 +109,7 @@ create_labels <- function(object, abbrev, ...) {
   if (abbrev == "no") {
     # labs <- gsub("*~*", ".", object$labelsnum, fixed = TRUE)
     labs <- object$labels
-  } else if (abbrev == "long") {
+  } else if (abbrev == "short") {
     vars <- object$frame$var
     uvars <- unique(vars)
     names <- uvars[uvars != "<leaf>"]

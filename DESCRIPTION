@@ -35,6 +35,8 @@ Imports:
     stringr,
     rlang,
     grDevices,
-    vegan
+    vegan,
+    graphics,
+    stats
 Suggests: 
     testthat
