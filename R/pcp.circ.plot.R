@@ -20,9 +20,13 @@
 #' @return A PCP plot with an ellipse for circular variable
 #' @export
 #'
-#' @examples Blank
-pcp.circ.plot <- function(data, cir.var = NULL, membership = NULL, order = NULL, col = NULL, zero = "east",
-    nslabel = TRUE, rotation = "counter", meds = NULL) {
+#' @importFrom grDevices adjustcolor
+#' @importFrom graphics axis points segments text
+#'
+#' @examples
+pcp.circ.plot <- function(data, cir.var = NULL, membership = NULL, order = NULL,
+                          col = NULL, zero = "east", nslabel = TRUE,
+                          rotation = "counter", meds = NULL) {
 
     direction <- c("east", "north", "west", "south")
     shift <- c(0, 90, 180, 270)
@@ -34,7 +38,7 @@ pcp.circ.plot <- function(data, cir.var = NULL, membership = NULL, order = NULL,
         cat("Zero value needs to go with either \"east\", \"north\", \"west\", or \"south\". Default is \"east\".")
         return(0)
     } else {
-        data[, cir.var] <- cshift(data[, cir.var], shift[which(direction == zero)])
+        data[, cir.var] <- data[, cir.var] %circ+% shift[which(direction == zero)]
     }
 
     # Circular variable

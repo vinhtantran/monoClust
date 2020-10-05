@@ -33,6 +33,8 @@ Imports:
     permute,
     tibble,
     stringr,
-    rlang
+    rlang,
+    grDevices,
+    vegan
 Suggests: 
     testthat

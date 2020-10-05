@@ -8,7 +8,8 @@
 #' @return A plot
 #' @export
 #'
-#' @examples Blank
+#' @importFrom graphics arrows
+#' @examples
 cv.plot <- function(cp.table,
                     main = "MSE for CV of monothetic clustering",
                     ylab = "MSE +/- 1 SE",

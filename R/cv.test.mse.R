@@ -1,3 +1,17 @@
+#' Title
+#'
+#' @param data
+#' @param fold
+#' @param minnodes
+#' @param maxnodes
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @importFrom stats sd
+#'
+#' @examples
 cv.test.mse <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
 
     SSET <- numeric(0)

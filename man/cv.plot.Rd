@@ -26,6 +26,3 @@ A plot
 \description{
 Plot the Mean Square Error with error bar for +/- 1 Standard Error
 }
-\examples{
-Blank
-}

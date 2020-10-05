@@ -10,6 +10,8 @@
 #' values
 #' @export
 #'
+#' @importFrom stats sd
+#'
 #' @examples NULL
 cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
 

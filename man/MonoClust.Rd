@@ -7,9 +7,9 @@
 MonoClust(
   toclust,
   cir.var = NULL,
-  variables = NULL,
-  distmethod = NULL,
-  labels = NULL,
+  variables,
+  distmethod,
+  labels,
   digits = options("digits")$digits,
   nclusters = 2L,
   minsplit = 5L,
@@ -28,7 +28,7 @@ could be a vector of variable indexes, or a vector of variable names.}
 
 \item{distmethod}{Distance method to use with the data set. The default value
 is the Euclidean distance but Gower will be used if there is circular
-variable (\code{cir.var != NULL}).}
+variable (\code{cir.var} has value).}
 
 \item{labels}{Displayed names of observations. If not specified and data
 frame has row names, row names will be used. Otherwise, it is row index.}
@@ -66,6 +66,7 @@ ruspini4sol
 # data with circular variable
 library(monoClust)
 data(wind_sensit_2007)
+
 # Use a small data set
 set.seed(12345)
 wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]

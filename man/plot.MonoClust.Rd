@@ -2,10 +2,11 @@
 % Please edit documentation in R/plot.MonoClust.R
 \name{plot.MonoClust}
 \alias{plot.MonoClust}
-\title{Plot MonoClust splitting rule tree}
+\title{Plot MonoClust Splitting Rule Tree}
 \usage{
 \method{plot}{MonoClust}(
   x,
+  uniform = FALSE,
   margin,
   which,
   abbrev = 4,
@@ -16,28 +17,47 @@
 )
 }
 \arguments{
-\item{x}{MonoClust object}
+\item{x}{MonoClust result object.}
+
+\item{uniform}{if TRUE, uniform vertical spacing of the nodes is used; this
+may be less cluttered when fitting a large plot onto a page. The default is
+to use a non-uniform spacing proportional to the error in the fit.}
 
 \item{margin}{Margins to the border of the graphics machine}
 
 \item{which}{Fill in later}
 
-\item{abbrev}{Whether abbreviations of labels are used}
+\item{abbrev}{Whether to print the abbreviated versions of variable names.
+Can be either "no" (default), "short", or "abbreviate". Short forms of them
+can also be used.
 
-\item{text}{Fill in later}
+If "no", the labels recorded in \code{x$labels} are used.
 
-\item{cols}{Whether to use color or not}
+If "short", variable names will be turned into "V1", "V2", ...
 
-\item{rel.loc.x}{Whether to use the relative distance between clusters as x coordinate of the leaves. Default is TRUE.}
+If "abbreviate", \code{\link[=abbreviate]{abbreviate()}} function will be used. Use the optional
+arguments for this function.}
 
-\item{...}{Other args}
+\item{text}{Whether to print the labels on the tree.}
+
+\item{cols}{Whether to use color on the labels or not. Only works when \code{text}
+is \code{TRUE}.}
+
+\item{rel.loc.x}{Whether to use the relative distance between clusters as x
+coordinate of the leaves. Default is TRUE.}
+
+\item{...}{Arguments to be passed to \code{\link[graphics:plot.default]{graphics::plot.default()}} and
+\code{\link[graphics:lines]{graphics::lines()}}}
 }
 \value{
-Plot of splitting rule
+A plot of splitting rule.
 }
 \description{
-Plot MonoClust splitting rule tree
+Print the MonoClust tree in the form of dendrogram.
 }
 \examples{
-NULL
+library(cluster)
+data(ruspini)
+ruspini4sol <- MonoClust(ruspini, nclusters = 4)
+plot(ruspini4sol)
 }

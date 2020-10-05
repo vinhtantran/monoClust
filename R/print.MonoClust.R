@@ -26,8 +26,8 @@
 #' data(ruspini)
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 #' print(ruspini4sol)
-print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"), spaces = 2L,
-                            digits = getOption("digits"), ...) {
+print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
+                            spaces = 2L, digits = getOption("digits"), ...) {
 
   if (!inherits(x, "MonoClust"))
     stop("Not a legitimate \"MonoClust\" object")
@@ -48,7 +48,8 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"), spaces =
   # tfun <- (x$functions)$print
   # if (!is.null(tfun)) {
   #   if (is.null(frame$yval2))
-  #     yval <- tfun(frame$yval, ylevel, digits) else yval <- tfun(frame$yval2, ylevel, digits)
+  #     yval <- tfun(frame$yval, ylevel, digits) else yval <- tfun(frame$yval2,
+  # ylevel, digits)
   # } else yval <- format(signif(frame$yval, digits = digits))
 
   yval <- format(signif(frame$yval, digits = digits))
@@ -67,7 +68,7 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"), spaces =
 
   z <- paste(indent, labs, n,
              format(signif(frame$inertia, digits = digits)),
-             format(signif((1 - as.numeric(yval)/1), digits = digits)),
+             format(signif((1 - as.numeric(yval) / 1), digits = digits)),
              ifelse(has_pvalue, frame$p.value, ""), term)
 
   # MODIDY: Tan, 9/14/20. Not necessary.
@@ -85,7 +86,8 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"), spaces =
   cat("      * denotes terminal node\n\n")
   cat(z, sep = "\n")
   if (!is.null(x$circularroot$var)) {
-    cat("Circular variable(s)' first cut\n")
+    cat("Circular variable's first cut\n")
+    # cat("Circular variable(s)' first cut\n")
     for (i in seq_len(length(x$circularroot$var))) {
       cat(x$terms[x$circularroot$var[i]], ": ", x$circularroot$cut[i], "\n")
     }

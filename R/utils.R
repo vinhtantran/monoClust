@@ -85,6 +85,9 @@ inertia_calc <- function(X) {
 #' \deqn{(y_{iq}, y_{jq}) = \frac{180 - |180 - |y_{iq} - y_{jq}||}{180}.}
 #'
 #' @return Object of class "dist".
+#'
+#' @importFrom stats as.dist
+#'
 #' @references
 #' * Tran, T. V. (2019). Chapter 3. Monothetic Cluster Analysis with Extensions
 #' to Circular and Functional Data. Montana State University - Bozeman.
@@ -123,7 +126,7 @@ circ_dist <- function(frame) {
     })
 
   ret <- matrix(purrr::pmap_dbl(list_dist, sum)/length(list_dist), ncol = nrow(frame))
-  return(stats::as.dist(ret))
+  return(as.dist(ret))
 }
 
 #' Find Medoid of the Cluster

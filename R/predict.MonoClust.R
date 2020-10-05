@@ -1,3 +1,17 @@
+#' Title
+#'
+#' @param object
+#' @param newdata
+#' @param na.action
+#' @param type
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @importFrom stats na.pass
+#'
+#' @examples
 predict.MonoClust <- function(object, newdata = list(), na.action = na.pass, type = "mean", ...) {
 
     ####### DELETE: For debugging purpose ########### require(cluster) data(ruspini) source('MonoClust.R')

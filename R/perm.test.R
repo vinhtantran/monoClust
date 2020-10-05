@@ -24,6 +24,8 @@
 #' column (p-value), and the numofclusters chosen if auto.pick is TRUE
 #' @export
 #'
+#' @importFrom stats na.omit
+#'
 #' @examples EMPTY
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05, method = 1, rep = 10000,
     stat = "F") {
@@ -118,7 +120,7 @@ test.split <- function(current, members, members.L, members.R, auto.pick, method
         # A distance matrix with observations left and right put in order
         dist.mat.twogroup <- distmat.reduced[c(members.L, members.R), c(members.L, members.R)]
 
-        result <- adonis(dist.mat.twogroup ~ fmem2, permutations = REP)
+        result <- vegan::adonis(dist.mat.twogroup ~ fmem2, permutations = REP)
 
         # pvalue.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
         pvalue <- result$aov.tab[1, 6]
@@ -214,10 +216,31 @@ test.split <- function(current, members, members.L, members.R, auto.pick, method
 # auto.pick, sig.val, method, fulldata) # Right recursive.walk(.Jump_Table$right[current],
 # members.R, auto.pick, sig.val, method, fulldata) }
 
-#' ####################################################
-#' Copy directly from adonis function
-#' Modified to stop at the F.stat
-#' ####################################################
+# ####################################################
+# Copy directly from adonis function
+# Modified to stop at the F.stat
+# ####################################################
+#
+
+
+
+#' Title
+#'
+#' @param formula
+#' @param data
+#' @param permutations
+#' @param method
+#' @param strata
+#' @param contr.unordered
+#' @param contr.ordered
+#' @param parallel
+#' @param ...
+#'
+#' @return
+#'
+#' @importFrom stats model.frame model.matrix
+#'
+#' @examples
 F.stat <- function(formula, data = NULL, permutations = 999, method = "bray", strata = NULL, contr.unordered = "contr.sum",
     contr.ordered = "contr.poly", parallel = getOption("mc.cores"), ...) {
     TOL <- 1e-07

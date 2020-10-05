@@ -9,7 +9,7 @@
 #'   could be a vector of variable indexes, or a vector of variable names.
 #' @param distmethod Distance method to use with the data set. The default value
 #'   is the Euclidean distance but Gower will be used if there is circular
-#'   variable (`cir.var != NULL`).
+#'   variable (`cir.var` has value).
 #' @param labels Displayed names of observations. If not specified and data
 #' frame has row names, row names will be used. Otherwise, it is row index.
 #' @param digits Significant decimal number printed in the output.
@@ -44,6 +44,7 @@
 #' # data with circular variable
 #' library(monoClust)
 #' data(wind_sensit_2007)
+#'
 #' # Use a small data set
 #' set.seed(12345)
 #' wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]
@@ -51,9 +52,9 @@
 #' circular_wind
 MonoClust <- function(toclust,
                       cir.var = NULL,
-                      variables = NULL,
-                      distmethod = NULL,
-                      labels = NULL,
+                      variables,
+                      distmethod,
+                      labels,
                       digits = options("digits")$digits,
                       nclusters = 2L,
                       minsplit = 5L,
@@ -79,7 +80,7 @@ MonoClust <- function(toclust,
     stop("Function does not support categorical variables yet.")
   }
 
-  if (is.null(labels)) {
+  if (missing(labels)) {
     labels <- colnames(toclust)
     names(labels) <- labels
   } else if (length(labels) != ncol(toclust)) {
@@ -89,7 +90,7 @@ MonoClust <- function(toclust,
   }
 
   ## Tan, 5/27/16, argument checking (variables)
-  if (!is.null(variables)) {
+  if (!missing(variables)) {
     if (!is.vector(variables)) {
       stop("Variables need to be a vector of variable names or indices.")
     }
@@ -105,7 +106,7 @@ MonoClust <- function(toclust,
   }
 
   # Check the distmethod
-  if (is.null(distmethod)) {
+  if (missing(distmethod)) {
     # Tan 4/16/17, if there is a circular variable in the data set, use Gower's
     ## distance unless otherwise specified.
     distmethod <- ifelse(!is.null(cir.var), "gower", "euclidean")
@@ -372,16 +373,16 @@ MonoClust <- function(toclust,
     # distmat1: distance matrix of pure quantitative variables
     if (ncol(toclust[, -cir.var]) != 0L) {
       distmat1 <- cluster::daisy(toclust[, -cir.var], metric = distmethod) *
-        dim(toclust[, -cir.var])[2]
+        ncol(toclust[, -cir.var])
     } else {
       distmat1 <- 0
     }
     # distmat2: distance matrix of circular variables
     # circ_var accepts multiple circular variables
-    distmat2 <- circ_dist(toclust[, cir.var]) * length(cir.var)
+    distmat2 <- circ_dist(toclust[, cir.var]) * ncol(toclust[, cir.var])
 
     # distmat0: combined from 1 and 2 as the mean distances
-    distmat0 <- (distmat1 + distmat2) / dim(toclust)[2]
+    distmat0 <- (distmat1 + distmat2) / ncol(toclust)
   } else
     distmat0 <- cluster::daisy(toclust, metric = distmethod)
 
@@ -743,7 +744,7 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
   # See Chavent (2007) for definition. Basically,
   # 1 - (sum(current inertia)/inertial[1])
   frame$inertia_explained[split_row] <-
-    1 - sum(frame$inertia[frame$var == "<leaf>"])/frame$inertia[1]
+    1 - sum(frame$inertia[frame$var == "<leaf>"]) / frame$inertia[1]
 
   return(list(frame = frame, cloc = cloc))
 }
@@ -867,7 +868,10 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   if (nrow(ind_1) != 0L) {
     split <- ind_1[1L, ]
 
-    mems_A <- mems[which(datamems[, split[2L]] < cutsmems[[split[1L], split[2L]]])]
+    mems_A <-
+      mems[
+        which(datamems[, split[2L]] < cutsmems[[split[1L], split[2L]]])
+        ]
     mems_B <- setdiff(mems, mems_A)
 
     # calculate our change in inertia

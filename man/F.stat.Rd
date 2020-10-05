@@ -2,10 +2,7 @@
 % Please edit documentation in R/perm.test.R
 \name{F.stat}
 \alias{F.stat}
-\title{####################################################
-Copy directly from adonis function
-Modified to stop at the F.stat
-####################################################}
+\title{Title}
 \usage{
 F.stat(
   formula,
@@ -19,9 +16,12 @@ F.stat(
   ...
 )
 }
+\arguments{
+\item{...}{}
+}
+\value{
+
+}
 \description{
-####################################################
-Copy directly from adonis function
-Modified to stop at the F.stat
-####################################################
+Title
 }
