@@ -10,8 +10,6 @@
 #' @param distmethod Distance method to use with the data set. The default value
 #'   is the Euclidean distance but Gower will be used if there is circular
 #'   variable (`cir.var` has value).
-#' @param labels Displayed names of observations. If not specified and data
-#' frame has row names, row names will be used. Otherwise, it is row index.
 #' @param digits Significant decimal number printed in the output.
 #' @param nclusters Number of clusters created. Default is 2.
 #' @param minsplit The minimum number of observations that must exist in a node
@@ -54,7 +52,6 @@ MonoClust <- function(toclust,
                       cir.var = NULL,
                       variables,
                       distmethod,
-                      labels,
                       digits = options("digits")$digits,
                       nclusters = 2L,
                       minsplit = 5L,
@@ -80,14 +77,14 @@ MonoClust <- function(toclust,
     stop("Function does not support categorical variables yet.")
   }
 
-  if (missing(labels)) {
-    labels <- colnames(toclust)
-    names(labels) <- labels
-  } else if (length(labels) != ncol(toclust)) {
-    stop("\"labels\" has to have the same number of columns of \"toclust\".")
-  } else {
-    names(labels) <- colnames(toclust)
-  }
+  # if (missing(labels)) {
+  #   labels <- colnames(toclust)
+  #   names(labels) <- labels
+  # } else if (length(labels) != ncol(toclust)) {
+  #   stop("\"labels\" has to have the same number of columns of \"toclust\".")
+  # } else {
+  #   names(labels) <- colnames(toclust)
+  # }
 
   ## Tan, 5/27/16, argument checking (variables)
   if (!missing(variables)) {
@@ -128,7 +125,7 @@ MonoClust <- function(toclust,
     }
   }
 
-  # R#EMOVE: Tan, 9/8/20. Don't see the benefits of this.
+  # REMOVE: Tan, 9/8/20. Don't see the benefits of this.
   ## Switch so we only give off one warning.
   # assign(".MonoClustwarn", 0, envir = .GlobalEnv)
   ## Right now, each observation has equal weight. This could be made into an
@@ -462,7 +459,6 @@ MonoClust <- function(toclust,
   # var <- cluster_frame$var
   # cattog <- cluster_frame$category
   #
-  # splits <- which(var != "<leaf>")
   # cat_splits <- which(var != "<leaf>" & cattog == 1)
 
   ## Piece together a vector of labels to be printed. Kind of a weird way to do this, but
@@ -490,7 +486,12 @@ MonoClust <- function(toclust,
   ## whole structure of output, we can't set correct left and right node labels.
   ## See new getlevels function for more details.
   # labs<-c('root',sapply(splits,getlevels,cats = cat_splits,varnames=var, frame=cluster_frame,catnames=catnames,quali_ordered=quali_ordered))
-  # labs<-getlevels(splits, cats = cat_splits, varnames=var, frame=cluster_frame, digits=digits)
+
+  # splits <- which(cluster_frame$var != "<leaf>")
+  # labels <- getlevels(splits,
+  #                     varnames = cluster_frame$var,
+  #                     frame = cluster_frame,
+  #                     digits = digits)
 
   ## name a column what I probably should hav already named it, but I don't want to change all the code.
   # colnames(cluster_frame)[4] <- "dev"
@@ -516,8 +517,8 @@ MonoClust <- function(toclust,
   ## although both of them are used in labels.MonoClust. Maybe for categorical variables?
   MonoClust_obj <-
     list(frame = cluster_frame,
-         # row name, the labels of each observation
-         labels = labels,
+         # TODO: Remove. row name, the labels of each observation
+         labels = NULL,
          # the variable names, designed because of categorical variables were
          # split into levels column PCAmixdata.
          # TODO: Remove this
@@ -581,21 +582,23 @@ MonoClust <- function(toclust,
 #     }
 # }
 
-# REMOVE: Tan, 9/13/20. Remove categorical variable for now.
-# getlevels <- function(ind,cats,varnames,frame, digits=getOption('digits')) {
+# getlevels <- function(ind,varnames,frame, digits=getOption('digits')) {
 #   ## A bit of a pain in the ass to get categorical ordering levels to print correctly.
 #   ## To be honest, I forgot what the last part here does, but I am certain it is neccesary.
 #
 #   # These codes are modified version of rpart:::labels.rpart
 #   lsplit <- rsplit <- character(length(ind))
 #   # If there exists quantitative cutpoint
-#   if (any(!ind %in% cats)) {
-#     sind <- ind[ind %in% cats == 0]
-#     name <- varnames[sind]
-#     level <- frame$cut[sind]
-#     lsplit[ind %in% cats == 0] <- paste(name,"<",round(level, digits),sep=" ")
-#     rsplit[ind %in% cats == 0] <- paste(name,">=",round(level, digits),sep=" ")
-#   }
+#   # if (any(!ind %in% cats)) {
+#   # sind <- ind[ind %in% cats == 0]
+#   sind <- ind
+#   name <- varnames[sind]
+#   level <- frame$cut[sind]
+#   # lsplit[ind %in% cats == 0] <- paste(name,"<",round(level, digits),sep=" ")
+#   # rsplit[ind %in% cats == 0] <- paste(name,">=",round(level, digits),sep=" ")
+#   lsplit <- paste(name,"<",round(level, digits),sep=" ")
+#   rsplit <- paste(name,">=",round(level, digits),sep=" ")
+#   # }
 #   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
 #   # If there exists categorical cutpoint
 #   # if (any(ind %in% cats)) {
@@ -617,7 +620,7 @@ MonoClust <- function(toclust,
 #   labels[odd] <- rsplit[parent[odd]]
 #   labels[!odd] <- lsplit[parent[!odd]]
 #   labels[1] <- "root"
-#   labels
+#   return(labels)
 # }
 
 #' Split Function
@@ -863,6 +866,9 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
 
   ## If multiple splits produce the same inertia change output a warning.
   #if(nrow(ind) > 1 & .MonoClustwarn==0) {.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
+  if (nrow(ind_1) > 1)
+    warning("One or more of the splits chosen had an alternative split that
+            reduced deviance by the same amount.")
 
   # If there is at least one row that satisfies minbucket, pick the first one
   if (nrow(ind_1) != 0L) {

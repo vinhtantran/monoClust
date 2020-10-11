@@ -4,10 +4,10 @@
 \alias{create_labels}
 \title{Create Labels for Split Variables}
 \usage{
-create_labels(object, abbrev, ...)
+create_labels(x, abbrev, digits = getOption("digits"), ...)
 }
 \arguments{
-\item{object}{MonoClust result object.}
+\item{x}{MonoClust result object.}
 
 \item{abbrev}{Whether to print the abbreviated versions of variable names.
 Can be either "no" (default), "short", or "abbreviate". Short forms of them
@@ -20,13 +20,22 @@ If "short", variable names will be turned into "V1", "V2", ...
 If "abbreviate", \code{\link[=abbreviate]{abbreviate()}} function will be used. Use the optional
 arguments for this function.}
 
+\item{digits}{Number of significant digits to print.}
+
 \item{...}{Optional arguments to \code{\link[=abbreviate]{abbreviate()}}}
 }
 \value{
-A named vector of labels corresponding to variable's names (at vector
-names).
+A list containing two elements:
+\itemize{
+\item \code{varnames}: A named vector of labels corresponding to variable's names
+(at vector names).
+\item \code{labels}: Vector of labels of splitting rules to be displayed.
+}
 }
 \description{
 This function prints variable's labels for a \code{MonoClust} tree.
+}
+\seealso{
+\code{\link[=abbreviate]{abbreviate()}}
 }
 \keyword{internal}

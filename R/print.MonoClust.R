@@ -19,6 +19,7 @@
 #' @param ... Optional arguments to [abbreviate()]
 #'
 #' @return A nicely displayed MonoClust split tree.
+#' @seealso [abbreviate()]
 #' @export
 #'
 #' @examples
@@ -60,7 +61,7 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
   has_pvalue <- !is.null(frame$p.value)
   term <- rep(" ", length(depth))
   term[frame$var == "<leaf>"] <- "*"
-  labs <- create_labels(x, abbrev = abbrev, ...)
+  labs <- create_labels(x, abbrev = abbrev, digits = digits, ...)$labels
   n <- frame$n
   ## MODIFY: Tan, 3/1/15. Add p value.
   ## z <- paste(indent, z, n, format(signif(frame$dev, digits = digits)),
@@ -99,26 +100,68 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
 #'
 #' This function prints variable's labels for a `MonoClust` tree.
 #'
-#' @param object MonoClust result object.
 #' @inheritParams print.MonoClust
 #'
-#' @return A named vector of labels corresponding to variable's names (at vector
-#'   names).
+#' @return A list containing two elements:
+#'   * `varnames`: A named vector of labels corresponding to variable's names
+#'   (at vector names).
+#'   * `labels`: Vector of labels of splitting rules to be displayed.
+#' @seealso [abbreviate()]
 #' @keywords internal
-create_labels <- function(object, abbrev, ...) {
-  if (abbrev == "no") {
-    # labs <- gsub("*~*", ".", object$labelsnum, fixed = TRUE)
-    labs <- object$labels
-  } else if (abbrev == "short") {
-    vars <- object$frame$var
-    uvars <- unique(vars)
-    names <- uvars[uvars != "<leaf>"]
-    nums <- stringr::str_c("V", seq_len(length(names)))
-    labs <- nums
-    names(labs) <- names
+create_labels <- function(x, abbrev, digits = getOption('digits'), ...) {
+
+  frame <- x$frame
+
+  # Rename variable as indicated in abbrev
+  vars <- frame$var
+  uvars <- unique(vars)
+  names <- uvars[uvars != "<leaf>"]
+
+  if (abbrev == "short") {
+    varnames <- stringr::str_c("V", seq_len(length(names)))
+  } else if (abbrev == "abbreviate") {
+    varnames <- purrr::map_chr(names, abbreviate, ...)
   } else {
-    labs <- purrr::map_chr(object$labels, abbreviate, ...)
+    varnames <- names
   }
 
-  return(labs)
+  names(varnames) <- names
+
+  # Create split labels
+  split_index <- which(frame$var != "<leaf>")
+  lsplit <- rsplit <- character(length(split_index))
+  # If there exists quantitative cutpoint
+  # if (any(!ind %in% cats)) {
+  # sind <- ind[ind %in% cats == 0]
+  label <- varnames[frame$var[split_index]]
+  level <- frame$cut[split_index]
+
+  # lsplit[ind %in% cats == 0] <- paste(name,"<",round(level, digits),sep=" ")
+  # rsplit[ind %in% cats == 0] <- paste(name,">=",round(level, digits),sep=" ")
+  lsplit <- paste(label, "<", round(level, digits), sep=" ")
+  rsplit <- paste(label, ">=", round(level, digits), sep=" ")
+  # }
+  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
+  # If there exists categorical cutpoint
+  # if (any(ind %in% cats)) {
+  #   sind <- ind[ind %in% cats == 1]
+  #   for (i in sind) {
+  #     name <- varnames[i]
+  #     qualind <- which(catnames==varnames[i])
+  #     lsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][1:(frame$cut[i]-1)],collapse=" ")
+  #     rsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][-c(1:(frame$cut[i]-1))],collapse=" ")
+  #   }
+  #
+  # }
+
+  node <- frame$number
+  parent <- match(node %/% 2, node[split_index])
+  odd <- as.logical(node %% 2)
+
+  labels <- character(nrow(frame))
+  labels[odd] <- rsplit[parent[odd]]
+  labels[!odd] <- lsplit[parent[!odd]]
+  labels[1] <- "root"
+
+  return(list(varnames = varnames, labels = labels))
 }

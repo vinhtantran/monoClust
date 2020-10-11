@@ -9,7 +9,6 @@ MonoClust(
   cir.var = NULL,
   variables,
   distmethod,
-  labels,
   digits = options("digits")$digits,
   nclusters = 2L,
   minsplit = 5L,
@@ -29,9 +28,6 @@ could be a vector of variable indexes, or a vector of variable names.}
 \item{distmethod}{Distance method to use with the data set. The default value
 is the Euclidean distance but Gower will be used if there is circular
 variable (\code{cir.var} has value).}
-
-\item{labels}{Displayed names of observations. If not specified and data
-frame has row names, row names will be used. Otherwise, it is row index.}
 
 \item{digits}{Significant decimal number printed in the output.}
 

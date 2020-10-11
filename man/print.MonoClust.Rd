@@ -45,3 +45,6 @@ data(ruspini)
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 print(ruspini4sol)
 }
+\seealso{
+\code{\link[=abbreviate]{abbreviate()}}
+}

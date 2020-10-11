@@ -8,13 +8,16 @@
   x,
   uniform = FALSE,
   branch = 1,
-  margin = 0,
+  margin = c(0.12, 0.02, 0, 0.05),
   minbranch = 0.3,
   text = TRUE,
-  which,
+  which = 4,
+  stats = TRUE,
   abbrev = c("no", "short", "abbreviate"),
+  digits = getOption("digits") - 2,
   cols = NULL,
-  rel.loc.x = TRUE,
+  cols_type = c("l", "p", "b"),
+  rel_loc_x = TRUE,
   ...
 )
 }
@@ -41,7 +44,16 @@ leaves no room to squeeze in node labels.}
 
 \item{text}{Whether to print the labels on the tree.}
 
-\item{which}{Fill in later}
+\item{which}{Labeling modes, which are:
+\itemize{
+\item 1: only splitting variable names are shown, no splitting rules.
+\item 2: only splitting rules to the left branches are shown.
+\item 3: only splitting rules to the right branches are shown.
+\item 4 (default): splitting rules are shown on both sides of branches.
+}}
+
+\item{stats}{Whether to show statistics (cluster sizes and medoid points) on
+the tree.}
 
 \item{abbrev}{Whether to print the abbreviated versions of variable names.
 Can be either "no" (default), "short", or "abbreviate". Short forms of them
@@ -54,10 +66,18 @@ If "short", variable names will be turned into "V1", "V2", ...
 If "abbreviate", \code{\link[=abbreviate]{abbreviate()}} function will be used. Use the optional
 arguments for this function.}
 
-\item{cols}{Whether to use color on the labels or not. Only works when \code{text}
-is \code{TRUE}.}
+\item{digits}{Number of significant digits to print.}
 
-\item{rel.loc.x}{Whether to use the relative distance between clusters as x
+\item{cols}{Whether to shown color bars at leaves or not. It helps matching
+this tree plot with other plots whose cluster membership were colored. It
+only works when \code{text} is \code{TRUE}. Either \code{NULL}, a vector of one color, or
+a vector of colors matching the number of leaves.}
+
+\item{cols_type}{When \code{cols} is set, choose whether the color indicators are
+shown in a form of solid lines below the leaves (\code{"l"}), or big points
+(\code{"p"}), or both (\code{"b"}).}
+
+\item{rel_loc_x}{Whether to use the relative distance between clusters as x
 coordinate of the leaves. Default is TRUE.}
 
 \item{...}{Arguments to be passed to \code{\link[graphics:plot.default]{graphics::plot.default()}} and

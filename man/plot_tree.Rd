@@ -10,7 +10,7 @@ plot_tree(
   branch = 1,
   margin = 0,
   minbranch = 0.3,
-  rel.loc.x = TRUE,
+  rel_loc_x = TRUE,
   ...
 )
 }
@@ -35,7 +35,7 @@ Sometimes a split will give very little improvement, or even no improvement
 at all. A tree with branch lengths strictly proportional to improvement
 leaves no room to squeeze in node labels.}
 
-\item{rel.loc.x}{Whether to use the relative distance between clusters as x
+\item{rel_loc_x}{Whether to use the relative distance between clusters as x
 coordinate of the leaves. Default is TRUE.}
 
 \item{...}{Arguments to be passed to \code{\link[graphics:plot.default]{graphics::plot.default()}} and

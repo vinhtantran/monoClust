@@ -18,10 +18,21 @@
 #'   at all. A tree with branch lengths strictly proportional to improvement
 #'   leaves no room to squeeze in node labels.
 #' @param text Whether to print the labels on the tree.
-#' @param which Fill in later
-#' @param cols Whether to use color on the labels or not. Only works when `text`
-#'   is `TRUE`.
-#' @param rel.loc.x Whether to use the relative distance between clusters as x
+#' @param which Labeling modes, which are:
+#'   * 1: only splitting variable names are shown, no splitting rules.
+#'   * 2: only splitting rules to the left branches are shown.
+#'   * 3: only splitting rules to the right branches are shown.
+#'   * 4 (default): splitting rules are shown on both sides of branches.
+#' @param stats Whether to show statistics (cluster sizes and medoid points) on
+#'   the tree.
+#' @param cols Whether to shown color bars at leaves or not. It helps matching
+#'   this tree plot with other plots whose cluster membership were colored. It
+#'   only works when `text` is `TRUE`. Either `NULL`, a vector of one color, or
+#'   a vector of colors matching the number of leaves.
+#' @param cols_type When `cols` is set, choose whether the color indicators are
+#'   shown in a form of solid lines below the leaves (`"l"`), or big points
+#'   (`"p"`), or both (`"b"`).
+#' @param rel_loc_x Whether to use the relative distance between clusters as x
 #'   coordinate of the leaves. Default is TRUE.
 #' @param ... Arguments to be passed to [graphics::plot.default()] and
 #'   [graphics::lines()]
@@ -35,34 +46,40 @@
 #' data(ruspini)
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 #' plot(ruspini4sol)
-plot.MonoClust <- function(x, uniform = FALSE, branch = 1, margin = 0,
-                           minbranch = 0.3, text = TRUE, which,
+plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
+                           margin = c(0.12, 0.02, 0, 0.05),
+                           minbranch = 0.3, text = TRUE, which = 4,
+                           stats = TRUE,
                            abbrev = c("no", "short", "abbreviate"),
-                           cols = NULL, rel.loc.x = TRUE, ...) {
+                           digits = getOption("digits") - 2,
+                           cols = NULL, cols_type = c("l", "p", "b"),
+                           rel_loc_x = TRUE, ...) {
   ## This function sets some defaults and changes things a bit, but is mostly
   ## a wrapper for our slightly modified version of rpart's plot function (see
   ## plots.R).
 
   if (!inherits(x, "MonoClust"))
     stop("Not an MonoClust object")
-
-  if (missing(margin)) {
-    margin <- c(0.12, 0.02, 0, 0.05)
-  }
-  if (missing(which)) {
-    which <- 4
+  if (!(which %in% 1:4))
+    stop("\"which\" has to be a value between 1 and 4.")
+  abbrev <- match.arg(abbrev)
+  if (!is.null(cols)) {
+    if (length(cols) > 1 & length(cols) != sum(x$frame$var == "<leaf>"))
+      stop("When set, \"col\" has to contain 1 color or number of colors equal to
+         the number of leaves.")
+    cols_type <- match.arg(cols_type)
   }
 
   plot_tree(x, uniform = uniform, branch = branch, margin = margin,
-            minbranch = minbranch, rel.loc.x = rel.loc.x, ...)
+            minbranch = minbranch, rel_loc_x = rel_loc_x, ...)
 
   ## REMOVE: Tan, 3/1/15, Remove Inertia line lines(x=c(.88,.88),y=c(0,1))
 
   # for(i in seq(0,1,.1)) { lines(x=c(.86,.88),y=c(i,i)) text(.73,i,i) }
 
   if (text) {
-    text_tree(x, which = which, abbrev = abbrev, cols = cols,
-              rel.loc.x = rel.loc.x)
+    text_tree(x, which = which, digits = digits, stats = stats, abbrev = abbrev,
+              cols = cols, cols_type = cols_type, rel_loc_x = rel_loc_x)
 
     if (!is.null(x$circularroot$var)) {
       graphics::text(x = 1, y = 1, "Circ root")
