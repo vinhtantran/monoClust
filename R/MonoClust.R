@@ -15,7 +15,7 @@
 #' @param minsplit The minimum number of observations that must exist in a node
 #'   in order for a split to be attempted. Default is 5.
 #' @param minbucket The minimum number of observations in any terminal leaf
-#'   node. If not specified, it is set to minsplit/3.#
+#'   node. If not specified, it is set to minsplit/3.
 #' @param perm.test Whether or not to make a permutation test as stopping
 #'   criterion while clustering. Default is FALSE. See [perm.test()].
 #' @param alpha Value applied specifically to permutation test. Only valid when
@@ -52,10 +52,10 @@ MonoClust <- function(toclust,
                       cir.var = NULL,
                       variables,
                       distmethod,
-                      digits = options("digits")$digits,
+                      digits = getOptions("digits"),
                       nclusters = 2L,
                       minsplit = 5L,
-                      minbucket = round(minsplit / 3L),
+                      minbucket = NULL,
                       perm.test = FALSE,
                       alpha = 0.05) {
 
@@ -68,6 +68,9 @@ MonoClust <- function(toclust,
   ## MOVE: Tan, 12/14, move to the top to save some calculations if bad
   ## parameters are transferred
   ## Ensure that important options make sense
+  if (is.null(minbucket))
+    minbucket <- round(minsplit / 3L)
+
   if (minbucket >= minsplit) {
     stop("\"minbucket\" must be less than \"minsplit\".")
   }
@@ -267,7 +270,7 @@ MonoClust <- function(toclust,
     while (min_value < max_value) {
 
       # Set the hour hand
-      variable_shift <- variable %circ-% min_value
+      variable_shift <- variable %c-% min_value
       # TODO: Have to call MonoClust with ran = 1 to find the best split for
       # the shifted variables. Should be improved.
       # Goal: find the next split on only variable_shift, then find the new
@@ -303,7 +306,7 @@ MonoClust <- function(toclust,
       if (min_inertia > inertia) {
         min_inertia <- inertia
         bestcircsplit <- list(hour = min_value,
-                              minute = cut %circ+% min_value,
+                              minute = cut %c+% min_value,
                               intertia = inertia)
       }
       # Increase min_value to the next higher value
@@ -315,7 +318,7 @@ MonoClust <- function(toclust,
     # to linear variable. The first best split would be the minute split,
     # which was already found, together with hour, to be the best arcs. Will
     # shift back later by modifying cluster_frame
-    toclust[, cir.var] <- variable %circ-% bestcircsplit$hour
+    toclust[, cir.var] <- variable %c-% bestcircsplit$hour
 
   }
 
@@ -478,7 +481,7 @@ MonoClust <- function(toclust,
   if (!is.null(cir.var)) {
     cir_pos <- which(cluster_frame$var == colnames(toclust)[cir.var])
     cluster_frame$cut[cir_pos] <-
-      cluster_frame$cut[cir_pos] %circ+% bestcircsplit$hour
+      cluster_frame$cut[cir_pos] %c+% bestcircsplit$hour
   }
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
@@ -651,33 +654,33 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
   cutsmems <- cuts[mems, ]
 
   # Split into data rows of lower half (A) and upper half (B)
-  mems_A <- mems[which(datamems[[split[2]]] < cutsmems[[split[1], split[2]]])]
-  mems_B <- setdiff(mems, mems_A)
+  mems_a <- mems[which(datamems[[split[2]]] < cutsmems[[split[1], split[2]]])]
+  mems_b <- setdiff(mems, mems_a)
 
   # Tan, 2/17, call the permutation test function to test on the newly created
   # group perm.test condition should be uncommented later when successfully
   # tested
   # if (perm.test) {
-  # ptest.result <- permtest(split[2], data, mems_A, mems_B)
+  # ptest.result <- permtest(split[2], data, mems_a, mems_b)
   # ptest.result$aov.tab[1,6]
   # }
 
   # UPDATE: Tan, 9/13/20, cutpoint is simply value between two jump values
   # Tan, 10/3, cutpoint is the middle point between two closest points in two
   # clusters
-  # datamems_A <- datamems[datamems[, split[2]] <
+  # datamems_a <- datamems[datamems[, split[2]] <
   #                         cutsmems[split[1], split[2]], split[2]]
-  # datamems_B <- setdiff(datamems[, split[2]], datamems_A)
-  # mid_cutpoint <- (max(datamems_A) + min(datamems_B)) / 2
+  # datamems_b <- setdiff(datamems[, split[2]], datamems_a)
+  # mid_cutpoint <- (max(datamems_a) + min(datamems_b)) / 2
   mid_cutpoint <- mean(c(datamems[[split[1], split[2]]],
                          cutsmems[[split[1], split[2]]]))
 
   ## Make the new clusters.
-  node_number_A <- node_number * 2L
-  node_number_B <- node_number * 2L + 1L
+  node_number_a <- node_number * 2L
+  node_number_b <- node_number * 2L + 1L
 
-  cloc[mems_A] <- node_number_A
-  cloc[mems_B] <- node_number_B
+  cloc[mems_a] <- node_number_a
+  cloc[mems_b] <- node_number_b
 
   variable_name <- colnames(data)[frame$bipartsplitcol[split_row]]
 
@@ -709,38 +712,38 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
   ## rollbacked easily
 
   # New cluster 1
-  node_A <-
+  node_a <-
     new_node(
-      number  = node_number_A,
+      number  = node_number_a,
       var     = "<leaf>",
-      n       = length(mems_A),
+      n       = length(mems_a),
       # Remove because it is not implemented
-      # wt      = sum(weights[mems_A]),
-      inertia = inertia_calc(dist[mems_A, mems_A]),
+      # wt      = sum(weights[mems_a]),
+      inertia = inertia_calc(dist[mems_a, mems_a]),
       # TODO: Remove yval
       yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
-      medoid  = medoid(mems_A, dist),
+      medoid  = medoid(mems_a, dist),
       loc     = frame$loc[split_row] - 1 / nrow(frame)
     )
 
   # New cluster 2
-  node_B <-
+  node_b <-
     new_node(
-      number  = node_number_B,
+      number  = node_number_b,
       var     = "<leaf>",
-      n       = length(mems_B),
+      n       = length(mems_b),
       # Remove because it's not implemented
-      # wt      = sum(weights[mems_B]),
-      inertia = inertia_calc(dist[mems_B, mems_B]),
+      # wt      = sum(weights[mems_b]),
+      inertia = inertia_calc(dist[mems_b, mems_b]),
       # TODO: Remove yval
       yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
-      medoid  = medoid(mems_B, dist),
+      medoid  = medoid(mems_b, dist),
       loc     = frame$loc[split_row] + 1 / nrow(frame)
     )
 
   # Insert two new rows right after split row
   frame <- dplyr::add_row(frame,
-                          dplyr::add_row(node_A, node_B),
+                          dplyr::add_row(node_a, node_b),
                           .after = split_row)
 
   # This has to be updated last because it needs leaf nodes list
@@ -805,18 +808,18 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
     cuts_col <- dplyr::pull(cutsmems, i)
 
     new_inertia <- purrr::map_dbl(cuts_col, function(x) {
-      mems_A <- mems[which(data_col < x)]
-      mems_B <- setdiff(mems, mems_A)
-      ifelse(length(mems_A) * length(mems_B) == 0L,
+      mems_a <- mems[which(data_col < x)]
+      mems_b <- setdiff(mems, mems_a)
+      ifelse(length(mems_a) * length(mems_b) == 0L,
              NA,
-             inertia_calc(dist[mems_A, mems_A]) +
-               inertia_calc(dist[mems_B, mems_B]))
+             inertia_calc(dist[mems_a, mems_a]) +
+               inertia_calc(dist[mems_b, mems_b]))
     })
 
     return(new_inertia)
   }
 
-  `%op%` <- getOper(foreach::getDoParWorkers() > 1)
+  `%op%` <- get_oper(foreach::getDoParWorkers() > 1)
 
   bycol <-
     foreach::foreach(
@@ -830,11 +833,11 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   #   cuts_col <- cutsmems[, i]
   #
   #   bycol <- cbind(bycol, sapply(cuts_col, function(x) {
-  #     mems_A <- mems[which(data_col < x)]
-  #     mems_B <- setdiff(mems, mems_A)
-  #     ifelse(length(mems_A) * length(mems_B) == 0,
+  #     mems_a <- mems[which(data_col < x)]
+  #     mems_b <- setdiff(mems, mems_a)
+  #     ifelse(length(mems_a) * length(mems_b) == 0,
   #            NA,
-  #            inertia_calc(dist[mems_A, mems_A]) + inertia_calc(dist[mems_B, mems_B]))
+  #            inertia_calc(dist[mems_a, mems_a]) + inertia_calc(dist[mems_b, mems_b]))
   #     }))
   # }
   # Difference between current cluster and the possible splits
@@ -873,16 +876,16 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   if (nrow(ind_1) != 0L) {
     split <- ind_1[1L, ]
 
-    mems_A <-
+    mems_a <-
       mems[
         which(datamems[, split[2L]] < cutsmems[[split[1L], split[2L]]])
         ]
-    mems_B <- setdiff(mems, mems_A)
+    mems_b <- setdiff(mems, mems_a)
 
     # calculate our change in inertia
     inertiadel <- inertiap -
-      inertia_calc(dist[mems_A, mems_A]) -
-      inertia_calc(dist[mems_B, mems_B])
+      inertia_calc(dist[mems_a, mems_a]) -
+      inertia_calc(dist[mems_b, mems_b])
 
     ## Update frame
     frame_row$bipartsplitrow <- split[1L]

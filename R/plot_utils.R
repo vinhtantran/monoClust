@@ -457,25 +457,25 @@ text_tree <- function(x,
   # }
 }
 
-Nclustplot <- function(x, main, type, ylab, xlab, ...) {
-
-  if (missing(main)) {
-    main <- "Marginal Cluster Analysis"
-  }
-  if (missing(type)) {
-    type <- "b"
-  }
-  if (missing(ylab)) {
-    ylab <- "Proportion of Deviance Explained"
-  }
-  if (missing(xlab)) {
-    xlab <- "Number of Clusters"
-  }
-
-  inds <- seq(from = 2, to = nrow(x$frame), by = 2)
-  plot(inds, round((1 - as.numeric(x$frame$yval[inds]) / 1), digits = 2),
-       type = type, xaxt = "n",
-       ylab = ylab, xlab = xlab, main = main)
-  graphics::axis(1, at = inds, labels = as.character(2 + 0:(length(inds) - 1)))
-
-}
+# Nclustplot <- function(x, main, type, ylab, xlab, ...) {
+#
+#   if (missing(main)) {
+#     main <- "Marginal Cluster Analysis"
+#   }
+#   if (missing(type)) {
+#     type <- "b"
+#   }
+#   if (missing(ylab)) {
+#     ylab <- "Proportion of Deviance Explained"
+#   }
+#   if (missing(xlab)) {
+#     xlab <- "Number of Clusters"
+#   }
+#
+#   inds <- seq(from = 2, to = nrow(x$frame), by = 2)
+#   plot(inds, round((1 - as.numeric(x$frame$yval[inds]) / 1), digits = 2),
+#        type = type, xaxt = "n",
+#        ylab = ylab, xlab = xlab, main = main)
+#   graphics::axis(1, at = inds, labels = as.character(2 + 0:(length(inds) - 1)))
+#
+# }

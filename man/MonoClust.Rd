@@ -9,10 +9,10 @@ MonoClust(
   cir.var = NULL,
   variables,
   distmethod,
-  digits = options("digits")$digits,
+  digits = getOptions("digits"),
   nclusters = 2L,
   minsplit = 5L,
-  minbucket = round(minsplit/3L),
+  minbucket = NULL,
   perm.test = FALSE,
   alpha = 0.05
 )
@@ -37,7 +37,7 @@ variable (\code{cir.var} has value).}
 in order for a split to be attempted. Default is 5.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
-node. If not specified, it is set to minsplit/3.#}
+node. If not specified, it is set to minsplit/3.}
 
 \item{perm.test}{Whether or not to make a permutation test as stopping
 criterion while clustering. Default is FALSE. See \code{\link[=perm.test]{perm.test()}}.}

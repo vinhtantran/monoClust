@@ -2,13 +2,13 @@
 % Please edit documentation in R/utils.R
 \name{circ_arith}
 \alias{circ_arith}
-\alias{\%circ+\%}
-\alias{\%circ-\%}
+\alias{\%c+\%}
+\alias{\%c-\%}
 \title{Add/Subtract Circular Values in Degrees}
 \usage{
-x \%circ+\% y
+x \%c+\% y
 
-x \%circ-\% y
+x \%c-\% y
 }
 \arguments{
 \item{x, y}{Circular values in degrees.}
@@ -20,10 +20,10 @@ A value between [0, 360).
 Add/subtract two circular variables.
 }
 \examples{
-90 \%circ+\% 90
+90 \%c+\% 90
 
-250 \%circ+\% 200
+250 \%c+\% 200
 
-25 \%circ-\% 80
+25 \%c-\% 80
 
 }
