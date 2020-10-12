@@ -867,8 +867,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   ## If multiple splits produce the same inertia change output a warning.
   #if(nrow(ind) > 1 & .MonoClustwarn==0) {.MonoClustwarn <<- 1; warning("One or more of the splits chosen had an alternative split that reduced deviance by the same amount.")}
   if (nrow(ind_1) > 1)
-    warning("One or more of the splits chosen had an alternative split that
-            reduced deviance by the same amount.")
+    frame_row$alt <- TRUE
 
   # If there is at least one row that satisfies minbucket, pick the first one
   if (nrow(ind_1) != 0L) {
@@ -885,7 +884,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
       inertia_calc(dist[mems_A, mems_A]) -
       inertia_calc(dist[mems_B, mems_B])
 
-    ## Update our frame
+    ## Update frame
     frame_row$bipartsplitrow <- split[1L]
     frame_row$bipartsplitcol <- variables[split[2L]]
     frame_row$inertiadel <- inertiadel

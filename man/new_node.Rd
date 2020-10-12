@@ -18,7 +18,8 @@ new_node(
   inertia_explained = -99,
   medoid,
   loc,
-  split.order = -99L
+  split.order = -99L,
+  alt = FALSE
 )
 }
 \arguments{
@@ -57,6 +58,9 @@ cluster.}
 tree. See \code{\link[=plot.MonoClust]{plot.MonoClust()}} for details.}
 
 \item{split.order}{Order of the splits. Root is 0, and increasing.}
+
+\item{alt}{Indicator of an alternative cut yielding the same reduction in
+inertia at that split.}
 }
 \value{
 A tibble with only one row and correct default data type for even an

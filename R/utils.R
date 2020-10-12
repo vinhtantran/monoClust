@@ -185,6 +185,8 @@ medoid <- function(members, dist_mat) {
 #' @param split.order Order of the splits. Root is 0, and increasing.
 #' @param inertia_explained Percent inertia explained as described in Chavent
 #'   (2007)
+#' @param alt Indicator of an alternative cut yielding the same reduction in
+#'   inertia at that split.
 #'
 #' @references
 #' * Chavent, M., Lechevallier, Y., & Briant, O. (2007). DIVCLUS-T: A monothetic
@@ -212,7 +214,8 @@ new_node <- function(number,
                      # Remove later because there's no categorical
                      # category = 0,
                      loc,
-                     split.order = -99L) {
+                     split.order = -99L,
+                     alt = FALSE) {
 
   one_row_table <- dplyr::tibble(
     number, var, cut, n,
@@ -221,7 +224,8 @@ new_node <- function(number,
     bipartsplitcol, inertiadel, yval, inertia_explained, medoid,
     # category,
     loc,
-    split.order)
+    split.order,
+    alt)
 
   return(one_row_table)
 }

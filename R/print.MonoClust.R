@@ -93,6 +93,12 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
       cat(x$terms[x$circularroot$var[i]], ": ", x$circularroot$cut[i], "\n")
     }
   }
+
+  if (any(frame$alt))
+    cat("\nNote: One or more of the splits chosen had an alternative split that
+        reduced inertia by the same amount. See \"alt\" column of \"frame\"
+        object for details.")
+
   return(invisible(x))
 }
 
