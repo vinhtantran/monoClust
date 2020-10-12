@@ -9,7 +9,7 @@ MonoClust(
   cir.var = NULL,
   variables,
   distmethod,
-  digits = getOptions("digits"),
+  digits = getOption("digits"),
   nclusters = 2L,
   minsplit = 5L,
   minbucket = NULL,

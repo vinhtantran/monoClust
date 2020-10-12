@@ -4,22 +4,23 @@
 #' Monothetic Clustering.
 #'
 #' @param data Data set to be partitioned.
-#' @param fold Number of folds (k). When `k = 1`, the function performs a
-#' Leave-One-Out-Cross-Validation (LOOCV). When `k > 1`, a data will be
-#' returned.
+#' @param fold Number of folds (k). `fold = 1` is the special case, when the
+#' function performs a Leave-One-Out Cross-Validation (LOOCV).
 #' @param minnodes Minimum number of clusters to be checked.
 #' @param maxnodes Maximum number of clusters to be checked.
 #' @param ... Other parameters transferred to [MonoClust()].
 #'
 #' @details
-#' The \eqn{k}-fold cross-validation randomly partitions data into \eqn{k} subsets with
-#' equal (or close to equal) sizes. \eqn{k - 1} subsets are used as the training
-#' data set to create a tree with a desired number of leaves and the other
-#' subset is used as validation data set to evaluate the predictive performance
-#' of the trained tree. The process repeats for each subset as the validating
-#' set (\eqn{m = 1, \ldots, k}) and the mean squared difference,
-#' \deqn{MSE_m=\frac{1}{n_m} \sum_{q=1}^Q\sum_{i \in m} d^2_{euc}(y_{iq}, \hat{y}_{(-i)q}),}
-#' is calculated, where \eqn{\hat{y}_{(-i)q}} is the cluster mean on the variable
+#' The \eqn{k}-fold cross-validation randomly partitions data into \eqn{k}
+#' subsets with equal (or close to equal) sizes. \eqn{k - 1} subsets are used as
+#' the training data set to create a tree with a desired number of leaves and
+#' the other subset is used as validation data set to evaluate the predictive
+#' performance of the trained tree. The process repeats for each subset as the
+#' validating set (\eqn{m = 1, \ldots, k}) and the mean squared difference,
+#' \deqn{MSE_m=\frac{1}{n_m} \sum_{q=1}^Q\sum_{i \in m} d^2_{euc}(y_{iq},
+#' \hat{y}_{(-i)q}),}
+#' is calculated, where \eqn{\hat{y}_{(-i)q}} is the cluster mean on the
+#' variable
 #' \eqn{q} of the cluster created by the training data where the observed value,
 #' \eqn{y_{iq}}, of the validation data set will fall into, and
 #' \eqn{d^2_{euc}(y_{iq}, \hat{y}_{(-i)q})} is the squared Euclidean distance
@@ -29,8 +30,10 @@
 #' predicting a new observation,
 #' \deqn{CV_K = \overline{MSE} = \frac{1}{M} \sum_{m=1}^M MSE_m.}
 #'
-#' @return A list of sum of squares of difference between the predicted and true
-#'   values.
+#' @note This function supports parallel processing with [foreach::foreach].
+#'
+#' @return A `MonoClust.cv` class containing a data frame of mean sum of square
+#'   error and its standard deviation.
 #' @seealso [cv.plot()], [MonoClust()], [predict.MonoClust()]
 #' @export
 #'
@@ -39,6 +42,10 @@
 #' @examples
 #' library(cluster)
 #' data(ruspini)
+#' # Leave-one-out cross-validation
+#' cv.test(ruspini, fold = 1, minnodes = 2, maxnodes = 4)
+#'
+#' # 10-fold cross-validation
 #' cv.test(ruspini, minnodes = 2, maxnodes = 4)
 cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
 
@@ -46,51 +53,62 @@ cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
     stop("\"data\" must be a data frame.")
   }
 
+  `%op%` <- get_oper(foreach::getDoParWorkers() > 1)
   num_obs <- nrow(data)
+  sse_t <- vector("list", maxnodes - minnodes + 1)
   # LOOCV
   if (fold == 1) {
-    # sse_t is a vector for LOOCV
-    sse_t <- vector("double", maxnodes - minnodes + 1)
     for (k in minnodes:maxnodes) {
-      sse_i <- vector("double", num_obs)
+      # sse_i <- vector("double", num_obs)
       # fullc <- MonoClust(data, nclusters = k)
-      for (i in seq_len(num_obs)) {
-        out <- MonoClust(data[-i, ], nclusters = k, ...)
-        predict.MonoClust(out, newdata = data[i, ])
-        sse_i[i] <-
-          sum((data[i, ] -
-                 predict.MonoClust(out,
-                                   newdata = data[i, ])[, -1])^2)
-      }
-
-      sse_t[k] <- sum(sse_i)
-
+      sse_i <-
+        foreach::foreach(iter = seq_len(num_obs),
+                         .combine = "c",
+                         .inorder = FALSE,
+                         .packages = c("monoClust")) %op% {
+                           out <- MonoClust(data[-iter, ], nclusters = k, ...)
+                           pred <- predict.MonoClust(out,
+                                                     newdata = data[iter, ],
+                                                     type = "centroid")
+                           # predict.MonoClust(out, newdata = data[i, ])
+                           return(sum((data[iter, ] - pred[, -1])^2))
+                         }
+      sse_t[[k - minnodes + 1]] <- c(ncluster = k,
+                                     MSE = mean(sse_i),
+                                     `Std. Dev.` = sd(sse_i))
     }
-  } else if (fold > 1) {
+
+    ret <- list(cv = dplyr::bind_rows(sse_t),
+                cv.type = "Leave-one-out Cross-validation")
+  } else {
     # sse_t is a list of vector, later will be bound into a tibble
     sse_t <- vector("list", maxnodes - minnodes + 1)
     index <- rep(1:fold, num_obs %/% fold + 1)
     random_list <- sample(index, num_obs, replace = FALSE)
 
     for (k in minnodes:maxnodes) {
-      sse_i <- vector("double", fold)
-      for (i in 1:fold) {
-        train_set <- data[-which(random_list == i), ]
-        test_set <- data[which(random_list == i), ]
-        train_tree <- MonoClust(train_set, nclusters = k)
-        sse_i[i] <-
-          sum((test_set -
-                 predict.MonoClust(train_tree,
-                                   test_set)[, -1])^2)
-      }
-      sse_t[k] <- c(mean(sse_i), sd(sse_i))
-
+      # sse_i <- vector("double", fold)
+      sse_i <-
+        foreach::foreach(iter = 1:fold,
+                         .combine = "c",
+                         .inorder = FALSE,
+                         .packages = c("monoClust")) %op% {
+                           train_set <- data[-which(random_list == iter), ]
+                           test_set <- data[which(random_list == iter), ]
+                           train_tree <- MonoClust(train_set, nclusters = k)
+                           pred <- predict.MonoClust(train_tree,
+                                                     test_set,
+                                                     type = "centroid")
+                           return(sum((test_set - pred[, -1])^2))
+                         }
+      sse_t[[k - minnodes + 1]] <- c(ncluster = k,
+                                     MSE = mean(sse_i),
+                                     `Std. Dev.` = sd(sse_i))
     }
-    sse_t <- purrr::flatten_dfr(sse_t)
-    colnames(sse_t) <- c("MSE", "Std. Dev.")
-    rownames(sse_t) <- seq(minnodes, maxnodes, 1)
+    ret <- list(cv = dplyr::bind_rows(sse_t),
+                cv.type = paste0(fold, "-fold Cross-validation"))
   }
 
-  sse_t
-
+  class(ret) <- "cv.MonoClust"
+  return(ret)
 }

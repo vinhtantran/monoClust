@@ -8,6 +8,7 @@
 #' @param type Type of returned cluster representatives. Either `"centroid"` to
 #'   return the centroid values of the terminal clusters, or `"medoid"` to
 #'   return the index of the medoid observations in the clustered data set.
+#' @param ... Further arguments passed to or from other methods.
 #'
 #' @return A tibble of cluster index in `cname` and either centroid values or
 #'   medoid observations index based on the value of `type` argument.
@@ -29,7 +30,8 @@
 #'
 #' ruspini_train_4sol <- MonoClust(ruspini_train, nclusters = 4)
 #' predict(ruspini_train_4sol, newdata = ruspini_test)
-predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid")) {
+predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid"),
+                              ...) {
 
   ####### DELETE: For debugging purpose ########### require(cluster) data(ruspini) source('MonoClust.R')
   ####### object <- MonoClust(ruspini, nclusters = 4) newdata <- list(x = c(48, 90), y = c(93, 70))
@@ -57,7 +59,7 @@ predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid")) {
     # depth <- tree_depth(node)
 
     # It would be better to create a jump table for reference of tree walking
-    jump_table <- dplyr::select(frame, number, bipartvar, cut)
+    jump_table <- dplyr::select(frame, "number", "bipartvar", "cut")
     jump_table <- tibble::add_column(jump_table, left = NA, right = NA)
 
     if (nrow(jump_table) >= 2) {

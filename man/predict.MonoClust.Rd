@@ -4,7 +4,7 @@
 \alias{predict.MonoClust}
 \title{Predictions from a MonoClust Object}
 \usage{
-\method{predict}{MonoClust}(object, newdata, type = c("centroid", "medoid"))
+\method{predict}{MonoClust}(object, newdata, type = c("centroid", "medoid"), ...)
 }
 \arguments{
 \item{object}{MonoClust result object.}
@@ -15,6 +15,8 @@ the memberships of the MonoClust object are returned.}
 \item{type}{Type of returned cluster representatives. Either \code{"centroid"} to
 return the centroid values of the terminal clusters, or \code{"medoid"} to
 return the index of the medoid observations in the clustered data set.}
+
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
 A tibble of cluster index in \code{cname} and either centroid values or

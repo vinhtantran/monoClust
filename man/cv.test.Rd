@@ -9,9 +9,8 @@ cv.test(data, fold = 10, minnodes = 2, maxnodes = 10, ...)
 \arguments{
 \item{data}{Data set to be partitioned.}
 
-\item{fold}{Number of folds (k). When \code{k = 1}, the function performs a
-Leave-One-Out-Cross-Validation (LOOCV). When \code{k > 1}, a data will be
-returned.}
+\item{fold}{Number of folds (k). \code{fold = 1} is the special case, when the
+function performs a Leave-One-Out Cross-Validation (LOOCV).}
 
 \item{minnodes}{Minimum number of clusters to be checked.}
 
@@ -20,22 +19,24 @@ returned.}
 \item{...}{Other parameters transferred to \code{\link[=MonoClust]{MonoClust()}}.}
 }
 \value{
-A list of sum of squares of difference between the predicted and true
-values.
+A \code{MonoClust.cv} class containing a data frame of mean sum of square
+error and its standard deviation.
 }
 \description{
 Perform cross-validation test for different different number of clusters of
 Monothetic Clustering.
 }
 \details{
-The \eqn{k}-fold cross-validation randomly partitions data into \eqn{k} subsets with
-equal (or close to equal) sizes. \eqn{k - 1} subsets are used as the training
-data set to create a tree with a desired number of leaves and the other
-subset is used as validation data set to evaluate the predictive performance
-of the trained tree. The process repeats for each subset as the validating
-set (\eqn{m = 1, \ldots, k}) and the mean squared difference,
-\deqn{MSE_m=\frac{1}{n_m} \sum_{q=1}^Q\sum_{i \in m} d^2_{euc}(y_{iq}, \hat{y}_{(-i)q}),}
-is calculated, where \eqn{\hat{y}_{(-i)q}} is the cluster mean on the variable
+The \eqn{k}-fold cross-validation randomly partitions data into \eqn{k}
+subsets with equal (or close to equal) sizes. \eqn{k - 1} subsets are used as
+the training data set to create a tree with a desired number of leaves and
+the other subset is used as validation data set to evaluate the predictive
+performance of the trained tree. The process repeats for each subset as the
+validating set (\eqn{m = 1, \ldots, k}) and the mean squared difference,
+\deqn{MSE_m=\frac{1}{n_m} \sum_{q=1}^Q\sum_{i \in m} d^2_{euc}(y_{iq},
+\hat{y}_{(-i)q}),}
+is calculated, where \eqn{\hat{y}_{(-i)q}} is the cluster mean on the
+variable
 \eqn{q} of the cluster created by the training data where the observed value,
 \eqn{y_{iq}}, of the validation data set will fall into, and
 \eqn{d^2_{euc}(y_{iq}, \hat{y}_{(-i)q})} is the squared Euclidean distance
@@ -45,9 +46,16 @@ errors is the cross-validation-based estimate of the mean squared error of
 predicting a new observation,
 \deqn{CV_K = \overline{MSE} = \frac{1}{M} \sum_{m=1}^M MSE_m.}
 }
+\note{
+This function supports parallel processing with \link[foreach:foreach]{foreach::foreach}.
+}
 \examples{
 library(cluster)
 data(ruspini)
+# Leave-one-out cross-validation
+cv.test(ruspini, fold = 1, minnodes = 2, maxnodes = 4)
+
+# 10-fold cross-validation
 cv.test(ruspini, minnodes = 2, maxnodes = 4)
 }
 \seealso{

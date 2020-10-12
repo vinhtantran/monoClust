@@ -38,7 +38,7 @@ pcp.circ.plot <- function(data, cir.var = NULL, membership = NULL, order = NULL,
         cat("Zero value needs to go with either \"east\", \"north\", \"west\", or \"south\". Default is \"east\".")
         return(0)
     } else {
-        data[, cir.var] <- data[, cir.var] %circ+% shift[which(direction == zero)]
+        data[, cir.var] <- data[, cir.var] %c+% shift[which(direction == zero)]
     }
 
     # Circular variable
