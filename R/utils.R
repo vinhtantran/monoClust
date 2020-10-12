@@ -24,23 +24,23 @@ find_closest <- function(col) {
 #' @return A value between [0, 360).
 #' @name circ_arith
 #' @examples
-#' 90 %circ+% 90
+#' 90 %c+% 90
 #'
-#' 250 %circ+% 200
+#' 250 %c+% 200
 #'
-#' 25 %circ-% 80
+#' 25 %c-% 80
 #'
 NULL
 
 #' @export
 #' @rdname circ_arith
-`%circ+%` <- function(x, y) {
+`%c+%` <- function(x, y) {
   return((x + y) %% 360)
 }
 
 #' @export
 #' @rdname circ_arith
-`%circ-%` <- function(x, y) {
+`%c-%` <- function(x, y) {
   return((x - y) %% 360)
 }
 
@@ -99,7 +99,7 @@ circ_dist <- function(frame) {
   if (is.null(frame))
     stop("frame has to be a data set with all columns are circular.")
 
-  frame <- frame %circ+% 0
+  frame <- frame %c+% 0
 
   gower_circ <- function(x, y) abs(180 - abs(180 - abs(x - y))) / 180
 
@@ -125,7 +125,8 @@ circ_dist <- function(frame) {
       # return(dist_flat)
     })
 
-  ret <- matrix(purrr::pmap_dbl(list_dist, sum)/length(list_dist), ncol = nrow(frame))
+  ret <- matrix(purrr::pmap_dbl(list_dist, sum) / length(list_dist),
+                ncol = nrow(frame))
   return(as.dist(ret))
 }
 
@@ -248,7 +249,7 @@ centroid <- function(data, frame, cloc) {
 
   leaves <- frame$number[frame$var == "<leaf>"]
   names(leaves) <- leaves
-  centroid.list <- vector("list", length(leaves))
+  centroid_list <- vector("list", length(leaves))
 
   centroid_list <-
     purrr::map_dfr(leaves, function(x) {
@@ -287,6 +288,6 @@ tree_depth <- function(nodes) {
 #' @importFrom foreach `%dopar%`
 #' @importFrom foreach `%do%`
 #' @keywords internal
-getOper <- function(x) {
-  if(x) `%dopar%` else `%do%`
+get_oper <- function(x) {
+  if (x) `%dopar%` else `%do%`
 }

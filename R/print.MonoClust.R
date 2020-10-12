@@ -114,7 +114,7 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
 #'   * `labels`: Vector of labels of splitting rules to be displayed.
 #' @seealso [abbreviate()]
 #' @keywords internal
-create_labels <- function(x, abbrev, digits = getOption('digits'), ...) {
+create_labels <- function(x, abbrev, digits = getOption("digits"), ...) {
 
   frame <- x$frame
 
@@ -144,8 +144,8 @@ create_labels <- function(x, abbrev, digits = getOption('digits'), ...) {
 
   # lsplit[ind %in% cats == 0] <- paste(name,"<",round(level, digits),sep=" ")
   # rsplit[ind %in% cats == 0] <- paste(name,">=",round(level, digits),sep=" ")
-  lsplit <- paste(label, "<", round(level, digits), sep=" ")
-  rsplit <- paste(label, ">=", round(level, digits), sep=" ")
+  lsplit <- paste(label, "<", round(level, digits), sep = " ")
+  rsplit <- paste(label, ">=", round(level, digits), sep = " ")
   # }
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
   # If there exists categorical cutpoint

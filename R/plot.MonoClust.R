@@ -65,8 +65,8 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
   abbrev <- match.arg(abbrev)
   if (!is.null(cols)) {
     if (length(cols) > 1 & length(cols) != sum(x$frame$var == "<leaf>"))
-      stop("When set, \"col\" has to contain 1 color or number of colors equal to
-         the number of leaves.")
+      stop("When set, \"col\" has to contain 1 color or number of colors equal
+      to the number of leaves.")
     cols_type <- match.arg(cols_type)
   }
 
