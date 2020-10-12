@@ -2,28 +2,54 @@
 % Please edit documentation in R/cv.test.R
 \name{cv.test}
 \alias{cv.test}
-\title{k-fold Cross validation test on a monothetic clustering result.}
+\title{Cross-Validation Test on MonoClust}
 \usage{
 cv.test(data, fold = 10, minnodes = 2, maxnodes = 10, ...)
 }
 \arguments{
-\item{data}{data set}
+\item{data}{Data set to be partitioned.}
 
-\item{fold}{number of folds (k)}
+\item{fold}{Number of folds (k). When \code{k = 1}, the function performs a
+Leave-One-Out-Cross-Validation (LOOCV). When \code{k > 1}, a data will be
+returned.}
 
-\item{minnodes}{the minimum number of clusters to be checked}
+\item{minnodes}{Minimum number of clusters to be checked.}
 
-\item{maxnodes}{the maximum number of clusters to be checked}
+\item{maxnodes}{Maximum number of clusters to be checked.}
 
-\item{...}{}
+\item{...}{Other parameters transferred to \code{\link[=MonoClust]{MonoClust()}}.}
 }
 \value{
 A list of sum of squares of difference between the predicted and true
-values
+values.
 }
 \description{
-k-fold Cross validation test on a monothetic clustering result.
+Perform cross-validation test for different different number of clusters of
+Monothetic Clustering.
+}
+\details{
+The \eqn{k}-fold cross-validation randomly partitions data into \eqn{k} subsets with
+equal (or close to equal) sizes. \eqn{k - 1} subsets are used as the training
+data set to create a tree with a desired number of leaves and the other
+subset is used as validation data set to evaluate the predictive performance
+of the trained tree. The process repeats for each subset as the validating
+set (\eqn{m = 1, \ldots, k}) and the mean squared difference,
+\deqn{MSE_m=\frac{1}{n_m} \sum_{q=1}^Q\sum_{i \in m} d^2_{euc}(y_{iq}, \hat{y}_{(-i)q}),}
+is calculated, where \eqn{\hat{y}_{(-i)q}} is the cluster mean on the variable
+\eqn{q} of the cluster created by the training data where the observed value,
+\eqn{y_{iq}}, of the validation data set will fall into, and
+\eqn{d^2_{euc}(y_{iq}, \hat{y}_{(-i)q})} is the squared Euclidean distance
+(dissimilarity) between two observations at variable $q$. This process is
+repeated for the $k$ subsets of the data set and the average of these test
+errors is the cross-validation-based estimate of the mean squared error of
+predicting a new observation,
+\deqn{CV_K = \overline{MSE} = \frac{1}{M} \sum_{m=1}^M MSE_m.}
 }
 \examples{
-NULL
+library(cluster)
+data(ruspini)
+cv.test(ruspini, minnodes = 2, maxnodes = 4)
+}
+\seealso{
+\code{\link[=cv.plot]{cv.plot()}}, \code{\link[=MonoClust]{MonoClust()}}, \code{\link[=predict.MonoClust]{predict.MonoClust()}}
 }

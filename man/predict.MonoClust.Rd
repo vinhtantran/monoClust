@@ -2,16 +2,40 @@
 % Please edit documentation in R/predict.MonoClust.R
 \name{predict.MonoClust}
 \alias{predict.MonoClust}
-\title{Title}
+\title{Predictions from a MonoClust Object}
 \usage{
-\method{predict}{MonoClust}(object, newdata = list(), na.action = na.pass, type = "mean", ...)
+\method{predict}{MonoClust}(object, newdata, type = c("centroid", "medoid"))
 }
 \arguments{
-\item{...}{}
+\item{object}{MonoClust result object.}
+
+\item{newdata}{Data frame containing the values to be predicted. If missing,
+the memberships of the MonoClust object are returned.}
+
+\item{type}{Type of returned cluster representatives. Either \code{"centroid"} to
+return the centroid values of the terminal clusters, or \code{"medoid"} to
+return the index of the medoid observations in the clustered data set.}
 }
 \value{
-
+A tibble of cluster index in \code{cname} and either centroid values or
+medoid observations index based on the value of \code{type} argument.
 }
 \description{
-Title
+Predict the cluster memberships of a new data set from a \code{MonoClust} object.
+}
+\examples{
+library(cluster)
+data(ruspini)
+
+set.seed(1234)
+test_index <- sample(1:nrow(ruspini), nrow(ruspini)/5)
+train_index <- setdiff(1:nrow(ruspini), test_index)
+ruspini_train <- ruspini[train_index, ]
+ruspini_test <- ruspini[test_index, ]
+
+ruspini_train_4sol <- MonoClust(ruspini_train, nclusters = 4)
+predict(ruspini_train_4sol, newdata = ruspini_test)
+}
+\seealso{
+\link{predict}
 }
