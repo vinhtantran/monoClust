@@ -441,11 +441,9 @@ MonoClust <- function(toclust,
   ## so we need to follow their text and labeling conventions to that our
   ## objects which inherit from rpart can print and plot correctly.
 
-  # TODO: For now, keep number column. In the future, (1) stop using rownames and
-  # use number variable directly, (2) output a tibble.
   ## Change the number column to rownames...
-  cluster_frame <- as.data.frame(cluster_frame)
-  rownames(cluster_frame) <- cluster_frame$number
+  cluster_frame <- cluster_frame
+  # rownames(cluster_frame) <- cluster_frame$number
   # cluster_frame[["number"]] <- NULL
 
   ## This is what will print at each terminal node on the dendrogram
