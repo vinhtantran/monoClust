@@ -70,12 +70,13 @@
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                       method = 1,
                       rep = 10000,
-                      stat = "F",
+                      stat = c("F", "AW"),
                       bon.adj = TRUE,
                       parallel = getOption("mc.cores")) {
 
   if (!inherits(object, "MonoClust"))
     stop("Not a legitimate \"MonoClust\" object")
+  stat <- match.arg(stat)
 
   frame <- object$frame
   # node <- frame$number
@@ -123,11 +124,15 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                                 auto.pick, method, data, split_var,
                                 jump_table$number[current], rep, stat,
                                 parallel = parallel)
-    p_value <- p_value_unadj * i
+
+    # If Bonferroni correction is applied
+    p_value <- ifelse(bon.adj, p_value_unadj * i, p_value_unadj)
 
     jump_table$p_value[current] <- ifelse(p_value > 1, 1,
                                           ceiling(p_value * rep) / rep)
 
+    # If auto.pick is applied
+    last_pick <- NULL
     if (auto.pick) {
       if (p_value > sig.val) {
         last_split <- i
@@ -146,10 +151,9 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
   # c('.Jump_Table'), envir = globalenv())
 
   frame$p.value <- jump_table$p_value
-  if (auto.pick)
-    object$numofclusters <- last_split
 
   object$frame <- frame
+  object$numofclusters <- last_split
   return(object)
 }
 
@@ -194,16 +198,10 @@ test_split <- function(current, members, members_l, members_r, auto.pick,
     currentdata <- data[c(members_l, members_r), ]
 
     # Find the observed statistic
+    distmat_twogroup <- as.matrix(cluster::daisy(data.frame(currentdata)))
     if (stat == "F") {
-      # Remove the split_var out of calculation of distance
-      obs_data <- currentdata
-      # obs_data[,split_var] <- NULL
-      distmat_twogroup <- as.matrix(cluster::daisy(data.frame(obs_data)))
-
       stat_obs <- F.stat(distmat_twogroup ~ fmem2, parallel = parallel)
-    } else if (stat == "AW") {
-      distmat_twogroup <- as.matrix(cluster::daisy(data.frame(currentdata)))
-
+    } else {
       stat_obs <- fpc::cluster.stats(distmat_twogroup, fmem2)$avg.silwidth
     }
 
@@ -236,7 +234,7 @@ test_split <- function(current, members, members_l, members_r, auto.pick,
         # F-stat = 0
         stat_rep[k] <- ifelse(1 %in% fmem2_rep, 0,
                               F.stat(distmat_rep ~ fmem2_rep))
-      } else if (stat == "AW") {
+      } else {
         stat_rep[k] <- ifelse(1 %in% fmem2_rep, 0,
                               fpc::cluster.stats(distmat_rep,
                                                  fmem2_rep)$avg.silwidth)
