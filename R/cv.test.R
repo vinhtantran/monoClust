@@ -34,7 +34,7 @@
 #'
 #' @return A `MonoClust.cv` class containing a data frame of mean sum of square
 #'   error and its standard deviation.
-#' @seealso [cv.plot()], [MonoClust()], [predict.MonoClust()]
+#' @seealso [plot.cv.MonoClust()], [MonoClust()], [predict.MonoClust()]
 #' @export
 #'
 #' @importFrom stats sd

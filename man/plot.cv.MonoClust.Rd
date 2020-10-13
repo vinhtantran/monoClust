@@ -16,7 +16,7 @@
 )
 }
 \arguments{
-\item{x}{A \code{cv.MonoClust} object (output of \code{\link[=cv.test]{cv.test()}} or \code{\link[=cv.test.mse]{cv.test.mse()}}.}
+\item{x}{A \code{cv.MonoClust} object (output of \code{\link[=cv.test]{cv.test()}}).}
 
 \item{main}{Overall title for the plot.}
 

@@ -545,7 +545,7 @@ MonoClust <- function(toclust,
     )
 
   # TODO: Remove rpart from this
-  class(MonoClust_obj) <- c("MonoClust", "rpart")
+  class(MonoClust_obj) <- "MonoClust"
 
   ## Get rid of our global assignments.
   # rm(list = c("cluster_frame", "c_loc"), envir = globalenv())

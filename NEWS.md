@@ -1,6 +1,7 @@
 # monoClust 0.4.0
 
-* Removed the categorical variable feature to make sure it works well for all other cases.
+* Removed the categorical variable feature to make sure it works well for all 
+other cases.
 
 # monoClust 0.3.0
 

@@ -17,10 +17,47 @@ F.stat(
 )
 }
 \arguments{
-\item{...}{}
+\item{formula}{Model formula. The LHS must be either a community
+    data matrix or a dissimilarity matrix, e.g., from
+    \code{\link[vegan]{vegdist}} or \code{\link{dist}}.  If the LHS is a data
+    matrix, function \code{\link[vegan]{vegdist}} will be used to find the
+    dissimilarities. The RHS defines the independent variables. These
+    can be continuous variables or factors, they can be transformed
+    within the formula, and they can have interactions as in a typical
+    \code{\link{formula}}. If a dissimilarity object is supplied, no
+    species coefficients can be calculated in \code{adonis} (see Value
+    below).}
+
+\item{data}{ the data frame for the independent variables.}
+
+\item{permutations}{a list of control values for the permutations
+    as returned by the function \code{\link[permute]{how}}, or the
+    number of permutations required, or a permutation matrix where each
+    row gives the permuted indices.}
+
+\item{method}{ the name of any method used in \code{\link[vegan]{vegdist}} to
+    calculate pairwise distances if the left hand side of the
+    \code{formula} was a data frame or a matrix. }
+
+\item{strata}{ groups (strata) within which to constrain permutations.  }
+
+\item{contr.unordered}{contrasts used for the design
+    matrix (default in R is dummy or treatment contrasts for unordered
+    factors). }
+
+\item{contr.ordered}{contrasts used for the design
+    matrix (default in R is dummy or treatment contrasts for unordered
+    factors). }
+
+\item{parallel}{Number of parallel processes or a predefined socket
+    cluster.  With \code{parallel = 1} uses ordinary, non-parallel
+    processing. The parallel processing is done with \pkg{parallel}
+    package.}
+
+\item{...}{Other arguments passed to \code{vegdist}.}
 }
 \value{
-
+Fill in later
 }
 \description{
 Title

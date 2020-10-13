@@ -2,7 +2,7 @@
 % Please edit documentation in R/perm.test.R
 \name{perm.test}
 \alias{perm.test}
-\title{Permutation test on monothetic tree}
+\title{Permutation Test on Monothetic Tree}
 \usage{
 perm.test(
   object,
@@ -15,28 +15,28 @@ perm.test(
 )
 }
 \arguments{
-\item{object}{The MonoClust object as the result of the clustering.}
+\item{object}{The \code{MonoClust} object as the result of the clustering.}
 
 \item{data}{The data set which is being clustered.}
 
 \item{auto.pick}{Whether the algorithm stops when p-value becomes larger than
-sig.val or keeps testing and let the researcher pick the final splitting
-tree. Default value is FALSE.}
+\code{sig.val} or keeps testing and let the researcher pick the final splitting
+tree. Default value is \code{FALSE}.}
 
 \item{sig.val}{Significance value to decide when to stop splitting. This
-option is ignored if auto.pick is FALSE, and is 0.05 by default when
-auto.pick is TRUE.}
+option is ignored if \code{auto.pick = FALSE}, and is 0.05 by default when
+\code{auto.pick = TRUE}.}
 
 \item{method}{Can be chosen between 1 (default), 2, or 3. See description
-above the details.}
+above for the details.}
 
 \item{rep}{Number of permutations to calculate test statistic.}
 
-\item{stat}{Statistic to use, choosing between 'F' (default), 'AW'.}
+\item{stat}{Statistic to use, choosing between \code{"F"} (default), \code{"AW"}.}
 }
 \value{
 The same MonoClust object with an updated frame with one extra
-column (p-value), and the numofclusters chosen if auto.pick is TRUE
+column (p-value), and the \code{numofclusters} chosen if \code{auto.pick = TRUE}.
 }
 \description{
 Testing the significance of each monothetic clustering split by permutation
@@ -46,6 +46,22 @@ the splitting variable to create a new data set, then it either splits again
 on that variable (method 2) or use all variables as the splitting candidates
 (method 3).
 }
+\details{
+\subsection{Method 1:}{
+}
+
+\subsection{Method 2:}{
+}
+
+\subsection{Method 3:}{
+}
+}
 \examples{
-EMPTY
+library(cluster)
+data(ruspini)
+
+ruspini6sol <- MonoClust(ruspini, nclusters = 6)
+ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = 1,
+                              rep = 1000)
+ruspini6.p_value
 }

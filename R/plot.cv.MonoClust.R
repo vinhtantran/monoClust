@@ -1,6 +1,6 @@
 #' Plot the Mean Square Error with error bar for +/- 1 Standard Error
 #'
-#' @param x A `cv.MonoClust` object (output of [cv.test()] or [cv.test.mse()].
+#' @param x A `cv.MonoClust` object (output of [cv.test()]).
 #' @param main Overall title for the plot.
 #' @param xlab Title for x axis.
 #' @param ylab Title for y axis.

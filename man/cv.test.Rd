@@ -59,5 +59,5 @@ cv.test(ruspini, fold = 1, minnodes = 2, maxnodes = 4)
 cv.test(ruspini, minnodes = 2, maxnodes = 4)
 }
 \seealso{
-\code{\link[=cv.plot]{cv.plot()}}, \code{\link[=MonoClust]{MonoClust()}}, \code{\link[=predict.MonoClust]{predict.MonoClust()}}
+\code{\link[=plot.cv.MonoClust]{plot.cv.MonoClust()}}, \code{\link[=MonoClust]{MonoClust()}}, \code{\link[=predict.MonoClust]{predict.MonoClust()}}
 }

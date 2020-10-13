@@ -59,13 +59,7 @@ predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid"),
     # depth <- tree_depth(node)
 
     # It would be better to create a jump table for reference of tree walking
-    jump_table <- dplyr::select(frame, "number", "bipartvar", "cut")
-    jump_table <- tibble::add_column(jump_table, left = NA, right = NA)
-
-    if (nrow(jump_table) >= 2) {
-      jump_table$left <- match(jump_table$number * 2, jump_table$number)
-      jump_table$right <- match(jump_table$number * 2 + 1, jump_table$number)
-    } else jump_table[, c("bipartvar", "number")] <- NA
+    jump_table <- make_jump_table(frame)
 
     # Now tracing the tree to find the cluster
     terminal_node <- apply(new_data, 1, tree_walk, jump_table = jump_table)
@@ -92,6 +86,28 @@ predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid"),
   # Expand out the missing values in the result But only if operating on the original dataset if
   # (missing(newdata) && !is.null(object$na.action)) pred <- naresid(object$na.action, pred)
   return(ret)
+}
+
+#' Create Jump Table
+#'
+#' Create jump table from the MonoClust's frame object. `number` and `bipartvar`
+#' will be used to create the table.
+#'
+#' @param frame MonoClust's frame object
+#'
+#' @return Jump table with `number`, `bipartvar`, and two new columns `left` and
+#'   `right` indicate the left and right number at split.
+#' @keywords internal
+make_jump_table <- function(frame) {
+  jump_table <- frame[, c("number", "bipartvar", "cut")]
+  jump_table <- tibble::add_column(jump_table, left = NA, right = NA)
+
+  if (nrow(jump_table) >= 2) {
+    jump_table$left <- match(jump_table$number * 2, jump_table$number)
+    jump_table$right <- match(jump_table$number * 2 + 1, jump_table$number)
+  } else jump_table[, c("number", "bipartvar")] <- NA
+
+  return(jump_table)
 }
 
 #' Traverse a Tree to Find the Leaves (Terminal Nodes)

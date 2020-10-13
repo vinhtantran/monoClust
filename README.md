@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![Travis build
+status](https://travis-ci.com/vinhtantran/monoClust.svg?branch=master)](https://travis-ci.com/vinhtantran/monoClust)
 <!-- badges: end -->
 
 The goal of monoClust is to perform Monothetic Clustering to a data set.
