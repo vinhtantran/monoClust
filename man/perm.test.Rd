@@ -11,7 +11,9 @@ perm.test(
   sig.val = 0.05,
   method = 1,
   rep = 10000,
-  stat = "F"
+  stat = "F",
+  bon.adj = TRUE,
+  parallel = getOption("mc.cores")
 )
 }
 \arguments{
@@ -30,13 +32,22 @@ option is ignored if \code{auto.pick = FALSE}, and is 0.05 by default when
 \item{method}{Can be chosen between 1 (default), 2, or 3. See description
 above for the details.}
 
-\item{rep}{Number of permutations to calculate test statistic.}
+\item{rep}{Number of permutations required to calculate test statistic.}
 
-\item{stat}{Statistic to use, choosing between \code{"F"} (default), \code{"AW"}.}
+\item{stat}{Applied to methods 2 and 3. Statistic to use, choosing between
+\code{"F"} (default) or \code{"AW"}.}
+
+\item{bon.adj}{Whether to adjust for multiple testing problem using
+Bonferroni correction.}
+
+\item{parallel}{Number of parallel processes or a predefined socket
+    cluster.  With \code{parallel = 1} uses ordinary, non-parallel
+    processing. The parallel processing is done with \pkg{parallel}
+    package.}
 }
 \value{
-The same MonoClust object with an updated frame with one extra
-column (p-value), and the \code{numofclusters} chosen if \code{auto.pick = TRUE}.
+The same \code{MonoClust} object with an extra column (p-value), as well
+as the \code{numofclusters} object if \code{auto.pick = TRUE}.
 }
 \description{
 Testing the significance of each monothetic clustering split by permutation
@@ -47,13 +58,39 @@ on that variable (method 2) or use all variables as the splitting candidates
 (method 3).
 }
 \details{
-\subsection{Method 1:}{
+\subsection{Permutation Methods}{
+\subsection{Method 1: Shuffle the observations between two proposed clusters}{
+
+The pseudo-F's calculated from the shuffles create the reference distribution
+to find the p-value. Because the splitting variable that was chosen is
+already the best in terms of reduction of inertia, that variable is withheld
+from the distance matrix used in the permutation test.
 }
 
-\subsection{Method 2:}{
+\subsection{Method 2: Shuffle while keeping other variables fixed - ASW}{
+
+This method shuffles the values of the splitting variables while keeping
+other variables fixed to create a new data set, then the average silhouette
+width (Kaufman and Rousseeuw, 1990) is used as the measure of separation
+between the two new clusters and is calculated to create the reference
+distribution.
 }
 
-\subsection{Method 3:}{
+\subsection{Method 3: Shuffle while keeping other variables fixed - Pseudo-F}{
+
+Similar to the previous method but pseudo-F (as in Method 1) is used as the
+test statistic instead of the average silhouette width.
+}
+
+}
+
+\subsection{Bonferroni Correction}{
+
+A hypothesis test occurred lower in the monothetic clustering tree could have
+its p-value corrected for multiple tests happened before it in order to reach
+that node. The formula is
+\deqn{adj.p = unadj.p \times depth,}
+with \eqn{depth} is 1 at the root node.
 }
 }
 \examples{
@@ -64,4 +101,11 @@ ruspini6sol <- MonoClust(ruspini, nclusters = 6)
 ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = 1,
                               rep = 1000)
 ruspini6.p_value
+}
+\references{
+\itemize{
+\item Kaufman, L. and Rousseeuw, P. J. (1990). Finding Groups in Data: An
+Introduction to Cluster Analysis. 1st ed. Wiley-Interscience, p. 368. isbn:
+978-0471735786.
+}
 }

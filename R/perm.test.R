@@ -17,19 +17,46 @@
 #'   `auto.pick = TRUE`.
 #' @param method Can be chosen between 1 (default), 2, or 3. See description
 #'   above for the details.
-#' @param rep Number of permutations to calculate test statistic.
-#' @param stat Statistic to use, choosing between `"F"` (default), `"AW"`.
+#' @param rep Number of permutations required to calculate test statistic.
+#' @param stat Applied to methods 2 and 3. Statistic to use, choosing between
+#'   `"F"` (default) or `"AW"`.
+#' @param bon.adj Whether to adjust for multiple testing problem using
+#'  Bonferroni correction.
+#' @inheritParams vegan::adonis
 #'
-#' @return The same MonoClust object with an updated frame with one extra
-#' column (p-value), and the `numofclusters` chosen if `auto.pick = TRUE`.
+#' @return The same `MonoClust` object with an extra column (p-value), as well
+#' as the `numofclusters` object if `auto.pick = TRUE`.
 #'
 #' @details
-#' ## Method 1:
+#' ## Permutation Methods
+#' ### Method 1: Shuffle the observations between two proposed clusters
+#' The pseudo-F's calculated from the shuffles create the reference distribution
+#' to find the p-value. Because the splitting variable that was chosen is
+#' already the best in terms of reduction of inertia, that variable is withheld
+#' from the distance matrix used in the permutation test.
 #'
-#' ## Method 2:
+#' ### Method 2: Shuffle while keeping other variables fixed - ASW
+#' This method shuffles the values of the splitting variables while keeping
+#' other variables fixed to create a new data set, then the average silhouette
+#' width (Kaufman and Rousseeuw, 1990) is used as the measure of separation
+#' between the two new clusters and is calculated to create the reference
+#' distribution.
 #'
-#' ## Method 3:
+#' ### Method 3: Shuffle while keeping other variables fixed - Pseudo-F
+#' Similar to the previous method but pseudo-F (as in Method 1) is used as the
+#' test statistic instead of the average silhouette width.
 #'
+#' ## Bonferroni Correction
+#' A hypothesis test occurred lower in the monothetic clustering tree could have
+#' its p-value corrected for multiple tests happened before it in order to reach
+#' that node. The formula is
+#' \deqn{adj.p = unadj.p \times depth,}
+#' with \eqn{depth} is 1 at the root node.
+#'
+#' @references
+#' * Kaufman, L. and Rousseeuw, P. J. (1990). Finding Groups in Data: An
+#' Introduction to Cluster Analysis. 1st ed. Wiley-Interscience, p. 368. isbn:
+#' 978-0471735786.
 #' @export
 #'
 #' @examples
@@ -43,7 +70,9 @@
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                       method = 1,
                       rep = 10000,
-                      stat = "F") {
+                      stat = "F",
+                      bon.adj = TRUE,
+                      parallel = getOption("mc.cores")) {
 
   if (!inherits(object, "MonoClust"))
     stop("Not a legitimate \"MonoClust\" object")
@@ -91,8 +120,9 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
       paste(members_r, collapse = ",")
 
     p_value_unadj <- test_split(current, members, members_l, members_r,
-                                auto.pick, method, data,
-                                split_var, jump_table$number[current], rep, stat)
+                                auto.pick, method, data, split_var,
+                                jump_table$number[current], rep, stat,
+                                parallel = parallel)
     p_value <- p_value_unadj * i
 
     jump_table$p_value[current] <- ifelse(p_value > 1, 1,
@@ -136,7 +166,7 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
 #' @return To be filled
 #' @keywords internal
 test_split <- function(current, members, members_l, members_r, auto.pick,
-                       method, data, split_var, node, rep, stat) {
+                       method, data, split_var, node, rep, stat, parallel) {
   # Membership is consecutive because the distance matrix will be moved around
   # with members_l and
   # members_r put next to each other.
@@ -152,14 +182,15 @@ test_split <- function(current, members, members_l, members_r, auto.pick,
     distmat_twogroup <- distmat_reduced[c(members_l, members_r),
                                         c(members_l, members_r)]
 
-    result <- vegan::adonis(distmat_twogroup ~ fmem2, permutations = rep)
+    result <- vegan::adonis(distmat_twogroup ~ fmem2,
+                            permutations = rep,
+                            parallel = parallel)
 
     # p_value.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
-    p_value <- result$aov.tab[1, 6]
+    p_value <- result$aov.tab$`Pr(>F)`[1]
   } else if (method == 2 | method == 3) {
-    # Method 2, 3: shuffling the splitting variable split again on that variable
-    # (method 2) or split
-    # on all variables (method 3)
+    # Method 2, 3: shuffling the splitting variable, split again on that
+    # variable (method 2) or split on all variables (method 3)
     currentdata <- data[c(members_l, members_r), ]
 
     # Find the observed statistic
@@ -169,7 +200,7 @@ test_split <- function(current, members, members_l, members_r, auto.pick,
       # obs_data[,split_var] <- NULL
       distmat_twogroup <- as.matrix(cluster::daisy(data.frame(obs_data)))
 
-      stat_obs <- F.stat(distmat_twogroup ~ fmem2)
+      stat_obs <- F.stat(distmat_twogroup ~ fmem2, parallel = parallel)
     } else if (stat == "AW") {
       distmat_twogroup <- as.matrix(cluster::daisy(data.frame(currentdata)))
 
@@ -272,7 +303,7 @@ F.stat <- function(formula, data = NULL, permutations = 999, method = "bray",
     dmat <- as.matrix(lhs^2)
     lhs <- as.dist(lhs)
   } else {
-    dist.lhs <- as.matrix(vegdist(lhs, method = method, ...))
+    dist.lhs <- as.matrix(vegan::vegdist(lhs, method = method, ...))
     dmat <- dist.lhs^2
   }
   n <- nrow(dmat)

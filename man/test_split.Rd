@@ -15,7 +15,8 @@ test_split(
   split_var,
   node,
   rep,
-  stat
+  stat,
+  parallel
 )
 }
 \arguments{
@@ -38,9 +39,15 @@ above for the details.}
 
 \item{node}{The current node index}
 
-\item{rep}{Number of permutations to calculate test statistic.}
+\item{rep}{Number of permutations required to calculate test statistic.}
 
-\item{stat}{Statistic to use, choosing between \code{"F"} (default), \code{"AW"}.}
+\item{stat}{Applied to methods 2 and 3. Statistic to use, choosing between
+\code{"F"} (default) or \code{"AW"}.}
+
+\item{parallel}{Number of parallel processes or a predefined socket
+    cluster.  With \code{parallel = 1} uses ordinary, non-parallel
+    processing. The parallel processing is done with \pkg{parallel}
+    package.}
 }
 \value{
 To be filled

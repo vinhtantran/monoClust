@@ -24,6 +24,7 @@
 #' @importFrom graphics axis points segments text
 #'
 #' @examples
+#' library(cluster)
 pcp.circ.plot <- function(data, cir.var = NULL, membership = NULL, order = NULL,
                           col = NULL, zero = "east", nslabel = TRUE,
                           rotation = "counter", meds = NULL) {

@@ -48,3 +48,6 @@ A PCP plot with an ellipse for circular variable
 \description{
 Plot a parallel coordinate plot with one circular variable
 }
+\examples{
+library(cluster)
+}
