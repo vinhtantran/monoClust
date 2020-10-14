@@ -33,11 +33,15 @@
 #' @importFrom rlang .data
 #'
 #' @examples
+#' # Set color constant
 #' COLOR4 <- c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")
+#' # Reduce the size of the data for for sake of example speed
+#' set.seed(12345)
+#' wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 50), ]
 #'
-#' sol42007 <- MonoClust(wind_sensit_2007, cir.var = 3, nclusters = 4)
+#' sol42007 <- MonoClust(wind_reduced, cir.var = 3, nclusters = 4)
 #'
-#' pcp.gg(wind_sensit_2007,
+#' pcp.gg(wind_reduced,
 #'        "WDIR",
 #'        c("WDIR", "has.sensit", "WS"),
 #'        sol42007,
@@ -132,7 +136,6 @@ pcp.gg <- function(data, circ.var, order.appear, cluster.sol,
   # Create values for annotation on the plot
   mins <- data %>% dplyr::summarize_all(min)
   maxs <- data %>% dplyr::summarize_all(max)
-
 
   # Create an ellipse shape
   ellipse <- seq(1, 360)
