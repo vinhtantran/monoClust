@@ -9,11 +9,10 @@ perm.test(
   data,
   auto.pick = FALSE,
   sig.val = 0.05,
-  method = 1,
-  rep = 10000,
-  stat = "F",
-  bon.adj = TRUE,
-  parallel = getOption("mc.cores")
+  method = c("sw", "rl", "rn"),
+  rep = 1000,
+  stat = c("f", "aw"),
+  bon.adj = TRUE
 )
 }
 \arguments{
@@ -29,21 +28,17 @@ tree. Default value is \code{FALSE}.}
 option is ignored if \code{auto.pick = FALSE}, and is 0.05 by default when
 \code{auto.pick = TRUE}.}
 
-\item{method}{Can be chosen between 1 (default), 2, or 3. See description
-above for the details.}
+\item{method}{Can be chosen between \code{sw} (simple-withhold, default), \code{rl}
+(resplit-limit), or \code{rn} (resplit-nolimit). See Details.}
 
 \item{rep}{Number of permutations required to calculate test statistic.}
 
-\item{stat}{Applied to methods 2 and 3. Statistic to use, choosing between
-\code{"F"} (default) or \code{"AW"}.}
+\item{stat}{Statistic to use. Choosing between \code{"f"} (Calinski-Harabaz's
+pseudo-F (Calinski and Harabasz, 1974)) or \code{"aw"} (Average silhoutte width
+by Rousseeuw (1987)).}
 
 \item{bon.adj}{Whether to adjust for multiple testing problem using
 Bonferroni correction.}
-
-\item{parallel}{Number of parallel processes or a predefined socket
-    cluster.  With \code{parallel = 1} uses ordinary, non-parallel
-    processing. The parallel processing is done with \pkg{parallel}
-    package.}
 }
 \value{
 The same \code{MonoClust} object with an extra column (p-value), as well
@@ -51,35 +46,32 @@ as the \code{numofclusters} object if \code{auto.pick = TRUE}.
 }
 \description{
 Testing the significance of each monothetic clustering split by permutation
-methods. The original method (method 1) shuffles the observations between two
-groups without the splitting variable. The new methods shuffle the values in
-the splitting variable to create a new data set, then it either splits again
-on that variable (method 2) or use all variables as the splitting candidates
-(method 3).
+methods. The "simple-withhold" method (\code{"sw"}) shuffles the observations
+between two groups without the splitting variable. The other two methods
+shuffle the values in the splitting variable to create a new data set, then
+it either splits again on that variable ("resplit-limit", \code{"rl"}) or use all
+variables as the splitting candidates ("resplit-nolimit", \code{"rn"}).
 }
 \details{
 \subsection{Permutation Methods}{
-\subsection{Method 1: Shuffle the observations between two proposed clusters}{
+\subsection{Simple-Withhold: Shuffle the observations between two proposed clusters}{
 
-The pseudo-F's calculated from the shuffles create the reference distribution
+The \code{stat} calculated from the shuffles create the reference distribution
 to find the p-value. Because the splitting variable that was chosen is
 already the best in terms of reduction of inertia, that variable is withheld
 from the distance matrix used in the permutation test.
 }
 
-\subsection{Method 2: Shuffle while keeping other variables fixed - ASW}{
+\subsection{Resplit-Limit: Shuffle splitting variable, split again on that variable}{
 
 This method shuffles the values of the splitting variables while keeping
-other variables fixed to create a new data set, then the average silhouette
-width (Kaufman and Rousseeuw, 1990) is used as the measure of separation
-between the two new clusters and is calculated to create the reference
-distribution.
+other variables fixed to create a new data set, then the chosen \code{stat} is
+calculated for each rep to compare with the observed \code{stat}.
 }
 
-\subsection{Method 3: Shuffle while keeping other variables fixed - Pseudo-F}{
+\subsection{Resplit-Nolimit: Shuffle splitting variable, split on all variables}{
 
-Similar to the previous method but pseudo-F (as in Method 1) is used as the
-test statistic instead of the average silhouette width.
+Similar to Method 2 but all variables are splitting candidates.
 }
 
 }
@@ -93,19 +85,25 @@ that node. The formula is
 with \eqn{depth} is 1 at the root node.
 }
 }
+\note{
+This function uses \code{\link[foreach:foreach]{foreach::foreach()}} to facilitate parallel
+processing.
+}
 \examples{
 library(cluster)
 data(ruspini)
 
 ruspini6sol <- MonoClust(ruspini, nclusters = 6)
-ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = 1,
+ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
                               rep = 1000)
 ruspini6.p_value
 }
 \references{
-\itemize{
-\item Kaufman, L. and Rousseeuw, P. J. (1990). Finding Groups in Data: An
-Introduction to Cluster Analysis. 1st ed. Wiley-Interscience, p. 368. isbn:
-978-0471735786.
-}
+Calinski, T. and Harabasz, J (1974). "A dendrite method for cluster
+analysis". en. In: \emph{Communications in Statistics} 3.1, pp. 1-27.
+
+Rousseeuw, P. J. (1987). "Silhouettes: A graphical aid to the interpretation
+and validation of cluster analysis". In: \emph{Journal of Computational and
+Applied Mathematics} 20, pp. 53-65. ISSN: 03770427. DOI:
+10.1016/0377-0427(87) 90125-7.
 }

@@ -1,11 +1,11 @@
 #' Permutation Test on Monothetic Tree
 #'
 #' Testing the significance of each monothetic clustering split by permutation
-#' methods. The original method (method 1) shuffles the observations between two
-#' groups without the splitting variable. The new methods shuffle the values in
-#' the splitting variable to create a new data set, then it either splits again
-#' on that variable (method 2) or use all variables as the splitting candidates
-#' (method 3).
+#' methods. The "simple-withhold" method (`"sw"`) shuffles the observations
+#' between two groups without the splitting variable. The other two methods
+#' shuffle the values in the splitting variable to create a new data set, then
+#' it either splits again on that variable ("resplit-limit", `"rl"`) or use all
+#' variables as the splitting candidates ("resplit-nolimit", `"rn"`).
 #'
 #' @param object The `MonoClust` object as the result of the clustering.
 #' @param data The data set which is being clustered.
@@ -15,36 +15,33 @@
 #' @param sig.val Significance value to decide when to stop splitting. This
 #'   option is ignored if `auto.pick = FALSE`, and is 0.05 by default when
 #'   `auto.pick = TRUE`.
-#' @param method Can be chosen between 1 (default), 2, or 3. See description
-#'   above for the details.
+#' @param method Can be chosen between `sw` (simple-withhold, default), `rl`
+#'   (resplit-limit), or `rn` (resplit-nolimit). See Details.
 #' @param rep Number of permutations required to calculate test statistic.
-#' @param stat Applied to methods 2 and 3. Statistic to use, choosing between
-#'   `"F"` (default) or `"AW"`.
+#' @param stat Statistic to use. Choosing between `"f"` (Calinski-Harabaz's
+#'   pseudo-F (Calinski and Harabasz, 1974)) or `"aw"` (Average silhoutte width
+#'   by Rousseeuw (1987)).
 #' @param bon.adj Whether to adjust for multiple testing problem using
-#'  Bonferroni correction.
-#' @inheritParams vegan::adonis
+#'   Bonferroni correction.
 #'
 #' @return The same `MonoClust` object with an extra column (p-value), as well
 #' as the `numofclusters` object if `auto.pick = TRUE`.
 #'
 #' @details
 #' ## Permutation Methods
-#' ### Method 1: Shuffle the observations between two proposed clusters
-#' The pseudo-F's calculated from the shuffles create the reference distribution
+#' ### Simple-Withhold: Shuffle the observations between two proposed clusters
+#' The `stat` calculated from the shuffles create the reference distribution
 #' to find the p-value. Because the splitting variable that was chosen is
 #' already the best in terms of reduction of inertia, that variable is withheld
 #' from the distance matrix used in the permutation test.
 #'
-#' ### Method 2: Shuffle while keeping other variables fixed - ASW
+#' ### Resplit-Limit: Shuffle splitting variable, split again on that variable
 #' This method shuffles the values of the splitting variables while keeping
-#' other variables fixed to create a new data set, then the average silhouette
-#' width (Kaufman and Rousseeuw, 1990) is used as the measure of separation
-#' between the two new clusters and is calculated to create the reference
-#' distribution.
+#' other variables fixed to create a new data set, then the chosen `stat` is
+#' calculated for each rep to compare with the observed `stat`.
 #'
-#' ### Method 3: Shuffle while keeping other variables fixed - Pseudo-F
-#' Similar to the previous method but pseudo-F (as in Method 1) is used as the
-#' test statistic instead of the average silhouette width.
+#' ### Resplit-Nolimit: Shuffle splitting variable, split on all variables
+#' Similar to Method 2 but all variables are splitting candidates.
 #'
 #' ## Bonferroni Correction
 #' A hypothesis test occurred lower in the monothetic clustering tree could have
@@ -53,10 +50,18 @@
 #' \deqn{adj.p = unadj.p \times depth,}
 #' with \eqn{depth} is 1 at the root node.
 #'
+#' @note This function uses [foreach::foreach()] to facilitate parallel
+#'   processing.
+#'
 #' @references
-#' * Kaufman, L. and Rousseeuw, P. J. (1990). Finding Groups in Data: An
-#' Introduction to Cluster Analysis. 1st ed. Wiley-Interscience, p. 368. isbn:
-#' 978-0471735786.
+#' Calinski, T. and Harabasz, J (1974). "A dendrite method for cluster
+#' analysis". en. In: *Communications in Statistics* 3.1, pp. 1-27.
+#'
+#' Rousseeuw, P. J. (1987). "Silhouettes: A graphical aid to the interpretation
+#' and validation of cluster analysis". In: *Journal of Computational and
+#' Applied Mathematics* 20, pp. 53-65. ISSN: 03770427. DOI:
+#' 10.1016/0377-0427(87) 90125-7.
+#'
 #' @export
 #'
 #' @examples
@@ -64,18 +69,18 @@
 #' data(ruspini)
 #'
 #' ruspini6sol <- MonoClust(ruspini, nclusters = 6)
-#' ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = 1,
+#' ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
 #'                               rep = 1000)
 #' ruspini6.p_value
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
-                      method = 1,
-                      rep = 10000,
-                      stat = c("F", "AW"),
-                      bon.adj = TRUE,
-                      parallel = getOption("mc.cores")) {
+                      method = c("sw", "rl", "rn"),
+                      rep = 1000,
+                      stat = c("f", "aw"),
+                      bon.adj = TRUE) {
 
   if (!inherits(object, "MonoClust"))
     stop("Not a legitimate \"MonoClust\" object")
+  method <- match.arg(method)
   stat <- match.arg(stat)
 
   frame <- object$frame
@@ -120,10 +125,8 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
     jump_table$members[jump_table$right[current]] <-
       paste(members_r, collapse = ",")
 
-    p_value_unadj <- test_split(current, members, members_l, members_r,
-                                auto.pick, method, data, split_var,
-                                jump_table$number[current], rep, stat,
-                                parallel = parallel)
+    p_value_unadj <- test_split(members_l, members_r, method, data, split_var,
+                                rep, stat)
 
     # If Bonferroni correction is applied
     p_value <- ifelse(bon.adj, p_value_unadj * i, p_value_unadj)
@@ -132,7 +135,6 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                                           ceiling(p_value * rep) / rep)
 
     # If auto.pick is applied
-    last_pick <- NULL
     if (auto.pick) {
       if (p_value > sig.val) {
         last_split <- i
@@ -144,12 +146,6 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
     }
   }
 
-
-  # # Tracing the tree by Node-Left-Right algorithm assign('.Jump_Table', jump_table, envir =
-  # .GlobalEnv) # assign('.Data', data, envir = .GlobalEnv) recursive.walk(1, 1:nrow(data),
-  # auto.pick, sig.val, method, data = data) jump_table <- .Jump_Table rm(list =
-  # c('.Jump_Table'), envir = globalenv())
-
   frame$p.value <- jump_table$p_value
 
   object$frame <- frame
@@ -159,163 +155,170 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
 
 #' Hypothesis Test at Split
 #'
-#' @param current Row index of the current considered split.
-#' @param members,members_l,members_r Vector of the index of observations that
-#'   are members of the parent node, left child node, and right child node,
-#'   respectively.
-#' @param split_var Splitting variable at `current` split.
-#' @param node The current node index
+#' @param members_l,members_r Vector of the index of observations that
+#'   are members of the left child node and the right child node, respectively.
+#' @param split_var Splitting variable at current split.
 #' @inheritParams perm.test
 #'
-#' @return To be filled
+#' @return p-value of the test
 #' @keywords internal
-test_split <- function(current, members, members_l, members_r, auto.pick,
-                       method, data, split_var, node, rep, stat, parallel) {
+test_split <- function(members_l, members_r, method, data, split_var, rep,
+                       stat) {
   # Membership is consecutive because the distance matrix will be moved around
   # with members_l and
   # members_r put next to each other.
   fmem2 <- c(rep(1, length(members_l)), rep(2, length(members_r)))
+  `%op%` <- get_oper(foreach::getDoParWorkers() > 1)
 
-  if (method == 1) {
-    # Method 1: shuffling the membership, not used splitting variable
-    data_temp <- data
-    data_temp[, split_var] <- NULL
-    distmat_reduced <- as.matrix(cluster::daisy(data.frame(data_temp)))
+  # if (method == 1) {
+  #   # Method 1: shuffling the membership, not used splitting variable
+  #   data_temp <- data[colnames(data) != split_var]
+  #   distmat_reduced <- as.matrix(cluster::daisy(data.frame(data_temp)))
+  #
+  #   # A distance matrix with observations left and right put in order
+  #   distmat_twogroup <- distmat_reduced[c(members_l, members_r),
+  #                                       c(members_l, members_r)]
+  #
+  #   result <- vegan::adonis(distmat_twogroup ~ fmem2,
+  #                           permutations = rep)
+  #
+  #   # p_value.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
+  #   p_value <- result$aov.tab$`Pr(>F)`[1]
+  # } else if (method == 2 | method == 3) {
 
-    # A distance matrix with observations left and right put in order
-    distmat_twogroup <- distmat_reduced[c(members_l, members_r),
-                                        c(members_l, members_r)]
-
-    result <- vegan::adonis(distmat_twogroup ~ fmem2,
-                            permutations = rep,
-                            parallel = parallel)
-
-    # p_value.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
-    p_value <- result$aov.tab$`Pr(>F)`[1]
-  } else if (method == 2 | method == 3) {
-    # Method 2, 3: shuffling the splitting variable, split again on that
-    # variable (method 2) or split on all variables (method 3)
-    currentdata <- data[c(members_l, members_r), ]
-
-    # Find the observed statistic
-    distmat_twogroup <- as.matrix(cluster::daisy(data.frame(currentdata)))
-    if (stat == "F") {
-      stat_obs <- F.stat(distmat_twogroup ~ fmem2, parallel = parallel)
-    } else {
-      stat_obs <- fpc::cluster.stats(distmat_twogroup, fmem2)$avg.silwidth
-    }
-
-    # Find the referenced distribution Create permuted matrix
-    perm <- permute::shuffleSet(nrow(currentdata),
-                                control = permute::how(nperm = rep))
-    # The number of permutations may be smaller than rep
-    permutations <- nrow(perm)
-
-    stat_rep <- numeric(permutations)
-    # Shuffling
-
-    for (k in 1:permutations) {
-      print(k)
-      currentdata[, split_var] <- currentdata[perm[k, ], split_var]
-
-      if (method == 2) {
-        cluster_rep <- MonoClust(toclust = currentdata, nclusters = 2,
-                                 variables = split_var)
-      } else if (method == 3) {
-        cluster_rep <- MonoClust(toclust = currentdata, nclusters = 2)
-      }
-
-      distmat_rep <- cluster_rep$Dist
-      fmem2_rep <- cluster_rep$Membership
-
-      if (stat == "F") {
-        # If no split is made because of minbucket, cluster membership will have
-        # 1 in it. In that case,
-        # F-stat = 0
-        stat_rep[k] <- ifelse(1 %in% fmem2_rep, 0,
-                              F.stat(distmat_rep ~ fmem2_rep))
-      } else {
-        stat_rep[k] <- ifelse(1 %in% fmem2_rep, 0,
-                              fpc::cluster.stats(distmat_rep,
-                                                 fmem2_rep)$avg.silwidth)
-      }
-    }
-
-    # p_value.adj <- (node %/% 2 + 1) * sum(f.stat_rep.c >= f.stat_obs) / rep
-    p_value <- (sum(stat_rep >= stat_obs) + 1 -
-                 sqrt(.Machine$double.eps)) / (permutations + 1)
+  if (method == "sw") {
+    # Simple-withhold: shuffling the membership, not used splitting variable
+    data_reduced <- data[colnames(data) != split_var]
+  } else {
+    data_reduced <- data
   }
+
+  # A distance matrix with observations left and right put in order
+  current_data <- data_reduced[c(members_l, members_r), , drop = FALSE]
+
+  # Find the observed statistic
+  distmat_twogroup <- as.matrix(cluster::daisy(current_data))
+  stat_obs_l <- cluster_stats(distmat_twogroup, fmem2)
+
+  # Create permuted matrix
+  perm <- permute::shuffleSet(nrow(current_data),
+                              control = permute::how(nperm = rep))
+  # The number of permutations may be smaller than rep
+  permutations <- nrow(perm)
+
+  # Shuffling
+  stat_rep_l <-
+    if (method == "sw") {
+      foreach::foreach(k = 1:permutations,
+                       .inorder = FALSE) %op% {
+                         # newdata <- current_data[perm[k, ], , drop = FALSE]
+                         distmat_rep <- distmat_twogroup[perm[k, ], perm[k, ]]
+                         return(cluster_stats(distmat_rep, fmem2))
+                       }
+    } else if (method == "rl") {
+      foreach::foreach(k = 1:permutations,
+                       .inorder = FALSE,
+                       .packages = c("monoClust")) %op% {
+                         current_data[, split_var] <- current_data[perm[k, ],
+                                                                   split_var]
+                         # Resplit-limit: limit the splitting variables
+                         cluster_rep <- MonoClust(toclust = current_data,
+                                                  nclusters = 2,
+                                                  variables = split_var)
+                         distmat_rep <- cluster_rep$Dist
+                         fmem2_rep <- cluster_rep$Membership
+                         return(cluster_stats(distmat_rep, fmem2_rep))
+                       }
+    } else if (method == "rn") {
+      foreach::foreach(k = 1:permutations,
+                       .inorder = FALSE,
+                       .packages = c("monoClust")) %op% {
+                         current_data[, split_var] <- current_data[perm[k, ],
+                                                                   split_var]
+                         # Resplit-nolimit: splitting all variables
+                         cluster_rep <- MonoClust(toclust = current_data,
+                                                  nclusters = 2)
+                         distmat_rep <- cluster_rep$Dist
+                         fmem2_rep <- cluster_rep$Membership
+                         return(cluster_stats(distmat_rep, fmem2_rep))
+                       }
+    }
+
+  stat_rep_tbl <- dplyr::bind_rows(stat_rep_l)
+
+  if (stat == "F") {
+    stat_obs <- stat_obs_l$f_stat
+    stat_rep <- stat_rep_tbl$f_stat
+  } else {
+    stat_obs <- stat_obs_l$asw
+    stat_rep <- stat_rep_tbl$asw
+  }
+
+  p_value <- (sum(stat_rep >= stat_obs) + 1 -
+                sqrt(.Machine$double.eps)) / (permutations + 1)
 
   return(p_value)
 }
 
 
-# ####################################################
-# Copy directly from vegan::adonis function
-# Modified to stop at the F.stat
-# ####################################################
-#
-
-
-
-#' Title
+#' Cluster Statistics Calculation
 #'
-#' @inheritParams vegan::adonis
+#' Calinski-Harabaz's pseudo-F (Calinski and Harabasz, 1974) and Average
+#' silhoutte width (Rousseeuw, 1987) calculation.
 #'
-#' @return Fill in later
+#' @param d Distance object (as generated by [dist()]) or a distance matrix
+#'   between cases.
+#' @param clustering Integer vector of length of the number of cases, which
+#'   indicates a clustering. The clusters have to be numbered from 1 to the
+#'   number of clusters.
 #'
-#' @importFrom stats model.frame model.matrix
-F.stat <- function(formula, data = NULL, permutations = 999, method = "bray",
-                   strata = NULL, contr.unordered = "contr.sum",
-                   contr.ordered = "contr.poly",
-                   parallel = getOption("mc.cores"), ...) {
-  TOL <- 1e-07
-  lhs <- formula[[2]]
-  lhs <- eval(lhs, data, parent.frame())
-  formula[[2]] <- NULL
-  rhs.frame <- model.frame(formula, data, drop.unused.levels = TRUE)
-  op.c <- options()$contrasts
-  options(contrasts = c(contr.unordered, contr.ordered))
-  rhs <- model.matrix(formula, rhs.frame)
-  options(contrasts = op.c)
-  grps <- attr(rhs, "assign")
-  qrhs <- qr(rhs)
-  rhs <- rhs[, qrhs$pivot, drop = FALSE]
-  rhs <- rhs[, 1:qrhs$rank, drop = FALSE]
-  grps <- grps[qrhs$pivot][1:qrhs$rank]
-  u.grps <- unique(grps)
-  nterms <- length(u.grps) - 1
-  if (nterms < 1)
-    stop("right-hand-side of formula has no usable terms")
-  H.s <- lapply(2:length(u.grps), function(j) {
-    Xj <- rhs[, grps %in% u.grps[1:j]]
-    qrX <- qr(Xj, tol = TOL)
-    Q <- qr.Q(qrX)
-    tcrossprod(Q[, 1:qrX$rank])
-  })
-  if (inherits(lhs, "dist")) {
-    if (any(lhs < -TOL))
-      stop("dissimilarities must be non-negative")
-    dmat <- as.matrix(lhs^2)
-  } else if ((is.matrix(lhs) || is.data.frame(lhs)) && isSymmetric(unname(as.matrix(lhs)))) {
-    dmat <- as.matrix(lhs^2)
-    lhs <- as.dist(lhs)
-  } else {
-    dist.lhs <- as.matrix(vegan::vegdist(lhs, method = method, ...))
-    dmat <- dist.lhs^2
+#' @return
+#' \describe{
+#'   \item{f_stat}{Calinski-Harabasz's pseudo-F.}
+#'   \item{asw}{Average silhouette width.}
+#' }
+#'
+#' @references
+#' Caliński, T. and Harabasz, J (1974). "A dendrite method for cluster
+#' analysis". en. In: *Communications in Statistics* 3.1, pp. 1–27.
+#'
+#' Rousseeuw, P. J. (1987). "Silhouettes: A graphical aid to the interpretation
+#' and validation of cluster analysis". In: *Journal of Computational and
+#' Applied Mathematics* 20, pp. 53–65. ISSN: 03770427. DOI:
+#' 10.1016/0377-0427(87) 90125-7.
+#'
+#' @seealso [cluster::silhouette()]
+#'
+#' @keywords internal
+cluster_stats <- function(d, clustering) {
+
+  d <- as.dist(d)
+  nclust <- max(clustering)
+  n <- length(clustering)
+
+  # Total cluster sum of squares
+  total_ss <- sum(d^2) / n
+
+  # Within cluster sum of squares
+  dmat <- as.matrix(d)
+  within_ss <- 0
+  for (i in 1:nclust) {
+    d_i <- as.dist(dmat[clustering == i, clustering == i])
+
+    if (i <= nclust) {
+      within_ss <- within_ss + sum(d_i^2) / sum(clustering == i)
+    }
   }
-  n <- nrow(dmat)
-  G <- -sweep(dmat, 1, rowMeans(dmat))/2
-  SS.Exp.comb <- sapply(H.s, function(hat) sum(G * t(hat)))
-  SS.Exp.each <- c(SS.Exp.comb - c(0, SS.Exp.comb[-nterms]))
-  H.snterm <- H.s[[nterms]]
-  tIH.snterm <- t(diag(n) - H.snterm)
 
-  SS.Res <- sum(G * tIH.snterm)
-  df.Exp <- sapply(u.grps[-1], function(i) sum(grps == i))
-  df.Res <- n - qrhs$rank
+  # Between cluster sum of squares
+  between_ss <- total_ss - within_ss
 
-  F.Mod <- (SS.Exp.each/df.Exp)/(SS.Res/df.Res)
-  return(F.Mod)
+  f_stat <- between_ss * (n - nclust) / (within_ss * (nclust - 1))
+
+  # Average silhouette width
+  sii <- cluster::silhouette(clustering, dmatrix = dmat)
+  sc <- summary(sii)
+  asw <- sc$avg.width
+
+  return(list(f_stat = f_stat, asw = asw))
 }
-#' END COPY ########################################################

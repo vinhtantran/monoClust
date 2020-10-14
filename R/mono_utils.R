@@ -15,33 +15,48 @@ find_closest <- function(col) {
                                min(col[which(col - .x > 0)])))
 }
 
-#' Add/Subtract Circular Values in Degrees
+#' Add/Subtract Circular Values in Degrees/Radian
 #'
-#' Add/subtract two circular variables.
+#' Add/subtract two circular variables in degrees (`%cd+%` and `%cd-%`) and
+#' radian (`%cr+%` and `%cr-%`).
 #'
 #' @param x,y Circular values in degrees.
 #'
-#' @return A value between [0, 360).
+#' @return A value between [0, 360) in degrees or [0, 2*pi) in radian.
 #' @name circ_arith
 #' @examples
-#' 90 %c+% 90
+#' 90 %cd+% 90
 #'
-#' 250 %c+% 200
+#' 250 %cd+% 200
 #'
-#' 25 %c-% 80
+#' 25 %cd-% 80
+#'
+#' pi %cr+% (pi/2)
 #'
 NULL
 
 #' @export
 #' @rdname circ_arith
-`%c+%` <- function(x, y) {
+`%cd+%` <- function(x, y) {
   return((x + y) %% 360)
 }
 
 #' @export
 #' @rdname circ_arith
-`%c-%` <- function(x, y) {
+`%cd-%` <- function(x, y) {
   return((x - y) %% 360)
+}
+
+#' @export
+#' @rdname circ_arith
+`%cr+%` <- function(x, y) {
+  return((x + y) %% 2*pi)
+}
+
+#' @export
+#' @rdname circ_arith
+`%cr-%` <- function(x, y) {
+  return((x - y) %% 2*pi)
 }
 
 #' Cluster Inertia Calculation
@@ -99,7 +114,7 @@ circ_dist <- function(frame) {
   if (is.null(frame))
     stop("frame has to be a data set with all columns are circular.")
 
-  frame <- frame %c+% 0
+  frame <- frame %cd+% 0
 
   gower_circ <- function(x, y) abs(180 - abs(180 - abs(x - y))) / 180
 

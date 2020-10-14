@@ -4,53 +4,27 @@
 \alias{test_split}
 \title{Hypothesis Test at Split}
 \usage{
-test_split(
-  current,
-  members,
-  members_l,
-  members_r,
-  auto.pick,
-  method,
-  data,
-  split_var,
-  node,
-  rep,
-  stat,
-  parallel
-)
+test_split(members_l, members_r, method, data, split_var, rep, stat)
 }
 \arguments{
-\item{current}{Row index of the current considered split.}
+\item{members_l, members_r}{Vector of the index of observations that
+are members of the left child node and the right child node, respectively.}
 
-\item{members, members_l, members_r}{Vector of the index of observations that
-are members of the parent node, left child node, and right child node,
-respectively.}
-
-\item{auto.pick}{Whether the algorithm stops when p-value becomes larger than
-\code{sig.val} or keeps testing and let the researcher pick the final splitting
-tree. Default value is \code{FALSE}.}
-
-\item{method}{Can be chosen between 1 (default), 2, or 3. See description
-above for the details.}
+\item{method}{Can be chosen between \code{sw} (simple-withhold, default), \code{rl}
+(resplit-limit), or \code{rn} (resplit-nolimit). See Details.}
 
 \item{data}{The data set which is being clustered.}
 
-\item{split_var}{Splitting variable at \code{current} split.}
-
-\item{node}{The current node index}
+\item{split_var}{Splitting variable at current split.}
 
 \item{rep}{Number of permutations required to calculate test statistic.}
 
-\item{stat}{Applied to methods 2 and 3. Statistic to use, choosing between
-\code{"F"} (default) or \code{"AW"}.}
-
-\item{parallel}{Number of parallel processes or a predefined socket
-    cluster.  With \code{parallel = 1} uses ordinary, non-parallel
-    processing. The parallel processing is done with \pkg{parallel}
-    package.}
+\item{stat}{Statistic to use. Choosing between \code{"f"} (Calinski-Harabaz's
+pseudo-F (Calinski and Harabasz, 1974)) or \code{"aw"} (Average silhoutte width
+by Rousseeuw (1987)).}
 }
 \value{
-To be filled
+p-value of the test
 }
 \description{
 Hypothesis Test at Split

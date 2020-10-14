@@ -36,6 +36,9 @@ Imports:
     grDevices,
     vegan,
     graphics,
-    stats
+    stats,
+    ggplot2,
+    tidyr,
+    rlang
 Suggests: 
     testthat

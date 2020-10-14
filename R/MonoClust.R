@@ -268,7 +268,7 @@ MonoClust <- function(toclust,
     while (min_value < max_value) {
 
       # Set the hour hand
-      variable_shift <- variable %c-% min_value
+      variable_shift <- variable %cd-% min_value
       # TODO: Have to call MonoClust with ran = 1 to find the best split for
       # the shifted variables. Should be improved.
       # Goal: find the next split on only variable_shift, then find the new
@@ -304,7 +304,7 @@ MonoClust <- function(toclust,
       if (min_inertia > inertia) {
         min_inertia <- inertia
         bestcircsplit <- list(hour = min_value,
-                              minute = cut %c+% min_value,
+                              minute = cut %cd+% min_value,
                               intertia = inertia)
       }
       # Increase min_value to the next higher value
@@ -316,7 +316,7 @@ MonoClust <- function(toclust,
     # to linear variable. The first best split would be the minute split,
     # which was already found, together with hour, to be the best arcs. Will
     # shift back later by modifying cluster_frame
-    toclust[, cir.var] <- variable %c-% bestcircsplit$hour
+    toclust[, cir.var] <- variable %cd-% bestcircsplit$hour
 
   }
 
@@ -477,7 +477,7 @@ MonoClust <- function(toclust,
   if (!is.null(cir.var)) {
     cir_pos <- which(cluster_frame$var == colnames(toclust)[cir.var])
     cluster_frame$cut[cir_pos] <-
-      cluster_frame$cut[cir_pos] %c+% bestcircsplit$hour
+      cluster_frame$cut[cir_pos] %cd+% bestcircsplit$hour
   }
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
