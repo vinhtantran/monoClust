@@ -59,7 +59,7 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
   ## plots.R).
 
   if (!inherits(x, "MonoClust"))
-    stop("Not an MonoClust object")
+    stop("Not a MonoClust object")
   if (!(which %in% 1:4))
     stop("\"which\" has to be a value between 1 and 4.")
   abbrev <- match.arg(abbrev)

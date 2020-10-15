@@ -309,7 +309,7 @@ MonoClust <- function(toclust,
       }
       # Increase min_value to the next higher value
       min_value <- dplyr::pull(next_value[which(variable == min_value), 1])[1]
-      print(min_value)
+      # print(min_value)
     }
 
     # Shift the circular variable to the hour pivot. That turns the circular

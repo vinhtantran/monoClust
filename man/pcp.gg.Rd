@@ -6,17 +6,22 @@
 \usage{
 pcp.gg(
   data,
-  circ.var,
-  order.appear,
-  cluster.sol,
-  cols,
+  circ.var = NULL,
   is.degree = TRUE,
   shift = 0,
-  alpha = 0.1,
-  show.medoids = TRUE,
   north = 0,
   cw = FALSE,
-  labelsize = 4
+  order.appear = NULL,
+  linetype = 1,
+  size = 0.5,
+  alpha = 0.1,
+  object,
+  cluster.col = NULL,
+  show.medoids = TRUE,
+  labelsize = 4,
+  xlab = "Variables",
+  ylab = NULL,
+  legend.cluster = "groups"
 )
 }
 \arguments{
@@ -25,25 +30,11 @@ pcp.gg(
 \item{circ.var}{Circular variable(s) in the data set, indicated by names
 or index in the data set.}
 
-\item{order.appear}{The order of appearance of the variables, listed by a
-vector of names or indices.}
-
-\item{cluster.sol}{A \code{MonoClust} object which contains the cluster results
-and memberships.}
-
-\item{cols}{Color of clusters, indicating by a vector. The length of this
-vector must be equal to the number of clusters in the cluster.sol object.}
-
 \item{is.degree}{Whether the unit of the circular variables is degree or not
 (radian). Default is \code{TRUE}.}
 
 \item{shift}{The shift (offset, rotation) of the circular variable, in
 radians. Default is 0 (no rotation).}
-
-\item{alpha}{The transparency of the lines. Default to be 0.1.}
-
-\item{show.medoids}{Whether to highlight the median lines or not. Default is
-\code{TRUE}.}
 
 \item{north}{What value of the circular variable is labeled North. Default is
 0 radian.}
@@ -52,10 +43,37 @@ radians. Default is 0 (no rotation).}
 in value, clockwise (\code{TRUE}) or counter-clockwise (\code{FALSE}). Default is
 \code{TRUE}.}
 
-\item{labelsize}{The size of labels on the plot, default is 4.}
+\item{order.appear}{The order of appearance of the variables, listed by a
+vector of names or indices.}
+
+\item{linetype}{Line type. Default is solid line. See details in
+\code{vignette("ggplot2-specs")}.}
+
+\item{size}{Size of a line is its width in mm. Default is 0.5. See details in
+\code{vignette("ggplot2-specs")}.}
+
+\item{alpha}{The transparency of the lines. Default is 0.1.}
+
+\item{object}{A \code{MonoClust} object which contains the cluster results
+and memberships.}
+
+\item{cluster.col}{Color of clusters, indicating by a vector. The length of this
+vector must be equal to the number of clusters in the object object.}
+
+\item{show.medoids}{Whether to highlight the median lines or not. Default is
+\code{TRUE}.}
+
+\item{labelsize}{The size of labels on the plot. Default is 4.}
+
+\item{xlab}{Labels for x-axis.}
+
+\item{ylab}{Labels for y-axis.}
+
+\item{legend.cluster}{Labels for group membership. Implemented by setting
+label for ggplot \code{color} aesthetics.}
 }
 \value{
-A ggplot2 object
+A ggplot2 object.
 }
 \description{
 Making a parallel coordinates plot with the circular variables are plotted
@@ -71,17 +89,19 @@ wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 50), ]
 
 sol42007 <- MonoClust(wind_reduced, cir.var = 3, nclusters = 4)
 
-pcp.gg(wind_reduced,
-       "WDIR",
-       c("WDIR", "has.sensit", "WS"),
-       sol42007,
-       COLOR4,
+library(ggplot2)
+pcp.gg(data = wind_reduced,
+       circ.var = "WDIR",
+       # To improve aesthetics
        shift = pi*3/4-0.3,
-       alpha = 0.1,
+       order.appear = c("WDIR", "has.sensit", "WS"),
+       alpha = 0.5,
+       object = sol42007,
+       cluster.col = COLOR4,
        labelsize = 8) +
-  theme(panel.background = element_rect(color = NA),
-        plot.background = element_rect(color = NA),
-        panel.border = element_rect(color = NA),
+  theme(panel.background = element_rect(color = "white"),
+        plot.background = element_rect(color = "white"),
+        panel.border = element_rect(color = "white", fill = NA),
         panel.grid.major = element_line(color = "#f0f0f0"),
         panel.grid.minor = element_blank(),
         axis.line = element_line(color = "black"),
@@ -89,6 +109,5 @@ pcp.gg(wind_reduced,
         legend.position = "bottom",
         legend.direction = "horizontal",
         legend.title = element_text(face = "italic"),
-        legend.justification = "center",
-        text = element_text(size = 24))
+        legend.justification = "center")
 }
