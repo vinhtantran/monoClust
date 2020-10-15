@@ -50,13 +50,13 @@ NULL
 #' @export
 #' @rdname circ_arith
 `%cr+%` <- function(x, y) {
-  return((x + y) %% 2*pi)
+  return((x + y) %% (2 * pi))
 }
 
 #' @export
 #' @rdname circ_arith
 `%cr-%` <- function(x, y) {
-  return((x - y) %% 2*pi)
+  return((x - y) %% (2 * pi))
 }
 
 #' Cluster Inertia Calculation

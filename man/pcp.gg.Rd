@@ -8,16 +8,17 @@ pcp.gg(
   data,
   circ.var = NULL,
   is.degree = TRUE,
-  shift = 0,
+  rotate = 0,
   north = 0,
   cw = FALSE,
   order.appear = NULL,
   linetype = 1,
   size = 0.5,
   alpha = 0.1,
-  object,
+  clustering,
+  medoids = NULL,
   cluster.col = NULL,
-  show.medoids = TRUE,
+  show.medoids = FALSE,
   labelsize = 4,
   xlab = "Variables",
   ylab = NULL,
@@ -33,7 +34,7 @@ or index in the data set.}
 \item{is.degree}{Whether the unit of the circular variables is degree or not
 (radian). Default is \code{TRUE}.}
 
-\item{shift}{The shift (offset, rotation) of the circular variable, in
+\item{rotate}{The rotate (offset, shift) of the circular variable, in
 radians. Default is 0 (no rotation).}
 
 \item{north}{What value of the circular variable is labeled North. Default is
@@ -44,7 +45,8 @@ in value, clockwise (\code{TRUE}) or counter-clockwise (\code{FALSE}). Default i
 \code{TRUE}.}
 
 \item{order.appear}{The order of appearance of the variables, listed by a
-vector of names or indices.}
+vector of names or index. If set, length has to be equal to the number of
+variables in the data set.}
 
 \item{linetype}{Line type. Default is solid line. See details in
 \code{vignette("ggplot2-specs")}.}
@@ -54,14 +56,17 @@ vector of names or indices.}
 
 \item{alpha}{The transparency of the lines. Default is 0.1.}
 
-\item{object}{A \code{MonoClust} object which contains the cluster results
-and memberships.}
+\item{clustering}{Cluster membership.}
 
-\item{cluster.col}{Color of clusters, indicating by a vector. The length of this
-vector must be equal to the number of clusters in the object object.}
+\item{medoids}{Vector of medoid observations of cluster. Only required when
+\code{show.medoids = TRUE}.}
+
+\item{cluster.col}{Color of clusters, indicating by a vector. If set, the
+length of this vector must be equal to the number of clusters in
+\code{clustering}.}
 
 \item{show.medoids}{Whether to highlight the median lines or not. Default is
-\code{TRUE}.}
+\code{FALSE}.}
 
 \item{labelsize}{The size of labels on the plot. Default is 4.}
 
@@ -93,14 +98,14 @@ library(ggplot2)
 pcp.gg(data = wind_reduced,
        circ.var = "WDIR",
        # To improve aesthetics
-       shift = pi*3/4-0.3,
+       rotate = pi*3/4-0.3,
        order.appear = c("WDIR", "has.sensit", "WS"),
        alpha = 0.5,
-       object = sol42007,
+       clustering = sol42007$Membership,
+       medoids = sol42007$medoids,
        cluster.col = COLOR4,
-       labelsize = 8) +
+       show.medoids = TRUE) +
   theme(panel.background = element_rect(color = "white"),
-        plot.background = element_rect(color = "white"),
         panel.border = element_rect(color = "white", fill = NA),
         panel.grid.major = element_line(color = "#f0f0f0"),
         panel.grid.minor = element_blank(),
