@@ -46,6 +46,19 @@
 #' wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]
 #' circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 #' circular_wind
+#'
+#' \dontrun{
+#' # Multiple processing via doParallel
+#' library(doParallel)
+#'
+#' cl <- makePSOCKcluster(5)
+#' registerDoParallel(cl)
+#'
+#' # Searching for the best cut is run parallel for each variable
+#' circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
+#'
+#' stopCluster(cl)
+#' }
 MonoClust <- function(toclust,
                       cir.var = NULL,
                       variables,
@@ -57,7 +70,7 @@ MonoClust <- function(toclust,
                       perm.test = FALSE,
                       alpha = 0.05) {
 
-  if (missing(toclust) || !is.data.frame(toclust)) {
+  if (!is.data.frame(toclust)) {
     stop("\"toclust\" must be a data frame.")
   }
 
@@ -114,17 +127,15 @@ MonoClust <- function(toclust,
 
   ## Tan, 4/10/17, argument checking (circular variables)
   if (!is.null(cir.var)) {
-    if (length(cir.var) > 1) {
+    if (!is.vector(cir.var)) {
+      stop("Circular variables need to be a vector of variable names or
+           indices.")
+    } else if (length(cir.var) > 1) {
       # TODO: Upgrade to more than 1 circular variable
       stop("MonoClust supports only one circular variable in the data set.")
     }
-    # Check if cir.var is a column index or column name in toclust
     if (!is.data.frame(toclust[cir.var])) {
-      stop("Undefined \"cir.var\" selected.")
-    }
-    # Check if cir.var is variable name
-    if (cir.var %in% colnames(toclust)) {
-      cir.var <- which(colnames(toclust) == cir.var)
+      stop("Undefined variables selected.")
     }
   }
 
@@ -779,7 +790,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   mems <- which(cloc == node_number)
   inertiap <- frame_row$inertia
 
-  if (inertiap == 0L || frame_row$n < minsplit || frame_row$n == 1L) {
+  if (inertiap == 0L | frame_row$n < minsplit | frame_row$n == 1L) {
     # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop
     # checkem forever.
     # MG, 9/25 I think this means we won't explore this node again. But make it
@@ -856,7 +867,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
     split <- ind_1[i, ]
     left_size <- sum(datamems[, split[2L]] < cutsmems[[split[1L], split[2L]]])
     right_size <- length(mems) - left_size
-    if (left_size < minbucket || right_size < minbucket)
+    if (left_size < minbucket | right_size < minbucket)
       ind_1[i, ncol(ind_1)] <- FALSE
   }
 

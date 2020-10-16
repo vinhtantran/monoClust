@@ -8,7 +8,7 @@
 #' @param lty The line type.
 #' @param err.col Color of the error bars.
 #' @param ... Arguments to be passed to [base::plot()].
-#' @param err.width
+#' @param err.width Width of the bars.
 #'
 #' @return A line plot with error bars.
 #' @export

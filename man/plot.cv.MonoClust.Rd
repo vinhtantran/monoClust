@@ -31,7 +31,7 @@
 
 \item{err.col}{Color of the error bars.}
 
-\item{err.width}{}
+\item{err.width}{Width of the bars.}
 
 \item{...}{Arguments to be passed to \code{\link[base:plot]{base::plot()}}.}
 }

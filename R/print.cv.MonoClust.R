@@ -19,6 +19,6 @@ print.cv.MonoClust <- function(x, ...) {
   if (!inherits(x, "cv.MonoClust"))
     stop("Not a legitimate \"cv.MonoClust\" object.")
 
-  cat(x[["cv.type"]],"on a MonoClust object \n\n")
+  cat(x[["cv.type"]], "on a MonoClust object \n\n")
   print(x[["cv"]])
 }

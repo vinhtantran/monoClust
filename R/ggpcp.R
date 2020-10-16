@@ -76,7 +76,7 @@
 #'         legend.justification = "center")
 ggpcp <- function(data, circ.var = NULL, is.degree = TRUE, rotate = 0,
                    north = 0, cw = FALSE, order.appear = NULL, linetype = 1,
-                   size = 0.5, alpha = 0.1, clustering, medoids = NULL,
+                   size = 0.5, alpha = 0.5, clustering, medoids = NULL,
                    cluster.col = NULL, show.medoids = FALSE, labelsize = 4,
                    xlab = "Variables", ylab = NULL, legend.cluster = "groups") {
 
@@ -173,7 +173,7 @@ ggpcp <- function(data, circ.var = NULL, is.degree = TRUE, rotate = 0,
     data %>%
     # Transform numericals between 0 and 1
     mutate(across(all_of(numeric_var), ~ (.x - min(.x))),
-           across(all_of(numeric_var), ~ (.x/max(.x))),
+           across(all_of(numeric_var), ~ (.x / max(.x))),
            # Add ID for each observation
            id = row_number(),
            # Add cluster membership

@@ -14,7 +14,7 @@ ggpcp(
   order.appear = NULL,
   linetype = 1,
   size = 0.5,
-  alpha = 0.1,
+  alpha = 0.5,
   clustering,
   medoids = NULL,
   cluster.col = NULL,

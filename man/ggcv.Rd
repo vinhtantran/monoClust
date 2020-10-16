@@ -27,14 +27,11 @@ ggcv(
 \item{type}{What type of plot should be drawn. Choosing between \code{"l"} (line
 only), \code{"p"} (point only), and \code{"b"} (both line and point).}
 
-\item{linetype}{The line type. See \code{vignette("ggplot2-specs")}}
+\item{linetype}{The line type. See \code{vignette("ggplot2-specs")}.}
 
 \item{err.col}{Color of the error bars.}
 
 \item{err.width}{Width of the bars.}
-}
-\value{
-
 }
 \description{
 GGPlot the Mean Square Error with Error Bar for +/- 1 Standard Error
