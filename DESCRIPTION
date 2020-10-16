@@ -41,4 +41,6 @@ Imports:
     tidyr,
     rlang
 Suggests: 
-    testthat
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

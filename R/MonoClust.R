@@ -57,7 +57,7 @@ MonoClust <- function(toclust,
                       perm.test = FALSE,
                       alpha = 0.05) {
 
-  if (!is.data.frame(toclust)) {
+  if (missing(toclust) || !is.data.frame(toclust)) {
     stop("\"toclust\" must be a data frame.")
   }
 
@@ -114,15 +114,17 @@ MonoClust <- function(toclust,
 
   ## Tan, 4/10/17, argument checking (circular variables)
   if (!is.null(cir.var)) {
-    if (!is.vector(cir.var)) {
-      stop("Circular variables need to be a vector of variable names or
-           indices.")
-    } else if (length(cir.var) > 1) {
+    if (length(cir.var) > 1) {
       # TODO: Upgrade to more than 1 circular variable
       stop("MonoClust supports only one circular variable in the data set.")
     }
+    # Check if cir.var is a column index or column name in toclust
     if (!is.data.frame(toclust[cir.var])) {
-      stop("Undefined variables selected.")
+      stop("Undefined \"cir.var\" selected.")
+    }
+    # Check if cir.var is variable name
+    if (cir.var %in% colnames(toclust)) {
+      cir.var <- which(colnames(toclust) == cir.var)
     }
   }
 
@@ -777,7 +779,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   mems <- which(cloc == node_number)
   inertiap <- frame_row$inertia
 
-  if (inertiap == 0L | frame_row$n < minsplit | frame_row$n == 1L) {
+  if (inertiap == 0L || frame_row$n < minsplit || frame_row$n == 1L) {
     # Tan 9/24 This is one obs cluster. Set bipartsplitrow value 0 to stop
     # checkem forever.
     # MG, 9/25 I think this means we won't explore this node again. But make it
@@ -854,7 +856,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
     split <- ind_1[i, ]
     left_size <- sum(datamems[, split[2L]] < cutsmems[[split[1L], split[2L]]])
     right_size <- length(mems) - left_size
-    if (left_size < minbucket | right_size < minbucket)
+    if (left_size < minbucket || right_size < minbucket)
       ind_1[i, ncol(ind_1)] <- FALSE
   }
 
