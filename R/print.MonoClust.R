@@ -58,7 +58,7 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
   # REMOVE: Tan, 12/14. This line seems to be a debug line. Mo meaning.
   ## print(yval)
   ## ADD: Tan, 3/1/15. Add p value check.
-  has_pvalue <- !is.null(frame$p.value)
+  has_pvalue <- !is.null(frame[["p.value"]])
   term <- rep(" ", length(depth))
   term[frame$var == "<leaf>"] <- "*"
   labs <- create_labels(x, abbrev = abbrev, digits = digits, ...)$labels

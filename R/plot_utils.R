@@ -310,7 +310,7 @@ text_tree <- function(x,
   # right_labs <- labs[seq(from=2,to=length(labs), by=2)]
 
   ## ADD: Tan. 3/1/15, add p-value display
-  if (!is.null(frame$p.value)) {
+  if (!is.null(frame[["p.value"]])) {
     mid_labs <- frame$p.value[!is.na(frame$p.value)]
   } else {
     mid_labs <- ""
@@ -337,7 +337,7 @@ text_tree <- function(x,
                      left_labs,
                      pos = 2, ...)
       # ADD: Tan, 3/1/15, Add p-value show up
-      if (!is.null(frame$p.value))
+      if (!is.null(frame[["p.value"]]))
         graphics::text(xy$x[splits],
                        xy$y[splits] - tadj * cxy[2],
                        paste("p =", mid_labs), ...)
