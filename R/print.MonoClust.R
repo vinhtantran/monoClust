@@ -80,7 +80,7 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
   #   cat("n=", n[1L], "\n\n")
   # }
 
-  cat("n=", n[1L], "\n\n")
+  cat("n =", n[1L], "\n\n")
 
   cat("Node) Split, N, Cluster Inertia, Proportion Inertia Explained,",
       ifelse(has_pvalue, "Bonferroni adj. p-value", ""), "\n")

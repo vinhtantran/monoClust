@@ -417,7 +417,7 @@ MonoClust <- function(toclust,
   done_running <- FALSE
   ## This loop runs until we have nclusters, have exhausted our observations or
   ## run into our minbucket/minsplit restrictions.
-  while (sum(cluster_frame$var == "<leaf>") < nclusters & !done_running) {
+  while (sum(cluster_frame$var == "<leaf>") < nclusters && !done_running) {
 
     # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
     checkem_ret <- checkem(toclust, cuts, cluster_frame, c_loc, distmat,
