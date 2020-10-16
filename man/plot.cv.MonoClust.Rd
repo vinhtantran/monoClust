@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.cv.MonoClust.R
 \name{plot.cv.MonoClust}
 \alias{plot.cv.MonoClust}
-\title{Plot the Mean Square Error with error bar for +/- 1 Standard Error}
+\title{Plot the Mean Square Error with Error Bar for +/- 1 Standard Error}
 \usage{
 \method{plot}{cv.MonoClust}(
   x,
@@ -12,6 +12,7 @@
   type = "b",
   lty = 2,
   err.col = "red",
+  err.width = 0.1,
   ...
 )
 }
@@ -30,13 +31,15 @@
 
 \item{err.col}{Color of the error bars.}
 
+\item{err.width}{}
+
 \item{...}{Arguments to be passed to \code{\link[base:plot]{base::plot()}}.}
 }
 \value{
 A line plot with error bars.
 }
 \description{
-Plot the Mean Square Error with error bar for +/- 1 Standard Error
+Plot the Mean Square Error with Error Bar for +/- 1 Standard Error
 }
 \examples{
 library(cluster)

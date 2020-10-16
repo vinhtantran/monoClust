@@ -1,6 +1,6 @@
 #' Print MonoClust Cross-Validation Result#'
 #'
-#' @param x A `cv.MonoClust` object, as a result of [cv.test()] function.
+#' @param x A `cv.MonoClust` object (output of [cv.test()]).
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @export
@@ -14,6 +14,8 @@
 #' print(cp_table)
 print.cv.MonoClust <- function(x, ...) {
 
+  if (missing(x))
+    stop("\"x\" is required.")
   if (!inherits(x, "cv.MonoClust"))
     stop("Not a legitimate \"cv.MonoClust\" object.")
 

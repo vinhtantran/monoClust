@@ -1,0 +1,59 @@
+#' GGPlot the Mean Square Error with Error Bar for +/- 1 Standard Error
+#'
+#' @param cv.obj A `cv.MonoClust` object (output of [cv.test()]).
+#' @param title Overall title for the plot.
+#' @param xlab Title for x axis.
+#' @param ylab Title for y axis.
+#' @param type What type of plot should be drawn. Choosing between `"l"` (line
+#'   only), `"p"` (point only), and `"b"` (both line and point).
+#' @param linetype The line type. See `vignette("ggplot2-specs")`
+#' @param err.col Color of the error bars.
+#' @param err.width Width of the bars.
+#'
+#' @return
+#' @import dplyr
+#' @importFrom rlang .data
+#' @export
+#'
+#' @examples
+#' library(cluster)
+#' data(ruspini)
+#'
+#' # 10-fold cross-validation
+#' cptable <- cv.test(ruspini, minnodes = 2, maxnodes = 4)
+#' ggcv(cptable)
+ggcv <- function(cv.obj,
+                 title = "MSE for CV of monothetic clustering",
+                 xlab = "Number of clusters",
+                 ylab = "MSE +/- 1 SE",
+                 type = c("b", "p", "l"),
+                 linetype = 2,
+                 err.col = "red",
+                 err.width = 0.2) {
+
+  if (missing(cv.obj))
+    stop("\"cv.obj\" is required.")
+  if (!inherits(cv.obj, "cv.MonoClust"))
+    stop("Not a legitimate \"cv.MonoClust\" object")
+  type <- match.arg(type)
+
+  cv_table <- cv.obj$cv
+
+  p <-
+    cv_table %>%
+    mutate(upper1SD = .data$MSE + .data$`Std. Dev.`,
+           lower1SD = .data$MSE - .data$`Std. Dev.`) %>%
+    ggplot(aes(x = .data$ncluster, y = .data$MSE)) +
+    geom_errorbar(aes(ymin = lower1SD, ymax = upper1SD),
+                  color = err.col, width = err.width) +
+    scale_x_continuous(breaks = seq_len(nrow(cv_table))) +
+    labs(x = xlab,
+         y = ylab,
+         title = title)
+  if (type %in% c("p", "b"))
+    p <- p + geom_point()
+  if (type %in% c("l", "b"))
+    p <- p + geom_line(linetype = linetype)
+
+  return(p)
+}

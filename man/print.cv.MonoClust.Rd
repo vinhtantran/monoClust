@@ -7,7 +7,7 @@
 \method{print}{cv.MonoClust}(x, ...)
 }
 \arguments{
-\item{x}{A \code{cv.MonoClust} object, as a result of \code{\link[=cv.test]{cv.test()}} function.}
+\item{x}{A \code{cv.MonoClust} object (output of \code{\link[=cv.test]{cv.test()}}).}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

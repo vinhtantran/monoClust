@@ -1,4 +1,4 @@
-#' Plot the Mean Square Error with error bar for +/- 1 Standard Error
+#' Plot the Mean Square Error with Error Bar for +/- 1 Standard Error
 #'
 #' @param x A `cv.MonoClust` object (output of [cv.test()]).
 #' @param main Overall title for the plot.
@@ -8,7 +8,7 @@
 #' @param lty The line type.
 #' @param err.col Color of the error bars.
 #' @param ... Arguments to be passed to [base::plot()].
-
+#' @param err.width
 #'
 #' @return A line plot with error bars.
 #' @export
@@ -27,8 +27,11 @@ plot.cv.MonoClust <- function(x,
                               type = "b",
                               lty = 2,
                               err.col = "red",
+                              err.width = 0.1,
                               ...) {
 
+  if (missing(x))
+    stop("\"x\" is required.")
   if (!inherits(x, "cv.MonoClust"))
     stop("Not a legitimate \"cv.MonoClust\" object")
 
