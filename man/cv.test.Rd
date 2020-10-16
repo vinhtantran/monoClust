@@ -52,6 +52,7 @@ This function supports parallel processing with \link[foreach:foreach]{foreach::
 \examples{
 library(cluster)
 data(ruspini)
+
 # Leave-one-out cross-validation
 cv.test(ruspini, fold = 1, minnodes = 2, maxnodes = 4)
 

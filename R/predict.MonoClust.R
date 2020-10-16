@@ -105,7 +105,9 @@ make_jump_table <- function(frame) {
   if (nrow(jump_table) >= 2) {
     jump_table$left <- match(jump_table$number * 2, jump_table$number)
     jump_table$right <- match(jump_table$number * 2 + 1, jump_table$number)
-  } else jump_table[, c("number", "bipartvar")] <- NA
+  } else
+    # Special case when tree didn't split, ncluster = 1
+    jump_table[, "bipartvar"] <- NA
 
   return(jump_table)
 }
