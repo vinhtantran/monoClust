@@ -44,8 +44,18 @@
 #' @examples
 #' library(cluster)
 #' data(ruspini)
+#'
+#' # MonoClust tree
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 #' plot(ruspini4sol)
+#'
+#' # MonoClust tree after permutation test is run
+#' ruspini6sol <- MonoClust(ruspini, nclusters = 6)
+#' ruspini6_test <- perm.test(ruspini6c,
+#'                            data = ruspini,
+#'                            method = "sw",
+#'                            rep = 1000)
+#' plot(ruspini6_test, branch = 1, uniform = TRUE)
 plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
                            margin = c(0.12, 0.02, 0, 0.05),
                            minbranch = 0.3, text = TRUE, which = 4,

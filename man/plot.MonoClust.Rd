@@ -92,6 +92,16 @@ Print the MonoClust tree in the form of dendrogram.
 \examples{
 library(cluster)
 data(ruspini)
+
+# MonoClust tree
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 plot(ruspini4sol)
+
+# MonoClust tree after permutation test is run
+ruspini6sol <- MonoClust(ruspini, nclusters = 6)
+ruspini6_test <- perm.test(ruspini6c,
+                           data = ruspini,
+                           method = "sw",
+                           rep = 1000)
+plot(ruspini6_test, branch = 1, uniform = TRUE)
 }
