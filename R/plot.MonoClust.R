@@ -51,7 +51,7 @@
 #'
 #' # MonoClust tree after permutation test is run
 #' ruspini6sol <- MonoClust(ruspini, nclusters = 6)
-#' ruspini6_test <- perm.test(ruspini6c,
+#' ruspini6_test <- perm.test(ruspini6sol,
 #'                            data = ruspini,
 #'                            method = "sw",
 #'                            rep = 1000)
