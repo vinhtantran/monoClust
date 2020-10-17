@@ -87,7 +87,7 @@ with \eqn{depth} is 1 at the root node.
 }
 \note{
 This function uses \code{\link[foreach:foreach]{foreach::foreach()}} to facilitate parallel
-processing.
+processing. It distributes reps to processes.
 }
 \examples{
 library(cluster)
@@ -97,6 +97,19 @@ ruspini6sol <- MonoClust(ruspini, nclusters = 6)
 ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
                               rep = 1000)
 ruspini6.p_value
+
+\dontrun{
+# Multiple processing via doParallel
+library(doParallel)
+
+cl <- makePSOCKcluster(5)
+registerDoParallel(cl)
+
+ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
+                              rep = 1000)
+
+stopCluster(cl)
+}
 }
 \references{
 Calinski, T. and Harabasz, J (1974). "A dendrite method for cluster

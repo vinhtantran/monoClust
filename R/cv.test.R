@@ -30,7 +30,8 @@
 #' predicting a new observation,
 #' \deqn{CV_K = \overline{MSE} = \frac{1}{M} \sum_{m=1}^M MSE_m.}
 #'
-#' @note This function supports parallel processing with [foreach::foreach].
+#' @note This function supports parallel processing with [foreach::foreach]. It
+#'   distributes MonoClust calls to processes.
 #'
 #' @return A `MonoClust.cv` class containing a data frame of mean sum of square
 #'   error and its standard deviation.
@@ -48,6 +49,18 @@
 #'
 #' # 10-fold cross-validation
 #' cv.test(ruspini, minnodes = 2, maxnodes = 4)
+#'
+#' \dontrun{
+#' # Multiple processing via doParallel for each MonoClust run
+#' library(doParallel)
+#'
+#' cl <- makePSOCKcluster(5)
+#' registerDoParallel(cl)
+#'
+#' cv.test(ruspini, minnodes = 2, maxnodes = 4)
+#'
+#' stopCluster(cl)
+#' }
 cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
 
   if (!is.data.frame(data)) {

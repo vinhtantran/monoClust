@@ -21,6 +21,9 @@
 #' @param alpha Value applied specifically to permutation test. Only valid when
 #'   `perm.test = TRUE`.
 #'
+#' @note This function supports parallel processing with [foreach::foreach]. It
+#'   distributes optimal cut search on variables to processes.
+#'
 #' @return MonoClust object.
 #' @export
 #'

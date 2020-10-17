@@ -52,6 +52,10 @@ MonoClust object.
 Creates a MonoClust object after partitioning the data set using Monothetic
 Clustering.
 }
+\note{
+This function supports parallel processing with \link[foreach:foreach]{foreach::foreach}. It
+distributes optimal cut search on variables to processes.
+}
 \examples{
 # Very simple data set
 library(cluster)

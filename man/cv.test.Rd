@@ -47,7 +47,8 @@ predicting a new observation,
 \deqn{CV_K = \overline{MSE} = \frac{1}{M} \sum_{m=1}^M MSE_m.}
 }
 \note{
-This function supports parallel processing with \link[foreach:foreach]{foreach::foreach}.
+This function supports parallel processing with \link[foreach:foreach]{foreach::foreach}. It
+distributes MonoClust calls to processes.
 }
 \examples{
 library(cluster)
@@ -58,6 +59,18 @@ cv.test(ruspini, fold = 1, minnodes = 2, maxnodes = 4)
 
 # 10-fold cross-validation
 cv.test(ruspini, minnodes = 2, maxnodes = 4)
+
+\dontrun{
+# Multiple processing via doParallel for each MonoClust run
+library(doParallel)
+
+cl <- makePSOCKcluster(5)
+registerDoParallel(cl)
+
+cv.test(ruspini, minnodes = 2, maxnodes = 4)
+
+stopCluster(cl)
+}
 }
 \seealso{
 \code{\link[=plot.cv.MonoClust]{plot.cv.MonoClust()}}, \code{\link[=MonoClust]{MonoClust()}}, \code{\link[=predict.MonoClust]{predict.MonoClust()}}
