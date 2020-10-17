@@ -116,7 +116,7 @@ To allow applications with any dissimilarity measure, a nonparametric method bas
 
 Applying the `perm.test` function to a `MonoClust` object will add permutation-based $p$-values to the output of both `print` and `plot`. Users can specify the number of permutations with the `rep =` argument. An example of applying the cluster shuffling approach to the *ruspini* data set follows and the tree output is in Figure \@ref(fig:hyptestv). Note that the Bonferroni-adjusted $p$-values are used to account for the multiple hypothesis tests required when going deeper into the tree. The number of tests for the adjustment is based on the number of tests previously performed to get to a candidate split and the maximum value of a $p$-value is always 1. A similar adjustment has been used in conditional inference trees and was also implemented in its accompanied **party** package (Hothorn et al., 2006).
 
-```{r hyptestv, fig.height=5, fig.cap="Binary partitioning tree with five splits, six clusters, but one split should be pruned based on its p-value of 0.8."}
+```{r hyptestv, fig.height=5, fig.width = 10, fig.cap="Binary partitioning tree with five splits, six clusters, but one split should be pruned based on its p-value of 0.8."}
 ruspini6c <- MonoClust(ruspini, nclusters = 6)
 ruspini6c.pvalue <- perm.test(ruspini6c, data = ruspini, method = "sw", rep = 1000)
 plot(ruspini6c.pvalue, branch = 1, uniform = TRUE)
