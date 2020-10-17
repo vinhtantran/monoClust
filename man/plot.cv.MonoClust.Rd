@@ -25,7 +25,7 @@
 
 \item{ylab}{Title for y axis.}
 
-\item{type}{What type of plot should be drawn. See \link{par}.}
+\item{type}{What type of plot should be drawn. See \code{\link[graphics:par]{graphics::par()}}.}
 
 \item{lty}{The line type.}
 
@@ -33,7 +33,7 @@
 
 \item{err.width}{Width of the bars.}
 
-\item{...}{Arguments to be passed to \code{\link[base:plot]{base::plot()}}.}
+\item{...}{Arguments to be passed to \code{\link[graphics:plot.default]{graphics::plot.default()}}.}
 }
 \value{
 A line plot with error bars.

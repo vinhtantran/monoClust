@@ -4,10 +4,10 @@
 #' @param main Overall title for the plot.
 #' @param xlab Title for x axis.
 #' @param ylab Title for y axis.
-#' @param type What type of plot should be drawn. See [par].
+#' @param type What type of plot should be drawn. See [graphics::par()].
 #' @param lty The line type.
 #' @param err.col Color of the error bars.
-#' @param ... Arguments to be passed to [base::plot()].
+#' @param ... Arguments to be passed to [graphics::plot.default()].
 #' @param err.width Width of the bars.
 #'
 #' @return A line plot with error bars.
@@ -35,7 +35,7 @@ plot.cv.MonoClust <- function(x,
   if (!inherits(x, "cv.MonoClust"))
     stop("Not a legitimate \"cv.MonoClust\" object")
 
-  plot(x$cv$ncluster, x$cv$MSE, type = type, lty = lty,
+  graphics::plot(x$cv$ncluster, x$cv$MSE, type = type, lty = lty,
        ylim = c(0, max(x$cv$MSE + x$cv$`Std. Dev.`)),
        main = main, ylab = ylab, xlab = xlab, ...)
 

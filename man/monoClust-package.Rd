@@ -6,7 +6,11 @@
 \alias{monoClust-package}
 \title{monoClust: Perform Monothetic Clustering with Extensions to Circular}
 \description{
-This package runs Monothetic Clustering on a data set.
+Implementation of the Monothetic Clustering algorithm on continuous 
+  data set. A lot of extensions are included in the package, including applying
+  Monothetic clustering on data set with circular variables, visualizations with
+  the results, and permutation and cross-validation based tests to support the
+  decision on the number of clusters.
 }
 \details{
 The package performs Monothetic clustering on numerical variables only data.

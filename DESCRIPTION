@@ -15,14 +15,20 @@ Authors@R: c(
            role = c("aut"),
            email = "mark.greenwood@montana.edu")    
     )
-Description: This package runs Monothetic Clustering on a data set.
-License: GPL-3
+Description: Implementation of the Monothetic Clustering algorithm on continuous 
+  data set. A lot of extensions are included in the package, including applying
+  Monothetic clustering on data set with circular variables, visualizations with
+  the results, and permutation and cross-validation based tests to support the
+  decision on the number of clusters.
+License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Depends: 
-    R (>= 2.10)
+    R (>= 2.15.0),
+    graphics,
+    grDevices
 Imports: 
     purrr,
     mice,
@@ -32,12 +38,10 @@ Imports:
     permute,
     tibble,
     stringr,
-    grDevices,
-    graphics,
-    stats,
     ggplot2,
     tidyr,
-    rlang
+    rlang,
+    stats
 Suggests: 
     knitr,
     rmarkdown

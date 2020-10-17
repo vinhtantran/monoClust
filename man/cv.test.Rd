@@ -57,8 +57,8 @@ data(ruspini)
 # Leave-one-out cross-validation
 cv.test(ruspini, fold = 1, minnodes = 2, maxnodes = 4)
 
-# 10-fold cross-validation
-cv.test(ruspini, minnodes = 2, maxnodes = 4)
+# 5-fold cross-validation
+cv.test(ruspini, fold = 5, minnodes = 2, maxnodes = 4)
 
 \dontrun{
 # Multiple processing via doParallel for each MonoClust run
@@ -67,6 +67,7 @@ library(doParallel)
 cl <- makePSOCKcluster(5)
 registerDoParallel(cl)
 
+# 10-fold cross-validation
 cv.test(ruspini, minnodes = 2, maxnodes = 4)
 
 stopCluster(cl)
