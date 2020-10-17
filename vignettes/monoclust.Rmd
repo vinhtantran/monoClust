@@ -189,5 +189,5 @@ ggpcp(data = wind_reduced_2008,
 * Sneath, P. H. A. and R. R. Sokal (1973). *Numerical taxonomy: the principles and practice of numerical classification*. W.H. Freeman, p. 573. isbn: 0716706970.
 * Therneau, T. and B. Atkinson (2018). *rpart: Recursive Partitioning and Regression Trees*. R package version 4.1-13.
 * Ward, J. H. (1963). "Hierarchical Grouping to Optimize an Objective Function". In: *Journal of the American Statistical Association* 58.301, pp. 236--244. issn: 0162-1459. doi: `10.1080/01621459.1963.10500845`.
-* Wickham, H. (2016). *ggplot2: Elegant Graphics for Data Analysis*. Springer-Verlag New York. isbn: 978-3-319-24277-4. url: http://ggplot2.org.
+* Wickham, H. (2016). *ggplot2: Elegant Graphics for Data Analysis*. Springer-Verlag New York. isbn: 978-3-319-24277-4. url: https://ggplot2.tidyverse.org.
 * Will, G. (2016). "Visualizing and Clustering Data that Includes Circular Variables". Writing Project. Montana State University.
