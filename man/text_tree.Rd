@@ -13,6 +13,9 @@ text_tree(
   cols = NULL,
   cols_type = c("l", "p", "b"),
   rel_loc_x = TRUE,
+  show_pval = TRUE,
+  uniform = FALSE,
+  minbranch = 0.3,
   ...
 )
 }
@@ -54,6 +57,19 @@ shown in a form of solid lines below the leaves (\code{"l"}), or big points
 
 \item{rel_loc_x}{Whether to use the relative distance between clusters as x
 coordinate of the leaves. Default is TRUE.}
+
+\item{show_pval}{If MonClust object has been run through \code{\link[=perm.test]{perm.test()}},
+whether to show p-value on the tree.}
+
+\item{uniform}{If TRUE, uniform vertical spacing of the nodes is used; this
+may be less cluttered when fitting a large plot onto a page. The default is
+to use a non-uniform spacing proportional to the inertia in the fit.}
+
+\item{minbranch}{Set the minimum length for a branch to \code{minbranch} times the
+average branch length. This parameter is ignored if \code{uniform=TRUE}.
+Sometimes a split will give very little improvement, or even no improvement
+at all. A tree with branch lengths strictly proportional to improvement
+leaves no room to squeeze in node labels.}
 
 \item{...}{Extra arguments that would be transferred to \code{\link[graphics:text]{graphics::text()}}}
 }

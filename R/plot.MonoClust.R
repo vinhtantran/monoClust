@@ -34,6 +34,8 @@
 #'   (`"p"`), or both (`"b"`).
 #' @param rel_loc_x Whether to use the relative distance between clusters as x
 #'   coordinate of the leaves. Default is TRUE.
+#' @param show_pval If MonClust object has been run through [perm.test()],
+#'   whether to show p-value on the tree.
 #' @param ... Arguments to be passed to [graphics::plot.default()] and
 #'   [graphics::lines()]
 #' @inheritParams print.MonoClust
@@ -63,7 +65,7 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
                            abbrev = c("no", "short", "abbreviate"),
                            digits = getOption("digits") - 2,
                            cols = NULL, cols_type = c("l", "p", "b"),
-                           rel_loc_x = TRUE, ...) {
+                           rel_loc_x = TRUE, show_pval = TRUE, ...) {
   ## This function sets some defaults and changes things a bit, but is mostly
   ## a wrapper for our slightly modified version of rpart's plot function (see
   ## plots.R).
@@ -89,7 +91,8 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
 
   if (text) {
     text_tree(x, which = which, digits = digits, stats = stats, abbrev = abbrev,
-              cols = cols, cols_type = cols_type, rel_loc_x = rel_loc_x)
+              cols = cols, cols_type = cols_type, rel_loc_x = rel_loc_x,
+              show_pval = show_pval, uniform = uniform, minbranch = minbranch)
 
     if (!is.null(x$circularroot$var)) {
       graphics::text(x = 1, y = 1, "Circ root")

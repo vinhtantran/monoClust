@@ -211,7 +211,11 @@ text_tree <- function(x,
                       abbrev,
                       cols = NULL,
                       cols_type = c("l", "p", "b"),
-                      rel_loc_x = TRUE, ...) {
+                      rel_loc_x = TRUE,
+                      show_pval = TRUE,
+                      uniform = FALSE,
+                      minbranch = 0.3,
+                      ...) {
   # if (!inherits(x, "MonoClust"))
   #   stop("Not a legitimate MonoClust object")
   frame <- x$frame
@@ -231,7 +235,7 @@ text_tree <- function(x,
   cxy <- graphics::par("cxy")
   if (!is.null(srt <- list(...)$srt) && srt == 90)
     cxy <- rev(cxy)
-  xy <- plot_prep_node(x)
+  xy <- plot_prep_node(x, uniform = uniform, minbranch = minbranch)
   #print("here")
   #print(xy)
   node <- frame$number
@@ -310,7 +314,7 @@ text_tree <- function(x,
   # right_labs <- labs[seq(from=2,to=length(labs), by=2)]
 
   ## ADD: Tan. 3/1/15, add p-value display
-  if (!is.null(frame[["p.value"]])) {
+  if (show_pval && !is.null(frame[["p.value"]])) {
     mid_labs <- frame$p.value[!is.na(frame$p.value)]
   } else {
     mid_labs <- ""
