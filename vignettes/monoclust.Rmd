@@ -10,7 +10,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 6
 )
 ```
 
@@ -66,7 +67,7 @@ The output (`print.MonoClust`) lists each split on one line together with the sp
 
 Another visualization of the clustering results is the splitting rule tree created by the `plot.MonoClust` function of the `MonoClust` object.
 
-```{r ruspinip, fig.cap="Binary partitioning tree with three splits, four clusters for *ruspini* data."}
+```{r ruspinip, fig.height=5, fig.cap="Binary partitioning tree with three splits, four clusters for *ruspini* data."}
 plot(ruspini4c)
 ```
 
@@ -91,7 +92,7 @@ cp.table
 
 A plot with error bars for one standard error, similar to Figure \@ref(fig:cvv), can be made from the output table using standard plotting functions to assist in assessing these results.
 
-```{r cvv, fig.cap="The choice of clusters for Ruspini data made by 10-fold CV where *minCV* selects 10 clusters and *1SE* selects 4. The error bars are the $\\overline{MSE} \\pm 1SE$ and the choice of 4 clusters, the simplest solution within 1 standard error of the minimum error estimate (the dashed lines coincide with the bar at 10 clusters) is highlighted with a $\\times$."}
+```{r cvv, message=FALSE, fig.cap="The choice of clusters for Ruspini data made by 10-fold CV where *minCV* selects 10 clusters and *1SE* selects 4. The error bars are the $\\overline{MSE} \\pm 1SE$ and the choice of 4 clusters, the simplest solution within 1 standard error of the minimum error estimate (the dashed lines coincide with the bar at 10 clusters) is highlighted with a $\\times$."}
 library(dplyr)
 library(ggplot2)
 ggcv(cp.table) +
@@ -115,7 +116,7 @@ To allow applications with any dissimilarity measure, a nonparametric method bas
 
 Applying the `perm.test` function to a `MonoClust` object will add permutation-based $p$-values to the output of both `print` and `plot`. Users can specify the number of permutations with the `rep =` argument. An example of applying the cluster shuffling approach to the *ruspini* data set follows and the tree output is in Figure \@ref(fig:hyptestv). Note that the Bonferroni-adjusted $p$-values are used to account for the multiple hypothesis tests required when going deeper into the tree. The number of tests for the adjustment is based on the number of tests previously performed to get to a candidate split and the maximum value of a $p$-value is always 1. A similar adjustment has been used in conditional inference trees and was also implemented in its accompanied **party** package (Hothorn et al., 2006).
 
-```{r hyptestv, fig.cap="Binary partitioning tree with five splits, six clusters, but one split should be pruned based on its p-value of 0.8."}
+```{r hyptestv, fig.height=5, fig.cap="Binary partitioning tree with five splits, six clusters, but one split should be pruned based on its p-value of 0.8."}
 ruspini6c <- MonoClust(ruspini, nclusters = 6)
 ruspini6c.pvalue <- perm.test(ruspini6c, data = ruspini, method = "sw", rep = 1000)
 plot(ruspini6c.pvalue, branch = 1, uniform = TRUE)
