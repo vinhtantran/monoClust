@@ -68,9 +68,6 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
                            digits = getOption("digits") - 2,
                            cols = NULL, cols_type = c("l", "p", "b"),
                            rel_loc_x = TRUE, show_pval = TRUE, ...) {
-  ## This function sets some defaults and changes things a bit, but is mostly
-  ## a wrapper for our slightly modified version of rpart's plot function (see
-  ## plots.R).
 
   if (!inherits(x, "MonoClust"))
     stop("Not a MonoClust object")
@@ -87,10 +84,6 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
   plot_tree(x, uniform = uniform, branch = branch, margin = margin,
             minbranch = minbranch, rel_loc_x = rel_loc_x, ...)
 
-  ## REMOVE: Tan, 3/1/15, Remove Inertia line lines(x=c(.88,.88),y=c(0,1))
-
-  # for(i in seq(0,1,.1)) { lines(x=c(.86,.88),y=c(i,i)) text(.73,i,i) }
-
   if (text) {
     text_tree(x, which = which, digits = digits, stats = stats, abbrev = abbrev,
               cols = cols, cols_type = cols_type, rel_loc_x = rel_loc_x,
@@ -100,8 +93,8 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
       graphics::text(x = 1, y = 1, "Circ root")
       for (i in seq_len(length(x$circularroot$var))) {
         graphics::text(x = 1, y = 1 - i * 0.05,
-             paste(x$terms[x$circularroot$var[i]], ": ",
-                   x$circularroot$cut[i]))
+                       paste(x$terms[x$circularroot$var[i]], ": ",
+                             x$circularroot$cut[i]))
       }
     }
   }

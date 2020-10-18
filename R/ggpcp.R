@@ -45,6 +45,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' # Set color constant
 #' COLOR4 <- c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")
 #' # Reduce the size of the data for for sake of example speed
@@ -74,11 +75,12 @@
 #'         legend.direction = "horizontal",
 #'         legend.title = element_text(face = "italic"),
 #'         legend.justification = "center")
+#' }
 ggpcp <- function(data, circ.var = NULL, is.degree = TRUE, rotate = 0,
-                   north = 0, cw = FALSE, order.appear = NULL, linetype = 1,
-                   size = 0.5, alpha = 0.5, clustering, medoids = NULL,
-                   cluster.col = NULL, show.medoids = FALSE, labelsize = 4,
-                   xlab = "Variables", ylab = NULL, legend.cluster = "groups") {
+                  north = 0, cw = FALSE, order.appear = NULL, linetype = 1,
+                  size = 0.5, alpha = 0.5, clustering, medoids = NULL,
+                  cluster.col = NULL, show.medoids = FALSE, labelsize = 4,
+                  xlab = "Variables", ylab = NULL, legend.cluster = "groups") {
 
   if (missing(data) || !is.data.frame(data))
     stop("\"data\" must be a data frame.")
@@ -236,8 +238,6 @@ ggpcp <- function(data, circ.var = NULL, is.degree = TRUE, rotate = 0,
                                 labels = order.appear) +
     ggplot2::scale_y_continuous(limits = c(-0.1, 1.1)) +
     ggplot2::scale_color_manual(values = cluster.col) +
-    #scale_color_discrete(#labels = as.character(unique(pcp_data$groups)),
-    #  name = "Cluster") +
     ggplot2::annotate("text", x = pos[-which(order.appear == circ.var)],
                       y = -0.05,
                       label = as.character(

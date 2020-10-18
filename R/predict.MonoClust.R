@@ -33,10 +33,6 @@
 predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid"),
                               ...) {
 
-  ####### DELETE: For debugging purpose ########### require(cluster) data(ruspini) source('MonoClust.R')
-  ####### object <- MonoClust(ruspini, nclusters = 4) newdata <- list(x = c(48, 90), y = c(93, 70))
-  ####### na.action <- na.pass
-
   if (!inherits(object, "MonoClust"))
     stop("Not a legitimate \"MonoClust\" object")
 
@@ -55,36 +51,21 @@ predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid"),
       stop("The new data set does not have the same variables as the original
            data set")
 
-    # node <- frame$number
-    # depth <- tree_depth(node)
-
     # It would be better to create a jump table for reference of tree walking
     jump_table <- make_jump_table(frame)
 
     # Now tracing the tree to find the cluster
     terminal_node <- apply(new_data, 1, tree_walk, jump_table = jump_table)
   }
-  # ylevels <- attr(object, "ylevels")
-  # nclass <- length(ylevels)
-  # if (missing(type) && nclass > 0L)
-  #   type <- "prob"
+
   if (type == "centroid") {
     centroids <- object$centroids
     ret <- centroids[match(terminal_node, centroids$cname), ]
   } else {
     ret <- tibble::tibble(cname = terminal_node,
-                  medoid = object$frame$medoid[terminal_node])
+                          medoid = object$frame$medoid[terminal_node])
   }
-  # } else if (type == 'matrix') { pred <- frame$yval2[terminal_node, ] dimnames(pred) <-
-  # list(names(terminal_node), NULL) } else if (type == 'class' && nclass > 0L) { if (length(ylevels) ==
-  # 0L) stop('type 'class' is only appropriate for classification') pred <-
-  # factor(ylevels[frame$yval[terminal_node]], levels = ylevels) names(pred) <- names(terminal_node) } else if
-  # (type == 'prob' && nclass > 0L) { pred <- frame$yval2[terminal_node, 1L + nclass + 1L:nclass, drop =
-  # FALSE] dimnames(pred) <- list(names(terminal_node), ylevels) } else stop('Invalid prediction for
-  # \'rpart\' object')
 
-  # Expand out the missing values in the result But only if operating on the original dataset if
-  # (missing(newdata) && !is.null(object$na.action)) pred <- naresid(object$na.action, pred)
   return(ret)
 }
 
@@ -133,8 +114,7 @@ tree_walk <- function(new_point, jump_table) {
                                    jump_table$right[current_node])
   }
 
-  # Extract the leaf info out. TODO: Output the necessary info.
-  # QUESTION: Do we need to re-calculate any properties? Like medoid?
+  # Extract the leaf info out.
   node <- jump_table$number[current_node]
   names(node) <- current_node
   return(node)

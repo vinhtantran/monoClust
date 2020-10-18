@@ -6,12 +6,14 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' library(cluster)
 #' data(ruspini)
 #'
 #' # 10-fold cross-validation
 #' cp_table <- cv.test(ruspini, minnodes = 2, maxnodes = 4)
 #' print(cp_table)
+#' }
 print.cv.MonoClust <- function(x, ...) {
 
   if (missing(x))

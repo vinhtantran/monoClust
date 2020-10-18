@@ -99,29 +99,17 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
   stat <- match.arg(stat)
 
   frame <- object$frame
-  # node <- frame$number
 
   # It would be better to create a jump table for reference of tree walking
   jump_table <- tibble::add_column(make_jump_table(frame),
                                    split.order = frame$split.order)
-  # jump_table$right <- jump_table$left <- NA
   jump_table$p_value <- NA
-
-  # for (i in 2:nrow(jump_table)) {
-  #   parent.node <- jump_table$node[i]%/%2
-  #   is.left <- jump_table$node[i]%%2 == 0
-  #
-  #   if (is.left) {
-  #     jump_table$left[which(jump_table$node == parent.node)] <- i
-  #   } else jump_table$right[which(jump_table$node == parent.node)] <- i
-  # }
 
   jump_table$members <- NA
   jump_table$members[1] <- paste(seq_len(nrow(data)), collapse = ",")
 
   # Now tracing the tree to find the cluster Trace along the split order,
-  # quit when reaching the
-  # end or if auto.pick, stop when p value > sig.val
+  # quit when reaching the end or if auto.pick, stop when p value > sig.val
   last_split <- max(jump_table$split.order[!is.na(jump_table$split.order)]) + 1
   for (i in 1:max(jump_table$split.order[!is.na(jump_table$split.order)])) {
     current <- which(jump_table$split.order == i)
@@ -180,26 +168,9 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
 test_split <- function(members_l, members_r, method, data, split_var, rep,
                        stat) {
   # Membership is consecutive because the distance matrix will be moved around
-  # with members_l and
-  # members_r put next to each other.
+  # with members_l and members_r put next to each other.
   fmem2 <- c(rep(1, length(members_l)), rep(2, length(members_r)))
   `%op%` <- get_oper(foreach::getDoParWorkers() > 1)
-
-  # if (method == 1) {
-  #   # Method 1: shuffling the membership, not used splitting variable
-  #   data_temp <- data[colnames(data) != split_var]
-  #   distmat_reduced <- as.matrix(cluster::daisy(data.frame(data_temp)))
-  #
-  #   # A distance matrix with observations left and right put in order
-  #   distmat_twogroup <- distmat_reduced[c(members_l, members_r),
-  #                                       c(members_l, members_r)]
-  #
-  #   result <- vegan::adonis(distmat_twogroup ~ fmem2,
-  #                           permutations = rep)
-  #
-  #   # p_value.adj <- (node %/% 2 + 1) * result$aov.tab[1,6]
-  #   p_value <- result$aov.tab$`Pr(>F)`[1]
-  # } else if (method == 2 | method == 3) {
 
   if (method == "sw") {
     # Simple-withhold: shuffling the membership, not used splitting variable
@@ -226,7 +197,6 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
     if (method == "sw") {
       foreach::foreach(k = 1:permutations,
                        .inorder = FALSE) %op% {
-                         # newdata <- current_data[perm[k, ], , drop = FALSE]
                          distmat_rep <- distmat_twogroup[perm[k, ], perm[k, ]]
                          return(cluster_stats(distmat_rep, fmem2))
                        }

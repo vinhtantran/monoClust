@@ -15,12 +15,14 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' library(cluster)
 #' data(ruspini)
 #'
 #' # 10-fold cross-validation
 #' cptable <- cv.test(ruspini, minnodes = 2, maxnodes = 4)
 #' ggcv(cptable)
+#' }
 ggcv <- function(cv.obj,
                  title = "MSE for CV of monothetic clustering",
                  xlab = "Number of clusters",

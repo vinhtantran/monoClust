@@ -14,12 +14,14 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' library(cluster)
 #' data(ruspini)
 #'
 #' # 10-fold cross-validation
 #' cptable <- cv.test(ruspini, minnodes = 2, maxnodes = 4)
 #' plot(cptable)
+#' }
 plot.cv.MonoClust <- function(x,
                               main = "MSE for CV of monothetic clustering",
                               xlab = "Number of clusters",
@@ -36,8 +38,8 @@ plot.cv.MonoClust <- function(x,
     stop("Not a legitimate \"cv.MonoClust\" object")
 
   graphics::plot(x$cv$ncluster, x$cv$MSE, type = type, lty = lty,
-       ylim = c(0, max(x$cv$MSE + x$cv$`Std. Dev.`)),
-       main = main, ylab = ylab, xlab = xlab, ...)
+                 ylim = c(0, max(x$cv$MSE + x$cv$`Std. Dev.`)),
+                 main = main, ylab = ylab, xlab = xlab, ...)
 
   error_bar(x$cv$ncluster, x$cv$MSE, x$cv$`Std. Dev.`, col = err.col)
 

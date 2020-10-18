@@ -71,10 +71,7 @@ NULL
 #'   single number, return 0.
 #' @keywords internal
 inertia_calc <- function(X) {
-  # there are cases when a cluster has only 1 point, say, 1st point, then
-  # dist[1,1] is a numeric value, not matrix.
-  #MG, 9/25: Should this then return a value of 0 for inertia? If you go back to
-  # (y-mean(y))^2, then maybe set the return to 0?
+
   if (!is.numeric(X) && !is.matrix(X))
     stop("X has to be a numerical value or matrix.")
 
@@ -108,8 +105,6 @@ inertia_calc <- function(X) {
 #' to Circular and Functional Data. Montana State University - Bozeman.
 #' @export
 circ_dist <- function(frame) {
-  # Assumes x is a data frame with columns are all circular variables
-  # TODO Extend it to more than one circular variable
 
   if (is.null(frame))
     stop("frame has to be a data set with all columns are circular.")
@@ -128,16 +123,6 @@ circ_dist <- function(frame) {
           dist[j, i] <- gower_circ(x[i], x[j])
 
       return(dist)
-
-
-      # pairs_of_obs <- purrr::cross2(x, x)
-      #
-      # dist_flat <- purrr::flatten_dbl(
-      #   purrr::map(pairs_of_obs,
-      #              ~ dplyr::if_else(.x[[1]] > .x[[2]],
-      #                               gower_circ(.x[[1]], .x[[2]]),
-      #                               0)))
-      # return(dist_flat)
     })
 
   ret <- matrix(purrr::pmap_dbl(list_dist, sum) / length(list_dist),
@@ -216,31 +201,22 @@ new_node <- function(number,
                      var,
                      cut = -99L,
                      n,
-                     # Remove it is not implemented
-                     # wt,
                      inertia,
                      bipartvar = "",
                      bipartsplitrow = -99L,
                      bipartsplitcol = -99L,
                      inertiadel = 0,
-                     # TODO: Replace yval by inertia_explained
-                     # yval,
                      inertia_explained = -99,
                      medoid,
-                     # Remove later because there's no categorical
-                     # category = 0,
                      loc,
                      split.order = -99L,
                      alt = FALSE) {
 
   one_row_table <- dplyr::tibble(
     number, var, cut, n,
-    # wt,
     inertia, bipartvar, bipartsplitrow,
     bipartsplitcol, inertiadel,
-    # yval,
     inertia_explained, medoid,
-    # category,
     loc,
     split.order,
     alt)
@@ -257,12 +233,6 @@ new_node <- function(number,
 #' @return A data frame with coordinates of centroids
 #' @keywords internal
 centroid <- function(data, frame, cloc) {
-
-  # MODIFY: Tan, 9/9/20. Remove categorical variable for now.
-  ## ADD, Tan, 12/15, function to calculate the mean of each cluster.
-  ## Currently do not work for categorical variables
-  # Don't calculate if there is qualitative variable
-  # if (qualtog) NA
 
   leaves <- frame$number[frame$var == "<leaf>"]
   names(leaves) <- leaves

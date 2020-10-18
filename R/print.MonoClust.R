@@ -36,52 +36,27 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
   abbrev <- match.arg(abbrev)
 
   frame <- x$frame
-  # REMOVE: Tan, 9/14/20. Not necessary
-  # ylevel <- attr(x, "ylevels")
   node <- frame$number
   depth <- tree_depth(node)
-  # indent <- stringr::str_pad("", 32L)
 
   # 2L is because of 1 number (1 or 2 digits) and the bracket
   indent <- stringr::str_pad(stringr::str_c(node, ")"), depth * spaces + 2L)
-
-  # MODIFY: Tan, 9/14/20. Not necessary
-  # tfun <- (x$functions)$print
-  # if (!is.null(tfun)) {
-  #   if (is.null(frame$yval2))
-  #     yval <- tfun(frame$yval, ylevel, digits) else yval <- tfun(frame$yval2,
-  # ylevel, digits)
-  # } else yval <- format(signif(frame$yval, digits = digits))
 
   inertia_explained <- ifelse(!is.na(frame$inertia_explained),
                               format(signif(frame$inertia_explained,
                                             digits = digits)),
                               "")
-
-  # REMOVE: Tan, 12/14. This line seems to be a debug line. Mo meaning.
-  ## print(yval)
-  ## ADD: Tan, 3/1/15. Add p value check.
+  # Add p value check.
   has_pvalue <- !is.null(frame[["p.value"]])
   term <- rep(" ", length(depth))
   term[frame$var == "<leaf>"] <- "*"
   labs <- create_labels(x, abbrev = abbrev, digits = digits, ...)$labels
   n <- frame$n
-  ## MODIFY: Tan, 3/1/15. Add p value.
-  ## z <- paste(indent, z, n, format(signif(frame$dev, digits = digits)),
-  ## round((1-as.numeric(yval)/1),digits=2), term)
 
   z <- paste(indent, labs, n,
              format(signif(frame$inertia, digits = digits)),
              inertia_explained,
              ifelse(has_pvalue, frame$p.value, ""), term)
-
-  # MODIDY: Tan, 9/14/20. Not necessary.
-  # omit <- x$na.action
-  # if (length(omit)) {
-  #   cat("n=", n[1L], " (", naprint(omit), ")\n\n", sep = "")
-  # } else {
-  #   cat("n=", n[1L], "\n\n")
-  # }
 
   cat("n =", n[1L], "\n\n")
 
@@ -91,7 +66,6 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
   cat(z, sep = "\n")
   if (!is.null(x$circularroot$var)) {
     cat("Circular variable's first cut\n")
-    # cat("Circular variable(s)' first cut\n")
     for (i in seq_len(length(x$circularroot$var))) {
       cat(x$terms[x$circularroot$var[i]], ": ", x$circularroot$cut[i], "\n")
     }
@@ -139,29 +113,12 @@ create_labels <- function(x, abbrev, digits = getOption("digits"), ...) {
   # Create split labels
   split_index <- which(frame$var != "<leaf>")
   lsplit <- rsplit <- character(length(split_index))
-  # If there exists quantitative cutpoint
-  # if (any(!ind %in% cats)) {
-  # sind <- ind[ind %in% cats == 0]
+
   label <- varnames[frame$var[split_index]]
   level <- frame$cut[split_index]
 
-  # lsplit[ind %in% cats == 0] <- paste(name,"<",round(level, digits),sep=" ")
-  # rsplit[ind %in% cats == 0] <- paste(name,">=",round(level, digits),sep=" ")
   lsplit <- paste(label, "<", round(level, digits), sep = " ")
   rsplit <- paste(label, ">=", round(level, digits), sep = " ")
-  # }
-  # REMOVE: Tan, 9/9/20. Remove categorical variable for now.
-  # If there exists categorical cutpoint
-  # if (any(ind %in% cats)) {
-  #   sind <- ind[ind %in% cats == 1]
-  #   for (i in sind) {
-  #     name <- varnames[i]
-  #     qualind <- which(catnames==varnames[i])
-  #     lsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][1:(frame$cut[i]-1)],collapse=" ")
-  #     rsplit[which(ind == i)] <- paste(quali_ordered[[qualind]][-c(1:(frame$cut[i]-1))],collapse=" ")
-  #   }
-  #
-  # }
 
   node <- frame$number
   parent <- match(node %/% 2, node[split_index])
