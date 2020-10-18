@@ -170,12 +170,17 @@ MonoClust <- function(toclust,
   ## For now, impute missing values so we have no missing data
   ## Emit warning that values were imputed.
   if (any(is.na(toclust))) {
-    imputed <- mice::mice(toclust)
-    cat("\nData contain missing values mice() used for imputation")
-    cat("\nSee mice() help page for more details")
-    cat("\nMissing cells per column:")
-    print(imputed$nmis)
-    toclust <- mice::complete(imputed)
+    if (requireNamespace("mice", quietly = TRUE)) {
+      imputed <- mice::mice(toclust)
+      cat("\nData contain missing values mice() used for imputation")
+      cat("\nSee mice() help page for more details")
+      cat("\nMissing cells per column:")
+      print(imputed$nmis)
+      toclust <- mice::complete(imputed)
+    }
+    else
+      stop("Data contain NA. Install \"mice\" package and rerun this function
+           to automatically impute the missing value(s).")
   }
 
   # REMOVE: Tan, 9/9/20. Remove categorical variable for now.

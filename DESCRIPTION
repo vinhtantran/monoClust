@@ -1,6 +1,6 @@
 Package: monoClust
 Title: Perform Monothetic Clustering with Extensions to Circular
-Version: 0.4.0
+Version: 1.0.0
 Authors@R: c(
     person(given = "Tan",
            family = "Tran",
@@ -21,17 +21,18 @@ Description: Implementation of the Monothetic Clustering algorithm on continuous
   the results, and permutation and cross-validation based tests to support the
   decision on the number of clusters.
 License: GPL (>= 2)
+URL: https://github.com/vinhtantran/monoClust
+BugReports: https://github.com/vinhtantran/monoClust/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Depends: 
-    R (>= 2.15.0),
+    R (>= 3.3.0),
     graphics,
     grDevices
 Imports: 
     purrr,
-    mice,
     dplyr (>= 1.0.0),
     cluster,
     foreach,
@@ -40,9 +41,10 @@ Imports:
     stringr,
     ggplot2,
     tidyr,
-    rlang,
+    rlang (>= 0.3.0),
     stats
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    mice
 VignetteBuilder: knitr

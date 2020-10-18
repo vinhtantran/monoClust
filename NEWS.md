@@ -1,3 +1,5 @@
+# monoClust 1.0.0
+
 # monoClust 0.4.0
 
 * Removed the categorical variable feature to make sure it works well for all 

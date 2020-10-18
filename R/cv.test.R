@@ -41,6 +41,7 @@
 #' @importFrom stats sd
 #'
 #' @examples
+#' \donttest{
 #' library(cluster)
 #' data(ruspini)
 #'
@@ -49,6 +50,7 @@
 #'
 #' # 5-fold cross-validation
 #' cv.test(ruspini, fold = 5, minnodes = 2, maxnodes = 4)
+#' }
 #'
 #' \dontrun{
 #' # Multiple processing via doParallel for each MonoClust run

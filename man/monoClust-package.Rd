@@ -26,6 +26,14 @@ Letters, 19(11), 989–996. https://doi.org/10.1016/S0167-8655(98)00087-7
 Circular and Functional Data. Montana State University - Bozeman.
 }
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/vinhtantran/monoClust}
+  \item Report bugs at \url{https://github.com/vinhtantran/monoClust/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Tan Tran \email{vinhtantran@gmail.com} (\href{https://orcid.org/0000-0001-9881-6339}{ORCID})
 

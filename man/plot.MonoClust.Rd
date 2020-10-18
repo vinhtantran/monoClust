@@ -101,6 +101,7 @@ data(ruspini)
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
 plot(ruspini4sol)
 
+\donttest{
 # MonoClust tree after permutation test is run
 ruspini6sol <- MonoClust(ruspini, nclusters = 6)
 ruspini6_test <- perm.test(ruspini6sol,
@@ -108,4 +109,5 @@ ruspini6_test <- perm.test(ruspini6sol,
                            method = "sw",
                            rep = 1000)
 plot(ruspini6_test, branch = 1, uniform = TRUE)
+}
 }

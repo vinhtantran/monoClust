@@ -51,6 +51,7 @@ This function supports parallel processing with \link[foreach:foreach]{foreach::
 distributes MonoClust calls to processes.
 }
 \examples{
+\donttest{
 library(cluster)
 data(ruspini)
 
@@ -59,6 +60,7 @@ cv.test(ruspini, fold = 1, minnodes = 2, maxnodes = 4)
 
 # 5-fold cross-validation
 cv.test(ruspini, fold = 5, minnodes = 2, maxnodes = 4)
+}
 
 \dontrun{
 # Multiple processing via doParallel for each MonoClust run
