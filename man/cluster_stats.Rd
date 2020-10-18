@@ -25,13 +25,14 @@ Calinski-Harabaz's pseudo-F (Calinski and Harabasz, 1974) and Average
 silhoutte width (Rousseeuw, 1987) calculation.
 }
 \references{
-Caliński, T. and Harabasz, J (1974). "A dendrite method for cluster
+\itemize{
+\item Caliński, T. and Harabasz, J (1974). "A dendrite method for cluster
 analysis". en. In: \emph{Communications in Statistics} 3.1, pp. 1–27.
-
-Rousseeuw, P. J. (1987). "Silhouettes: A graphical aid to the interpretation
-and validation of cluster analysis". In: \emph{Journal of Computational and
-Applied Mathematics} 20, pp. 53–65. ISSN: 03770427. DOI:
+\item Rousseeuw, P. J. (1987). "Silhouettes: A graphical aid to the
+interpretation and validation of cluster analysis". In: \emph{Journal of
+Computational and Applied Mathematics} 20, pp. 53–65. ISSN: 03770427. DOI:
 10.1016/0377-0427(87) 90125-7.
+}
 }
 \seealso{
 \code{\link[cluster:silhouette]{cluster::silhouette()}}

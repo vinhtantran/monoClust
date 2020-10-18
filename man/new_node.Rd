@@ -57,9 +57,6 @@ tree. See \code{\link[=plot.MonoClust]{plot.MonoClust()}} for details.}
 
 \item{alt}{Indicator of an alternative cut yielding the same reduction in
 inertia at that split.}
-
-\item{yval}{In rpart, it's the estimated response value. Here in MonoClust,
-it has no meaning. Will be removed in the future.}
 }
 \value{
 A tibble with only one row and correct default data type for even an

@@ -13,7 +13,7 @@
 #' @param margin An extra fraction of white space to leave around the borders of
 #'   the tree. (Long labels sometimes get cut off by the default computation).
 #' @param minbranch Set the minimum length for a branch to `minbranch` times the
-#'   average branch length. This parameter is ignored if `uniform=TRUE`.
+#'   average branch length. This parameter is ignored if `uniform = TRUE`.
 #'   Sometimes a split will give very little improvement, or even no improvement
 #'   at all. A tree with branch lengths strictly proportional to improvement
 #'   leaves no room to squeeze in node labels.
@@ -29,10 +29,10 @@
 #'   this tree plot with other plots whose cluster membership were colored. It
 #'   only works when `text` is `TRUE`. Either `NULL`, a vector of one color, or
 #'   a vector of colors matching the number of leaves.
-#' @param cols_type When `cols` is set, choose whether the color indicators are
+#' @param col.type When `cols` is set, choose whether the color indicators are
 #'   shown in a form of solid lines below the leaves (`"l"`), or big points
 #'   (`"p"`), or both (`"b"`).
-#' @param rel_loc_x Whether to use the relative distance between clusters as x
+#' @param rel.loc.x Whether to use the relative distance between clusters as x
 #'   coordinate of the leaves. Default is TRUE.
 #' @param show_pval If MonClust object has been run through [perm.test()],
 #'   whether to show p-value on the tree.
@@ -66,8 +66,8 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
                            stats = TRUE,
                            abbrev = c("no", "short", "abbreviate"),
                            digits = getOption("digits") - 2,
-                           cols = NULL, cols_type = c("l", "p", "b"),
-                           rel_loc_x = TRUE, show_pval = TRUE, ...) {
+                           cols = NULL, col.type = c("l", "p", "b"),
+                           rel.loc.x = TRUE, show_pval = TRUE, ...) {
 
   if (!inherits(x, "MonoClust"))
     stop("Not a MonoClust object")
@@ -78,15 +78,15 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
     if (length(cols) > 1 & length(cols) != sum(x$frame$var == "<leaf>"))
       stop("When set, \"col\" has to contain 1 color or number of colors equal
       to the number of leaves.")
-    cols_type <- match.arg(cols_type)
+    col.type <- match.arg(col.type)
   }
 
   plot_tree(x, uniform = uniform, branch = branch, margin = margin,
-            minbranch = minbranch, rel_loc_x = rel_loc_x, ...)
+            minbranch = minbranch, rel_loc_x = rel.loc.x, ...)
 
   if (text) {
     text_tree(x, which = which, digits = digits, stats = stats, abbrev = abbrev,
-              cols = cols, cols_type = cols_type, rel_loc_x = rel_loc_x,
+              cols = cols, cols_type = col.type, rel_loc_x = rel.loc.x,
               show_pval = show_pval, uniform = uniform, minbranch = minbranch)
 
     if (!is.null(x$circularroot$var)) {

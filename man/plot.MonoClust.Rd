@@ -16,8 +16,8 @@
   abbrev = c("no", "short", "abbreviate"),
   digits = getOption("digits") - 2,
   cols = NULL,
-  cols_type = c("l", "p", "b"),
-  rel_loc_x = TRUE,
+  col.type = c("l", "p", "b"),
+  rel.loc.x = TRUE,
   show_pval = TRUE,
   ...
 )
@@ -38,7 +38,7 @@ intermediate.}
 the tree. (Long labels sometimes get cut off by the default computation).}
 
 \item{minbranch}{Set the minimum length for a branch to \code{minbranch} times the
-average branch length. This parameter is ignored if \code{uniform=TRUE}.
+average branch length. This parameter is ignored if \code{uniform = TRUE}.
 Sometimes a split will give very little improvement, or even no improvement
 at all. A tree with branch lengths strictly proportional to improvement
 leaves no room to squeeze in node labels.}
@@ -74,11 +74,11 @@ this tree plot with other plots whose cluster membership were colored. It
 only works when \code{text} is \code{TRUE}. Either \code{NULL}, a vector of one color, or
 a vector of colors matching the number of leaves.}
 
-\item{cols_type}{When \code{cols} is set, choose whether the color indicators are
+\item{col.type}{When \code{cols} is set, choose whether the color indicators are
 shown in a form of solid lines below the leaves (\code{"l"}), or big points
 (\code{"p"}), or both (\code{"b"}).}
 
-\item{rel_loc_x}{Whether to use the relative distance between clusters as x
+\item{rel.loc.x}{Whether to use the relative distance between clusters as x
 coordinate of the leaves. Default is TRUE.}
 
 \item{show_pval}{If MonClust object has been run through \code{\link[=perm.test]{perm.test()}},

@@ -14,7 +14,7 @@ may be less cluttered when fitting a large plot onto a page. The default is
 to use a non-uniform spacing proportional to the inertia in the fit.}
 
 \item{minbranch}{Set the minimum length for a branch to \code{minbranch} times the
-average branch length. This parameter is ignored if \code{uniform=TRUE}.
+average branch length. This parameter is ignored if \code{uniform = TRUE}.
 Sometimes a split will give very little improvement, or even no improvement
 at all. A tree with branch lengths strictly proportional to improvement
 leaves no room to squeeze in node labels.}

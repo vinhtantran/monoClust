@@ -9,7 +9,7 @@
 #'
 #' @keywords internal
 plot_tree <- function(x, uniform = FALSE, branch = 1, margin = 0,
-                      minbranch = 0.3, rel_loc_x = TRUE, ...) {
+                      minbranch = 0.3, rel.loc.x = TRUE, ...) {
 
   # Length of the root node
   bar <- 0.03
@@ -23,7 +23,7 @@ plot_tree <- function(x, uniform = FALSE, branch = 1, margin = 0,
   xx <- temp$x
   yy <- temp$y
 
-  if (rel_loc_x)
+  if (rel.loc.x)
     xx <- x$frame$loc + (abs(min(x$frame$loc))) + 1
 
   temp1 <- range(xx) + diff(range(xx)) * c(-margin, margin)
@@ -125,8 +125,8 @@ text_tree <- function(x,
                       stats = TRUE,
                       abbrev,
                       cols = NULL,
-                      cols_type = c("l", "p", "b"),
-                      rel_loc_x = TRUE,
+                      cols.type = c("l", "p", "b"),
+                      rel.loc.x = TRUE,
                       show_pval = TRUE,
                       uniform = FALSE,
                       minbranch = 0.3,
@@ -148,7 +148,7 @@ text_tree <- function(x,
   labels_output <- create_labels(x, abbrev = abbrev, digits = digits)
   rows <- labels_output$labels
 
-  if (rel_loc_x) xy$x <- frame$loc + (abs(min(frame$loc))) + 1
+  if (rel.loc.x) xy$x <- frame$loc + (abs(min(frame$loc))) + 1
 
   leaves <- frame$var == "<leaf>"
   splits <- !leaves
@@ -203,7 +203,7 @@ text_tree <- function(x,
 
   # Add color bar at the bottom of the leaves
   if (!is.null(cols)) {
-    if (cols_type %in% c("l", "b")) {
+    if (cols.type %in% c("l", "b")) {
       graphics::rect(xy$x[leaves] - 0.05,
                      xy$y[leaves] - tadj * cxy[2] - 0.1,
                      xy$x[leaves] + 0.05,
@@ -211,7 +211,7 @@ text_tree <- function(x,
                      col = cols, border = NA)
     }
 
-    if (cols_type %in% c("p", "b")) {
+    if (cols.type %in% c("p", "b")) {
       graphics::points(xy$x[leaves], xy$y[leaves], pch = 16, cex = 3 *
                          graphics::par("cex"), col = cols)
     }

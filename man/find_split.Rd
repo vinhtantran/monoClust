@@ -26,7 +26,7 @@ could be a vector of variable indexes, or a vector of variable names.}
 in order for a split to be attempted.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
-node. If not specified, it is set to minsplit/3.}
+node. Default is minsplit/3.}
 }
 \value{
 This function changes the frame in global environment, it's
