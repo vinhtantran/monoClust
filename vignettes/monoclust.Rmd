@@ -47,8 +47,6 @@ s\^\*(C\_k) = \\arg \\max\_s \\Delta(s, C\_k).
 -   `minsplit`: the minimum number of observations that must exist in a node in order for a split to be attempted (default is 5);
 -   `minbucket`: the minimum number of observations allowed in a terminal leaf (default is `minsplit`/3).
 
-The options `minsplit` and `minbucket` were adapted from **rpart**.
-
 As a very simple example, monothetic clustering of the *ruspini* data set (Ruspini, 1970) available in the **cluster** package (Maechler et al., 2018) with 4 clusters can be performed as follows:
 
 ```{r ruspinivignette}
@@ -61,7 +59,7 @@ ruspini4c
 
 The output (`print.MonoClust`) lists each split on one line together with the splitting rule as well as its inertia and is displayed with the hierarchical structure so the parent--child relationships between nodes can be easily seen. This function defines a `MonoClust` object to store the cluster solution with some useful components:
 
--   `frame`: a partitioning tracking table in the form of a `data.frame`, similar to **rpart** object;
+-   `frame`: a partitioning tracking table in the form of a `data.frame`;
 -   `membership`: a vector of numerical cluster identification (incremented by new nodes) that observations belong to; and
 -   `medoids`: the observation indices that are considered as representatives for the clusters (Kaufman and Rousseeuw, 1990), estimated as the observations that have minimum total distance to all observations in their clusters.
 
@@ -71,7 +69,7 @@ Another visualization of the clustering results is the splitting rule tree creat
 plot(ruspini4c)
 ```
 
-The initial development of **MonoClust** was based on **rpart**. It borrows the contents of **rpart** in many places: arguments, text output, tree output, and the `MonoClust` object structure. However, we made many modifications to refine and enhance the structure to implement the various methods. We describe the modifications in the following sections.
+The initial development of **MonoClust** was based on **rpart**. However, we steered away to develop our own algorithms to significantly enhance the structure to implement the various methods.
 
 ## Testing at Each Split to Decide the Number of Clusters
 
@@ -83,7 +81,7 @@ MSE\_m=\\frac{1}{n\_m} \\sum\_{q=1}\^Q\\sum\_{i \\in m} d\^2\_{euc}(y\_{iq}, \\h
 CV\_K = \\overline{MSE} = \\frac{1}{M} \\sum\_{m=1}\^M MSE\_m.
 \\end{equation}
 
-The purpose of the cross-validation is to find a cluster solution that achieves the "best" prediction error for new observations. There are several ways one can decide from the output of `MonoClust`. A naive approach is to pick the solution that has the smallest $CV_K$ (*minCV* rule). However, in many cases, it can result in a very high number of clusters if the error rate keeps decreasing even though there is often a small change after a few large drops. To avoid this problem, Breiman et al. (1984) suggested picking the solution that is simplest within 1 or 2 standard errors (SE) from the minimum error estimate (*CV1SE* or *CV2SE* rules), with the standard error is defined as $$SE(\overline{MSE}) = \sqrt{\frac{1}{M} \sum_{m=1}^M (MSE_m - \overline{MSE})}.$$ The function `cv.test` with the data set and two arguments `minnodes` and `maxnodes` defining the range of nodes to test on will apply `MonoClust` and calculate both $\overline{MSE}$ (which is named MSE in the output) and its standard error (named Std. Dev. as used in **rpart** package).
+The purpose of the cross-validation is to find a cluster solution that achieves the "best" prediction error for new observations. There are several ways one can decide from the output of `MonoClust`. A naive approach is to pick the solution that has the smallest $CV_K$ (*minCV* rule). However, in many cases, it can result in a very high number of clusters if the error rate keeps decreasing even though there is often a small change after a few large drops. To avoid this problem, Breiman et al. (1984) suggested picking the solution that is simplest within 1 or 2 standard errors (SE) from the minimum error estimate (*CV1SE* or *CV2SE* rules), with the standard error is defined as $$SE(\overline{MSE}) = \sqrt{\frac{1}{M} \sum_{m=1}^M (MSE_m - \overline{MSE})}.$$ The function `cv.test` with the data set and two arguments `minnodes` and `maxnodes` defining the range of nodes to test on will apply `MonoClust` and calculate both $\overline{MSE}$ (which is named MSE in the output) and its standard error (named Std. Dev.).
 
 ```{r cptable}
 cp.table <- cv.test(ruspini, fold = 5, minnodes = 1, maxnodes = 10)
