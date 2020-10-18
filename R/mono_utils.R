@@ -177,8 +177,6 @@ medoid <- function(members, dist_mat) {
 #' @param bipartsplitcol Position of the next split variable in the data set.
 #' @param inertiadel The proportion of inertia value of the cluster at that node
 #'   to the inertia of the root.
-#' @param yval In rpart, it's the estimated response value. Here in MonoClust,
-#'   it has no meaning. Will be removed in the future.
 #' @param medoid Position of the data point regarded as the medoid of its
 #'   cluster.
 #' @param loc y-coordinate of the splitting node to facilitate showing on the
