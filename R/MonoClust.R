@@ -9,7 +9,7 @@
 #'   could be a vector of variable indexes, or a vector of variable names.
 #' @param distmethod Distance method to use with the data set. The default value
 #'   is the Euclidean distance but Gower will be used if there is circular
-#'   variable (`cir.var` has value).
+#'   variable (`cir.var` is specified).
 #' @param digits Significant decimal number printed in the output.
 #' @param nclusters Number of clusters created. Default is 2.
 #' @param minsplit The minimum number of observations that must exist in a node
@@ -64,8 +64,8 @@
 #' }
 MonoClust <- function(toclust,
                       cir.var = NULL,
-                      variables,
-                      distmethod,
+                      variables = NULL,
+                      distmethod = c("euclidean", "manhattan", "gower"),
                       digits = getOption("digits"),
                       nclusters = 2L,
                       minsplit = 5L,
@@ -93,7 +93,7 @@ MonoClust <- function(toclust,
   }
 
   # Argument checking (variables)
-  if (!missing(variables)) {
+  if (!is.null(variables)) {
     if (!is.vector(variables)) {
       stop("Variables need to be a vector of variable names or indices.")
     }
@@ -109,12 +109,12 @@ MonoClust <- function(toclust,
   }
 
   # Check the distmethod
-  if (missing(distmethod)) {
+  if (is.null(distmethod)) {
     # If there is a circular variable in the data set, use Gower's
     # distance unless otherwise specified.
     distmethod <- ifelse(!is.null(cir.var), "gower", "euclidean")
   } else {
-    distmethod <- match.arg(distmethod, c("euclidean", "manhattan", "gower"))
+    distmethod <- match.arg(distmethod)
   }
 
   # Argument checking (circular variables)
