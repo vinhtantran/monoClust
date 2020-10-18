@@ -9,19 +9,15 @@
 #'   could be a vector of variable indexes, or a vector of variable names.
 #' @param distmethod Distance method to use with the data set. The default value
 #'   is the Euclidean distance but Gower will be used if there is circular
-#'   variable (`cir.var` is specified).
+#'   variable (`cir.var` is specified). Transfer to [cluster::daisy()].
 #' @param digits Significant decimal number printed in the output.
 #' @param nclusters Number of clusters created. Default is 2.
 #' @param minsplit The minimum number of observations that must exist in a node
 #'   in order for a split to be attempted. Default is 5.
 #' @param minbucket The minimum number of observations in any terminal leaf
-#'   node. If not specified, it is set to minsplit/3.
-#' @param perm.test Whether or not to make a permutation test as stopping
-#'   criterion while clustering. Default is FALSE. See [perm.test()].
-#' @param alpha Value applied specifically to permutation test. Only valid when
-#'   `perm.test = TRUE`.
+#'   node. Default is minsplit/3.
 #'
-#' @note This function supports parallel processing with [foreach::foreach]. It
+#' @note This function supports parallel processing with [foreach::foreach()]. It
 #'   distributes optimal cut search on variables to processes.
 #'
 #' @return MonoClust object.
@@ -69,19 +65,13 @@ MonoClust <- function(toclust,
                       digits = getOption("digits"),
                       nclusters = 2L,
                       minsplit = 5L,
-                      minbucket = NULL,
-                      perm.test = FALSE,
-                      alpha = 0.05) {
+                      minbucket = round(minsplit / 3)) {
 
   if (!is.data.frame(toclust)) {
     stop("\"toclust\" must be a data frame.")
   }
 
   toclust <- dplyr::as_tibble(toclust)
-
-  # Ensure that important options make sense
-  if (is.null(minbucket))
-    minbucket <- round(minsplit / 3L)
 
   if (minbucket >= minsplit) {
     stop("\"minbucket\" must be less than \"minsplit\".")

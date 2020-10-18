@@ -264,12 +264,11 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
 #' }
 #'
 #' @references
-#' Caliński, T. and Harabasz, J (1974). "A dendrite method for cluster
+#' * Caliński, T. and Harabasz, J (1974). "A dendrite method for cluster
 #' analysis". en. In: *Communications in Statistics* 3.1, pp. 1–27.
-#'
-#' Rousseeuw, P. J. (1987). "Silhouettes: A graphical aid to the interpretation
-#' and validation of cluster analysis". In: *Journal of Computational and
-#' Applied Mathematics* 20, pp. 53–65. ISSN: 03770427. DOI:
+#' * Rousseeuw, P. J. (1987). "Silhouettes: A graphical aid to the
+#' interpretation and validation of cluster analysis". In: *Journal of
+#' Computational and Applied Mathematics* 20, pp. 53–65. ISSN: 03770427. DOI:
 #' 10.1016/0377-0427(87) 90125-7.
 #'
 #' @seealso [cluster::silhouette()]

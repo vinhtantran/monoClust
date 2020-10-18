@@ -7,14 +7,12 @@
 MonoClust(
   toclust,
   cir.var = NULL,
-  variables,
-  distmethod,
+  variables = NULL,
+  distmethod = c("euclidean", "manhattan", "gower"),
   digits = getOption("digits"),
   nclusters = 2L,
   minsplit = 5L,
-  minbucket = NULL,
-  perm.test = FALSE,
-  alpha = 0.05
+  minbucket = round(minsplit/3)
 )
 }
 \arguments{
@@ -27,7 +25,7 @@ could be a vector of variable indexes, or a vector of variable names.}
 
 \item{distmethod}{Distance method to use with the data set. The default value
 is the Euclidean distance but Gower will be used if there is circular
-variable (\code{cir.var} has value).}
+variable (\code{cir.var} is specified). Transfer to \code{\link[cluster:daisy]{cluster::daisy()}}.}
 
 \item{digits}{Significant decimal number printed in the output.}
 
@@ -37,13 +35,7 @@ variable (\code{cir.var} has value).}
 in order for a split to be attempted. Default is 5.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
-node. If not specified, it is set to minsplit/3.}
-
-\item{perm.test}{Whether or not to make a permutation test as stopping
-criterion while clustering. Default is FALSE. See \code{\link[=perm.test]{perm.test()}}.}
-
-\item{alpha}{Value applied specifically to permutation test. Only valid when
-\code{perm.test = TRUE}.}
+node. Default is minsplit/3.}
 }
 \value{
 MonoClust object.
@@ -53,7 +45,7 @@ Creates a MonoClust object after partitioning the data set using Monothetic
 Clustering.
 }
 \note{
-This function supports parallel processing with \link[foreach:foreach]{foreach::foreach}. It
+This function supports parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}}. It
 distributes optimal cut search on variables to processes.
 }
 \examples{
