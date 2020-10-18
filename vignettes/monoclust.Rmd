@@ -62,7 +62,7 @@ ruspini4c
 The output (`print.MonoClust`) lists each split on one line together with the splitting rule as well as its inertia and is displayed with the hierarchical structure so the parent--child relationships between nodes can be easily seen. This function defines a `MonoClust` object to store the cluster solution with some useful components:
 
 -   `frame`: a partitioning tracking table in the form of a `data.frame`, similar to **rpart** object;
--   `Membership`: a vector of numerical cluster identification (incremented by new nodes) that observations belong to; and
+-   `membership`: a vector of numerical cluster identification (incremented by new nodes) that observations belong to; and
 -   `medoids`: the observation indices that are considered as representatives for the clusters (Kaufman and Rousseeuw, 1990), estimated as the observations that have minimum total distance to all observations in their clusters.
 
 Another visualization of the clustering results is the splitting rule tree created by the `plot.MonoClust` function of the `MonoClust` object.
@@ -148,7 +148,7 @@ ggpcp(data = wind_reduced_2008,
       circ.var = "WDIR",
       rotate = pi / 4 + 0.6,
       order.appear = c("WDIR", "has.sensit", "WS"),
-      clustering = sensit042008$Membership, 
+      clustering = sensit042008$membership, 
       medoids = sensit042008$medoids,
       alpha = 0.5,
       cluster.col = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3"),

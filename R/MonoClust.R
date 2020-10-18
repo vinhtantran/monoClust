@@ -306,7 +306,7 @@ MonoClust <- function(toclust,
                                  inertia_explained = 0,
                                  medoid            = 1,
                                  # TODO Remove
-                                 yval              = 1,
+                                 # yval              = 1,
                                  loc               = 0.1,
                                  split.order       = 0L),
                 cloc = rep(1, nrow(new_toclust)),
@@ -428,7 +428,7 @@ MonoClust <- function(toclust,
              # wt                = sum(weights[members]),
              inertia           = inertia_calc(distmat[members, members]),
              # TODO: replace yval by inertia_explained
-             yval              = 1,
+             # yval              = 1,
              inertia_explained = 0,
              medoid            = medoid(members, distmat),
              loc               = 0.1,
@@ -463,7 +463,7 @@ MonoClust <- function(toclust,
   ## objects which inherit from rpart can print and plot correctly.
 
   ## Change the number column to rownames...
-  cluster_frame <- cluster_frame
+  # cluster_frame <- cluster_frame
   # rownames(cluster_frame) <- cluster_frame$number
   # cluster_frame[["number"]] <- NULL
 
@@ -538,17 +538,17 @@ MonoClust <- function(toclust,
   MonoClust_obj <-
     list(frame = cluster_frame,
          # TODO: Remove. row name, the labels of each observation
-         labels = NULL,
+         # labels = NULL,
          # the variable names, designed because of categorical variables were
          # split into levels column PCAmixdata.
          # TODO: Remove this
-         labelsnum = colnames(toclust),
+         # labelsnum = colnames(toclust),
          # REMOVE: Tan, 9/14/20. Don't know why need this.
          # functions = dendfxns,
          # TODO: uncapitalized
-         Membership = c_loc,
+         membership = c_loc,
          # TODO: uncapitalized
-         Dist = distmat,
+         dist = distmat,
          # 12/9/14. Tan: add terms to keep track of variables
          # name, in order to check the new data set
          terms = colnames(toclust),
@@ -738,7 +738,7 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
       # wt      = sum(weights[mems_a]),
       inertia = inertia_calc(dist[mems_a, mems_a]),
       # TODO: Remove yval
-      yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
+      # yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
       medoid  = medoid(mems_a, dist),
       loc     = frame$loc[split_row] - 1 / nrow(frame)
     )
@@ -753,7 +753,7 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
       # wt      = sum(weights[mems_b]),
       inertia = inertia_calc(dist[mems_b, mems_b]),
       # TODO: Remove yval
-      yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
+      # yval    = 1 - frame$inertiadel[split_row] / frame$inertia[1],
       medoid  = medoid(mems_b, dist),
       loc     = frame$loc[split_row] + 1 / nrow(frame)
     )

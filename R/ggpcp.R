@@ -60,7 +60,7 @@
 #'       rotate = pi*3/4-0.3,
 #'       order.appear = c("WDIR", "has.sensit", "WS"),
 #'       alpha = 0.5,
-#'       clustering = sol42007$Membership,
+#'       clustering = sol42007$membership,
 #'       medoids = sol42007$medoids,
 #'       cluster.col = COLOR4,
 #'       show.medoids = TRUE) +

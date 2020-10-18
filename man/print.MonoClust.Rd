@@ -43,7 +43,7 @@ information such as terminal nodes, p-value (if possible), etc.
 library(cluster)
 data(ruspini)
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
-print(ruspini4sol)
+print(ruspini4sol, digits = 2)
 }
 \seealso{
 \code{\link[=abbreviate]{abbreviate()}}

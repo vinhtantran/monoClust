@@ -14,7 +14,6 @@ new_node(
   bipartsplitrow = -99L,
   bipartsplitcol = -99L,
   inertiadel = 0,
-  yval,
   inertia_explained = -99,
   medoid,
   loc,
@@ -45,9 +44,6 @@ position will belong to left node (smaller)).}
 \item{inertiadel}{The proportion of inertia value of the cluster at that node
 to the inertia of the root.}
 
-\item{yval}{In rpart, it's the estimated response value. Here in MonoClust,
-it has no meaning. Will be removed in the future.}
-
 \item{inertia_explained}{Percent inertia explained as described in Chavent
 (2007)}
 
@@ -61,6 +57,9 @@ tree. See \code{\link[=plot.MonoClust]{plot.MonoClust()}} for details.}
 
 \item{alt}{Indicator of an alternative cut yielding the same reduction in
 inertia at that split.}
+
+\item{yval}{In rpart, it's the estimated response value. Here in MonoClust,
+it has no meaning. Will be removed in the future.}
 }
 \value{
 A tibble with only one row and correct default data type for even an

@@ -26,7 +26,7 @@
 #' library(cluster)
 #' data(ruspini)
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
-#' print(ruspini4sol)
+#' print(ruspini4sol, digits = 2)
 print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
                             spaces = 2L, digits = getOption("digits"), ...) {
 
@@ -53,7 +53,10 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
   # ylevel, digits)
   # } else yval <- format(signif(frame$yval, digits = digits))
 
-  yval <- format(signif(frame$yval, digits = digits))
+  inertia_explained <- ifelse(!is.na(frame$inertia_explained),
+                              format(signif(frame$inertia_explained,
+                                            digits = digits)),
+                              "")
 
   # REMOVE: Tan, 12/14. This line seems to be a debug line. Mo meaning.
   ## print(yval)
@@ -69,7 +72,7 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
 
   z <- paste(indent, labs, n,
              format(signif(frame$inertia, digits = digits)),
-             format(signif((1 - as.numeric(yval) / 1), digits = digits)),
+             inertia_explained,
              ifelse(has_pvalue, frame$p.value, ""), term)
 
   # MODIDY: Tan, 9/14/20. Not necessary.
