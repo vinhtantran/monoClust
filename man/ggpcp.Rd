@@ -86,6 +86,7 @@ as ellipses. The function currently works well with data with one circular
 variable.
 }
 \examples{
+\donttest{
 # Set color constant
 COLOR4 <- c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")
 # Reduce the size of the data for for sake of example speed
@@ -115,4 +116,5 @@ ggpcp(data = wind_reduced,
         legend.direction = "horizontal",
         legend.title = element_text(face = "italic"),
         legend.justification = "center")
+}
 }

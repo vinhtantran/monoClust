@@ -42,10 +42,12 @@ A line plot with error bars.
 Plot the Mean Square Error with Error Bar for +/- 1 Standard Error
 }
 \examples{
+\donttest{
 library(cluster)
 data(ruspini)
 
 # 10-fold cross-validation
 cptable <- cv.test(ruspini, minnodes = 2, maxnodes = 4)
 plot(cptable)
+}
 }
