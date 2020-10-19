@@ -1,4 +1,4 @@
-#' Print MonoClust Cross-Validation Result#'
+#' Print MonoClust Cross-Validation Result
 #'
 #' @param x A `cv.MonoClust` object (output of [cv.test()]).
 #' @param ... Further arguments passed to or from other methods.

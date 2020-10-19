@@ -2,7 +2,7 @@
 % Please edit documentation in R/print.cv.MonoClust.R
 \name{print.cv.MonoClust}
 \alias{print.cv.MonoClust}
-\title{Print MonoClust Cross-Validation Result#'}
+\title{Print MonoClust Cross-Validation Result}
 \usage{
 \method{print}{cv.MonoClust}(x, ...)
 }
@@ -12,7 +12,7 @@
 \item{...}{Further arguments passed to or from other methods.}
 }
 \description{
-Print MonoClust Cross-Validation Result#'
+Print MonoClust Cross-Validation Result
 }
 \examples{
 \donttest{
