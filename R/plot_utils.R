@@ -127,7 +127,7 @@ text_tree <- function(x,
                       cols = NULL,
                       cols.type = c("l", "p", "b"),
                       rel.loc.x = TRUE,
-                      show_pval = TRUE,
+                      show.pval = TRUE,
                       uniform = FALSE,
                       minbranch = 0.3,
                       ...) {
@@ -157,7 +157,7 @@ text_tree <- function(x,
   right_labs <- rows[right_child[!is.na(right_child)]]
 
   # p-value display
-  if (show_pval && !is.null(frame[["p.value"]])) {
+  if (show.pval && !is.null(frame[["p.value"]])) {
     mid_labs <- frame$p.value[!is.na(frame$p.value)]
   } else {
     mid_labs <- ""
