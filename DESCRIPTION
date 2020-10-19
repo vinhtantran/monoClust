@@ -9,11 +9,13 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-9881-6339")),
     person(given = "Brian",
            family = "McGuire",
-           role = c("aut")),       
+           role = c("aut"),
+           email = "briancolliganmcguire@gmail.com"),       
     person(given = "Mark",
            family = "Greenwood",
            role = c("aut"),
-           email = "mark.greenwood@montana.edu")    
+           email = "greenwood@montana.edu",
+           comment = c(ORCID = "0000-0001-6933-1201"))    
     )
 Description: Implementation of the Monothetic Clustering algorithm on continuous 
   data set. A lot of extensions are included in the package, including applying
