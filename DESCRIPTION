@@ -10,7 +10,7 @@ Authors@R: c(
     person(given = "Brian",
            family = "McGuire",
            role = c("aut"),
-           email = "briancolliganmcguire@gmail.com"),       
+           email = "mcguirebc@gmail.com"),       
     person(given = "Mark",
            family = "Greenwood",
            role = c("aut"),
@@ -30,9 +30,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Depends: 
-    R (>= 3.3.0),
-    graphics,
-    grDevices
+    R (>= 3.3.0)
 Imports: 
     purrr,
     dplyr (>= 1.0.0),
@@ -44,7 +42,9 @@ Imports:
     ggplot2,
     tidyr,
     rlang (>= 0.3.0),
-    stats
+    stats,
+    graphics,
+    grDevices
 Suggests: 
     knitr,
     rmarkdown,

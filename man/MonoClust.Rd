@@ -45,8 +45,8 @@ Creates a MonoClust object after partitioning the data set using Monothetic
 Clustering.
 }
 \note{
-This function supports parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}}. It
-distributes optimal cut search on variables to processes.
+This function supports parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}}.
+It distributes optimal cut search on variables to processes.
 }
 \examples{
 # Very simple data set
@@ -76,6 +76,7 @@ registerDoParallel(cl)
 circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 
 stopCluster(cl)
+registerDoSEQ()
 }
 }
 \references{

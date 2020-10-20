@@ -39,7 +39,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Brian McGuire \email{briancolliganmcguire@gmail.com}
+  \item Brian McGuire \email{mcguirebc@gmail.com}
   \item Mark Greenwood \email{greenwood@montana.edu} (\href{https://orcid.org/0000-0001-6933-1201}{ORCID})
 }
 

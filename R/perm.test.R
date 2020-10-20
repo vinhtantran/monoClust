@@ -86,6 +86,7 @@
 #'                               rep = 1000)
 #'
 #' stopCluster(cl)
+#' registerDoSEQ()
 #' }
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                       method = c("sw", "rl", "rn"),

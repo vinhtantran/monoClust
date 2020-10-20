@@ -73,6 +73,7 @@ registerDoParallel(cl)
 cv.test(ruspini, minnodes = 2, maxnodes = 4)
 
 stopCluster(cl)
+registerDoSEQ()
 }
 }
 \seealso{

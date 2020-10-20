@@ -111,6 +111,7 @@ ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
                               rep = 1000)
 
 stopCluster(cl)
+registerDoSEQ()
 }
 }
 \references{

@@ -63,6 +63,7 @@
 #' cv.test(ruspini, minnodes = 2, maxnodes = 4)
 #'
 #' stopCluster(cl)
+#' registerDoSEQ()
 #' }
 cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
 
@@ -76,8 +77,6 @@ cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
   # LOOCV
   if (fold == 1) {
     for (k in minnodes:maxnodes) {
-      # sse_i <- vector("double", num_obs)
-      # fullc <- MonoClust(data, nclusters = k)
       sse_i <-
         foreach::foreach(iter = seq_len(num_obs),
                          .combine = "c",
@@ -87,7 +86,6 @@ cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
                            pred <- predict.MonoClust(out,
                                                      newdata = data[iter, ],
                                                      type = "centroid")
-                           # predict.MonoClust(out, newdata = data[i, ])
                            return(sum((data[iter, ] - pred[, -1])^2))
                          }
       sse_t[[k - minnodes + 1]] <- c(ncluster = k,
@@ -104,7 +102,6 @@ cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
     random_list <- sample(index, num_obs, replace = FALSE)
 
     for (k in minnodes:maxnodes) {
-      # sse_i <- vector("double", fold)
       sse_i <-
         foreach::foreach(iter = 1:fold,
                          .combine = "c",

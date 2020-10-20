@@ -17,8 +17,8 @@
 #' @param minbucket The minimum number of observations in any terminal leaf
 #'   node. Default is minsplit/3.
 #'
-#' @note This function supports parallel processing with [foreach::foreach()]. It
-#'   distributes optimal cut search on variables to processes.
+#' @note This function supports parallel processing with [foreach::foreach()].
+#'   It distributes optimal cut search on variables to processes.
 #'
 #' @return MonoClust object.
 #' @export
@@ -57,6 +57,7 @@
 #' circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 #'
 #' stopCluster(cl)
+#' registerDoSEQ()
 #' }
 MonoClust <- function(toclust,
                       cir.var = NULL,
