@@ -64,8 +64,7 @@ set.seed(12345)
 wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]
 circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 circular_wind
-
-\dontrun{
+\donttest{
 # Multiple processing via doParallel
 library(doParallel)
 

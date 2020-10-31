@@ -45,8 +45,7 @@
 #' wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]
 #' circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 #' circular_wind
-#'
-#' \dontrun{
+#' \donttest{
 #' # Multiple processing via doParallel
 #' library(doParallel)
 #'
@@ -125,15 +124,16 @@ MonoClust <- function(toclust,
   if (any(is.na(toclust))) {
     if (requireNamespace("mice", quietly = TRUE)) {
       imputed <- mice::mice(toclust)
-      cat("\nData contain missing values mice() used for imputation")
-      cat("\nSee mice() help page for more details")
-      cat("\nMissing cells per column:")
-      print(imputed$nmis)
+      message(strwrap(c("Data contain missing values. mice() is used for
+                        imputation. See mice() help page for more details.
+                        Missing cells per column:", imputed$nmis),
+                      prefix = "\n", initial = ""))
       toclust <- mice::complete(imputed)
     }
     else
-      stop("Data contain NA. Install \"mice\" package and rerun this function
-           to automatically impute the missing value(s).")
+      stop(strwrap("Data contain NA. Install \"mice\" package and rerun this
+                   function to automatically impute the missing value(s).",
+                   prefix = "\n", initial = ""))
   }
 
   bestcircsplit <- NULL

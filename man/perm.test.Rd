@@ -92,15 +92,12 @@ processing. It distributes reps to processes.
 \examples{
 library(cluster)
 data(ruspini)
-
 \donttest{
 ruspini6sol <- MonoClust(ruspini, nclusters = 6)
 ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
                               rep = 1000)
 ruspini6.p_value
-}
 
-\dontrun{
 # Multiple processing via doParallel
 library(doParallel)
 

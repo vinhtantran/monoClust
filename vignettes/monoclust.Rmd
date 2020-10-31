@@ -1,8 +1,8 @@
 ---
-title: "Monothetic Clustering `monoClust` Package"
+title: "Monothetic Clustering 'monoClust' Package"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Monothetic Clustering `monoClust` Package}
+  %\VignetteIndexEntry{Monothetic Clustering 'monoClust' Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
