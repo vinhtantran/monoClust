@@ -4,7 +4,7 @@
 \alias{test_split}
 \title{Hypothesis Test at Split}
 \usage{
-test_split(members_l, members_r, method, data, split_var, rep, stat)
+test_split(members_l, members_r, method, data, split_var, rep, stat, ncores)
 }
 \arguments{
 \item{members_l, members_r}{Vector of the index of observations that
@@ -22,6 +22,8 @@ are members of the left child node and the right child node, respectively.}
 \item{stat}{Statistic to use. Choosing between \code{"f"} (Calinski-Harabaz's
 pseudo-F (Calinski and Harabasz, 1974)) or \code{"aw"} (Average silhoutte width
 by Rousseeuw (1987)).}
+
+\item{ncores}{Number of CPU cores on the current host.}
 }
 \value{
 p-value of the test

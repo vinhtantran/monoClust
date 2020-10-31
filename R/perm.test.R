@@ -23,6 +23,7 @@
 #'   by Rousseeuw (1987)).
 #' @param bon.adj Whether to adjust for multiple testing problem using
 #'   Bonferroni correction.
+#' @param ncores Number of CPU cores on the current host.
 #'
 #' @return The same `MonoClust` object with an extra column (p-value), as well
 #' as the `numofclusters` object if `auto.pick = TRUE`.
@@ -72,29 +73,30 @@
 #' ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
 #'                               rep = 1000)
 #' ruspini6.p_value
-#'
-#' # Multiple processing via doParallel
-#' library(doParallel)
-#'
-#' cl <- makePSOCKcluster(5)
-#' registerDoParallel(cl)
-#'
-#' ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
-#'                               rep = 1000)
-#'
-#' stopCluster(cl)
-#' registerDoSEQ()
 #' }
 perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                       method = c("sw", "rl", "rn"),
-                      rep = 1000,
+                      rep = 1000L,
                       stat = c("f", "aw"),
-                      bon.adj = TRUE) {
+                      bon.adj = TRUE,
+                      ncores = 1L) {
 
   if (!inherits(object, "MonoClust"))
     stop("Not a legitimate \"MonoClust\" object")
   method <- match.arg(method)
   stat <- match.arg(stat)
+
+  if (!is.null(ncores)){
+    if (!is.numeric(ncores)) {
+      stop("\"ncores\" should be either NULL or a positive integer")
+    }
+    if (ncores < 1) {
+      stop("\"ncores\" should be > 1")
+    }
+  }
+
+  if (is.null(ncores))
+    ncores <- parallel::detectCores() - 1
 
   frame <- object$frame
 
@@ -127,7 +129,7 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
       paste(members_r, collapse = ",")
 
     p_value_unadj <- test_split(members_l, members_r, method, data, split_var,
-                                rep, stat)
+                                rep, stat, ncores)
 
     # If Bonferroni correction is applied
     p_value <- ifelse(bon.adj, p_value_unadj * i, p_value_unadj)
@@ -164,11 +166,16 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
 #' @return p-value of the test
 #' @keywords internal
 test_split <- function(members_l, members_r, method, data, split_var, rep,
-                       stat) {
+                       stat, ncores) {
   # Membership is consecutive because the distance matrix will be moved around
   # with members_l and members_r put next to each other.
   fmem2 <- c(rep(1, length(members_l)), rep(2, length(members_r)))
-  `%op%` <- get_oper(foreach::getDoParWorkers() > 1)
+
+  # Initiate processes
+  cl <- parallel::makeCluster(ncores)
+  doParallel::registerDoParallel(cl)
+
+  `%dopar%` <- foreach::`%dopar%`
 
   if (method == "sw") {
     # Simple-withhold: shuffling the membership, not used splitting variable
@@ -194,14 +201,14 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
   stat_rep_l <-
     if (method == "sw") {
       foreach::foreach(k = 1:permutations,
-                       .inorder = FALSE) %op% {
+                       .inorder = FALSE) %dopar% {
                          distmat_rep <- distmat_twogroup[perm[k, ], perm[k, ]]
                          return(cluster_stats(distmat_rep, fmem2))
                        }
     } else if (method == "rl") {
       foreach::foreach(k = 1:permutations,
                        .inorder = FALSE,
-                       .packages = c("monoClust")) %op% {
+                       .packages = c("monoClust")) %dopar% {
                          current_data[, split_var] <- current_data[perm[k, ],
                                                                    split_var]
                          # Resplit-limit: limit the splitting variables
@@ -215,7 +222,7 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
     } else if (method == "rn") {
       foreach::foreach(k = 1:permutations,
                        .inorder = FALSE,
-                       .packages = c("monoClust")) %op% {
+                       .packages = c("monoClust")) %dopar% {
                          current_data[, split_var] <- current_data[perm[k, ],
                                                                    split_var]
                          # Resplit-nolimit: splitting all variables
@@ -226,6 +233,9 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
                          return(cluster_stats(distmat_rep, fmem2_rep))
                        }
     }
+
+  # Stop processes
+  parallel::stopCluster(cl)
 
   stat_rep_tbl <- dplyr::bind_rows(stat_rep_l)
 

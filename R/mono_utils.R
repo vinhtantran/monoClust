@@ -218,13 +218,27 @@ tree_depth <- function(nodes) {
 
 #' What to Use with ForEach
 #'
-#' @param x A binary output of [getDoParWorkers()].
+#' @param ncores Number of CPU cores on the current host.
 #'
 #' @return Appropriate operator depending on whether parallel processing is
 #'   activated or not.
 #' @importFrom foreach `%dopar%`
 #' @importFrom foreach `%do%`
 #' @keywords internal
-get_oper <- function(x) {
-  if (x) `%dopar%` else `%do%`
+get_oper <- function(ncores) {
+
+  op <- NULL
+
+  if (ncores == 1) {
+    foreach::registerDoSEQ()
+    op <- `%do%`
+  }  else {
+    if (foreach::getDoParWorkers() != ncores){
+      cl <-  suppressWarnings(parallel::makePSOCKcluster(ncores))
+      doParallel::registerDoParallel(cl)
+    }
+    op <- `%dopar%`
+  }
+
+  return(op)
 }

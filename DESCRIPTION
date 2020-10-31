@@ -40,7 +40,9 @@ Imports:
     stats,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    parallel,
+    doParallel
 Suggests: 
     knitr,
     mice,

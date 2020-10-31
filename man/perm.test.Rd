@@ -10,9 +10,10 @@ perm.test(
   auto.pick = FALSE,
   sig.val = 0.05,
   method = c("sw", "rl", "rn"),
-  rep = 1000,
+  rep = 1000L,
   stat = c("f", "aw"),
-  bon.adj = TRUE
+  bon.adj = TRUE,
+  ncores = 1L
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ by Rousseeuw (1987)).}
 
 \item{bon.adj}{Whether to adjust for multiple testing problem using
 Bonferroni correction.}
+
+\item{ncores}{Number of CPU cores on the current host.}
 }
 \value{
 The same \code{MonoClust} object with an extra column (p-value), as well
@@ -97,18 +100,6 @@ ruspini6sol <- MonoClust(ruspini, nclusters = 6)
 ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
                               rep = 1000)
 ruspini6.p_value
-
-# Multiple processing via doParallel
-library(doParallel)
-
-cl <- makePSOCKcluster(5)
-registerDoParallel(cl)
-
-ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
-                              rep = 1000)
-
-stopCluster(cl)
-registerDoSEQ()
 }
 }
 \references{

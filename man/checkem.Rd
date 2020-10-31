@@ -13,7 +13,8 @@ checkem(
   variables,
   minsplit,
   minbucket,
-  split_order
+  split_order,
+  ncores
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ in order for a split to be attempted.}
 node. Default is minsplit/3.}
 
 \item{split_order}{The control argument to see how many split has been done.}
+
+\item{ncores}{Number of CPU cores on the current host.}
 }
 \value{
 It is not supposed to return anything because global environment was
