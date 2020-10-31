@@ -6,12 +6,13 @@
 \alias{monoClust-package}
 \title{monoClust: Perform Monothetic Clustering with Extensions to Circular}
 \description{
-Implementation of the Monothetic Clustering algorithm (Chavent, 
-    1998 <doi:10.1016/S0167-8655(98)00087-7>) on continuous data sets. A lot 
-    of extensions are included in the package, including applying Monothetic 
-    clustering on data sets with circular variables, visualizations with the 
-    results, and permutation and cross-validation based tests to support the 
-    decision on the number of clusters.
+Implementation of the Monothetic Clustering
+    algorithm (Chavent, 1998 <doi:10.1016/S0167-8655(98)00087-7>) on
+    continuous data sets. A lot of extensions are included in the package,
+    including applying Monothetic clustering on data sets with circular
+    variables, visualizations with the results, and permutation and
+    cross-validation based tests to support the decision on the number of
+    clusters.
 }
 \seealso{
 Useful links:

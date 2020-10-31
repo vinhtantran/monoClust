@@ -24,7 +24,7 @@
 * `abbrev` argument in `plot.MonoClust()` and `print.MonoClust()` now accepts 
   descriptive options `"no"`, `"short"`, `"abbreviate"`.
 * `method` argument in `perm.test()` now uses descriptive options `"sw"`, `"rl"` 
-  and `"rn"`. Users can now decide whether to apply Bonferonni correction with 
+  and `"rn"`. Users can now decide whether to apply Bonferroni correction with 
   `bon.adj` argument.
 * `predict.MonoClust()` removed `na.action`. `type` argument now accepts more 
   meaningful options `"centroid"` or `"medoids"`.

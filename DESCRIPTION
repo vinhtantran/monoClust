@@ -16,12 +16,13 @@ Authors@R:
              role = "aut",
              email = "greenwood@montana.edu",
              comment = c(ORCID = "0000-0001-6933-1201")))
-Description: Implementation of the Monothetic Clustering algorithm (Chavent, 
-    1998 <doi:10.1016/S0167-8655(98)00087-7>) on continuous data sets. A lot 
-    of extensions are included in the package, including applying Monothetic 
-    clustering on data sets with circular variables, visualizations with the 
-    results, and permutation and cross-validation based tests to support the 
-    decision on the number of clusters.
+Description: Implementation of the Monothetic Clustering
+    algorithm (Chavent, 1998 <doi:10.1016/S0167-8655(98)00087-7>) on
+    continuous data sets. A lot of extensions are included in the package,
+    including applying Monothetic clustering on data sets with circular
+    variables, visualizations with the results, and permutation and
+    cross-validation based tests to support the decision on the number of
+    clusters.
 License: GPL (>= 2)
 URL: https://github.com/vinhtantran/monoClust
 BugReports: https://github.com/vinhtantran/monoClust/issues
@@ -29,20 +30,20 @@ Depends:
     R (>= 3.3.0)
 Imports: 
     cluster,
+    doParallel,
     dplyr (>= 1.0.0),
     foreach,
     ggplot2,
     graphics,
     grDevices,
+    parallel,
     permute,
     purrr,
     rlang (>= 0.3.0),
     stats,
     stringr,
     tibble,
-    tidyr,
-    parallel,
-    doParallel
+    tidyr
 Suggests: 
     knitr,
     mice,

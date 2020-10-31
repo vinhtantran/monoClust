@@ -18,7 +18,7 @@
 #' @param method Can be chosen between `sw` (simple-withhold, default), `rl`
 #'   (resplit-limit), or `rn` (resplit-nolimit). See Details.
 #' @param rep Number of permutations required to calculate test statistic.
-#' @param stat Statistic to use. Choosing between `"f"` (Calinski-Harabaz's
+#' @param stat Statistic to use. Choosing between `"f"` (Calinski-Harabasz's
 #'   pseudo-F (Calinski and Harabasz, 1974)) or `"aw"` (Average silhoutte width
 #'   by Rousseeuw (1987)).
 #' @param bon.adj Whether to adjust for multiple testing problem using

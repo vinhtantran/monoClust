@@ -19,7 +19,7 @@ are members of the left child node and the right child node, respectively.}
 
 \item{rep}{Number of permutations required to calculate test statistic.}
 
-\item{stat}{Statistic to use. Choosing between \code{"f"} (Calinski-Harabaz's
+\item{stat}{Statistic to use. Choosing between \code{"f"} (Calinski-Harabasz's
 pseudo-F (Calinski and Harabasz, 1974)) or \code{"aw"} (Average silhoutte width
 by Rousseeuw (1987)).}
 
