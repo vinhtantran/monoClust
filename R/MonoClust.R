@@ -422,19 +422,23 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   }
 
   # Initiate processes
-  cl <- parallel::makeCluster(ncores)
-  doParallel::registerDoParallel(cl)
+  `%op%` <- foreach::`%do%`
 
-  `%dopar%` <- foreach::`%dopar%`
+  if (ncores > 1) {
+    cl <- parallel::makeCluster(ncores)
+    doParallel::registerDoParallel(cl)
+    `%op%` <- foreach::`%dopar%`
+  }
 
   bycol <-
     foreach::foreach(
       i = seq_len(ncol(datamems)),
-      .combine = cbind) %dopar%
+      .combine = cbind) %op%
     mult_inertia(i, datamems, cutsmems, dist, mems)
 
-  # Stop processes
-  parallel::stopCluster(cl)
+  if (ncores > 1)
+    # Stop processes
+    parallel::stopCluster(cl)
 
   # Difference between current cluster and the possible splits
   vals <- inertiap - bycol
