@@ -7,6 +7,10 @@
 
 [![Travis build
 status](https://travis-ci.org/vinhtantran/monoClust.svg?branch=master)](https://travis-ci.org/vinhtantran/monoClust)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/monoClust)](https://CRAN.R-project.org/package=monoClust)
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 <!-- badges: end -->
 
 Implementation of the Monothetic Clustering algorithm on continuous data
