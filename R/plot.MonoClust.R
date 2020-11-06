@@ -37,7 +37,7 @@
 #' @param show.pval If MonClust object has been run through [perm.test()],
 #'   whether to show p-value on the tree.
 #' @param ... Arguments to be passed to [graphics::plot.default()] and
-#'   [graphics::lines()]
+#'   [graphics::lines()].
 #' @inheritParams print.MonoClust
 #'
 #' @return A plot of splitting rule.
