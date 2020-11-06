@@ -39,7 +39,7 @@ leaves no room to squeeze in node labels.}
 coordinate of the leaves. Default is TRUE.}
 
 \item{...}{Arguments to be passed to \code{\link[graphics:plot.default]{graphics::plot.default()}} and
-\code{\link[graphics:lines]{graphics::lines()}}}
+\code{\link[graphics:lines]{graphics::lines()}}.}
 }
 \value{
 Plot of tree
