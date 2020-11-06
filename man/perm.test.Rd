@@ -10,9 +10,10 @@ perm.test(
   auto.pick = FALSE,
   sig.val = 0.05,
   method = c("sw", "rl", "rn"),
-  rep = 1000,
+  rep = 1000L,
   stat = c("f", "aw"),
-  bon.adj = TRUE
+  bon.adj = TRUE,
+  ncores = 1L
 )
 }
 \arguments{
@@ -33,12 +34,14 @@ option is ignored if \code{auto.pick = FALSE}, and is 0.05 by default when
 
 \item{rep}{Number of permutations required to calculate test statistic.}
 
-\item{stat}{Statistic to use. Choosing between \code{"f"} (Calinski-Harabaz's
+\item{stat}{Statistic to use. Choosing between \code{"f"} (Calinski-Harabasz's
 pseudo-F (Calinski and Harabasz, 1974)) or \code{"aw"} (Average silhoutte width
 by Rousseeuw (1987)).}
 
 \item{bon.adj}{Whether to adjust for multiple testing problem using
 Bonferroni correction.}
+
+\item{ncores}{Number of CPU cores on the current host.}
 }
 \value{
 The same \code{MonoClust} object with an extra column (p-value), as well
@@ -92,25 +95,11 @@ processing. It distributes reps to processes.
 \examples{
 library(cluster)
 data(ruspini)
-
 \donttest{
 ruspini6sol <- MonoClust(ruspini, nclusters = 6)
 ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
                               rep = 1000)
 ruspini6.p_value
-}
-
-\dontrun{
-# Multiple processing via doParallel
-library(doParallel)
-
-cl <- makePSOCKcluster(5)
-registerDoParallel(cl)
-
-ruspini6.p_value <- perm.test(ruspini6sol, data = ruspini, method = "sw",
-                              rep = 1000)
-
-stopCluster(cl)
 }
 }
 \references{

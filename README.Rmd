@@ -17,11 +17,15 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.org/vinhtantran/monoClust.svg?branch=master)](https://travis-ci.org/vinhtantran/monoClust)
+[![CRAN status](https://www.r-pkg.org/badges/version/monoClust)](https://CRAN.R-project.org/package=monoClust)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 <!-- badges: end -->
 
-The goal of monoClust is to perform Monothetic Clustering to a data set. 
+Implementation of the Monothetic Clustering algorithm on continuous data set. A lot of extensions are included in the package, including applying Monothetic clustering on data set with circular variables, visualizations with the results, and permutation and cross-validation based tests to support the decision on the number of clusters.
 
-## NOT YET READY -- Installation
+The package performs Monothetic clustering on numerical variables only data. The extended features include clustering on one circular variable, limiting the sets of splitting variables. There are also S3 functions such as print and plot that works for MonoClust output object.
+
+## Installation
 
 You can install the released version of monoClust from [CRAN](https://CRAN.R-project.org) with:
 
@@ -32,30 +36,23 @@ install.packages("monoClust")
 And the development version from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("vinhtantran/monoClust")
+# install.packages("remotes")
+remotes::install_github("vinhtantran/monoClust")
 ```
-## NOT YET READY -- Example
+## Example
 
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-# library(monoClust)
-## basic example code
+library(monoClust)
+library(cluster)
+data(ruspini)
+ruspini4sol <- MonoClust(ruspini, nclusters = 4)
+ruspini4sol
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+Plotting MonoClust tree:
 
 ```{r cars}
-summary(cars)
+plot(ruspini4sol)
 ```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!

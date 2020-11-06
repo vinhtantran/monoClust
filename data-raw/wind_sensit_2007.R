@@ -4,8 +4,8 @@ library(dplyr)
 
 wind <- read_csv("data-raw/sensit.csv",
                  col_types = cols(
-                   LOC = col_factor(levels=NULL),
-                   WDIR = col_factor(levels=NULL),
+                   LOC = col_factor(levels = NULL),
+                   WDIR = col_factor(levels = NULL),
                    Date = col_datetime(format = "%m/%d/%Y %H:%M")
                  )) %>%
   select(LOC, Date, Sensit, WS, WDIR = WDIR....)

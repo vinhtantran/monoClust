@@ -4,7 +4,7 @@
 \alias{cv.test}
 \title{Cross-Validation Test on MonoClust}
 \usage{
-cv.test(data, fold = 10, minnodes = 2, maxnodes = 10, ...)
+cv.test(data, fold = 10L, minnodes = 2L, maxnodes = 10L, ncores = 1L, ...)
 }
 \arguments{
 \item{data}{Data set to be partitioned.}
@@ -15,6 +15,8 @@ function performs a Leave-One-Out Cross-Validation (LOOCV).}
 \item{minnodes}{Minimum number of clusters to be checked.}
 
 \item{maxnodes}{Maximum number of clusters to be checked.}
+
+\item{ncores}{Number of CPU cores on the current host.}
 
 \item{...}{Other parameters transferred to \code{\link[=MonoClust]{MonoClust()}}.}
 }
@@ -60,19 +62,6 @@ cv.test(ruspini, fold = 1, minnodes = 2, maxnodes = 4)
 
 # 5-fold cross-validation
 cv.test(ruspini, fold = 5, minnodes = 2, maxnodes = 4)
-}
-
-\dontrun{
-# Multiple processing via doParallel for each MonoClust run
-library(doParallel)
-
-cl <- makePSOCKcluster(5)
-registerDoParallel(cl)
-
-# 10-fold cross-validation
-cv.test(ruspini, minnodes = 2, maxnodes = 4)
-
-stopCluster(cl)
 }
 }
 \seealso{

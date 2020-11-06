@@ -4,10 +4,10 @@
 \alias{get_oper}
 \title{What to Use with ForEach}
 \usage{
-get_oper(x)
+get_oper(ncores)
 }
 \arguments{
-\item{x}{A binary output of \code{\link[=getDoParWorkers]{getDoParWorkers()}}.}
+\item{ncores}{Number of CPU cores on the current host.}
 }
 \value{
 Appropriate operator depending on whether parallel processing is

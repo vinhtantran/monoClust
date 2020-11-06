@@ -16,9 +16,9 @@
 #'   in order for a split to be attempted. Default is 5.
 #' @param minbucket The minimum number of observations in any terminal leaf
 #'   node. Default is minsplit/3.
-#'
-#' @note This function supports parallel processing with [foreach::foreach()]. It
-#'   distributes optimal cut search on variables to processes.
+#' @param ncores Number of CPU cores on the current host. If greater than 1,
+#'   parallel processing with [foreach::foreach()] is used to distribute cut
+#'   search on variables to processes.
 #'
 #' @return MonoClust object.
 #' @export
@@ -45,19 +45,6 @@
 #' wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]
 #' circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 #' circular_wind
-#'
-#' \dontrun{
-#' # Multiple processing via doParallel
-#' library(doParallel)
-#'
-#' cl <- makePSOCKcluster(5)
-#' registerDoParallel(cl)
-#'
-#' # Searching for the best cut is run parallel for each variable
-#' circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
-#'
-#' stopCluster(cl)
-#' }
 MonoClust <- function(toclust,
                       cir.var = NULL,
                       variables = NULL,
@@ -65,7 +52,8 @@ MonoClust <- function(toclust,
                       digits = getOption("digits"),
                       nclusters = 2L,
                       minsplit = 5L,
-                      minbucket = round(minsplit / 3)) {
+                      minbucket = round(minsplit / 3),
+                      ncores = 1L) {
 
   if (!is.data.frame(toclust)) {
     stop("\"toclust\" must be a data frame.")
@@ -124,16 +112,29 @@ MonoClust <- function(toclust,
   if (any(is.na(toclust))) {
     if (requireNamespace("mice", quietly = TRUE)) {
       imputed <- mice::mice(toclust)
-      cat("\nData contain missing values mice() used for imputation")
-      cat("\nSee mice() help page for more details")
-      cat("\nMissing cells per column:")
-      print(imputed$nmis)
+      message(strwrap(c("Data contain missing values. mice() is used for
+                        imputation. See mice() help page for more details.
+                        Missing cells per column:", imputed$nmis),
+                      prefix = "\n", initial = ""))
       toclust <- mice::complete(imputed)
     }
     else
-      stop("Data contain NA. Install \"mice\" package and rerun this function
-           to automatically impute the missing value(s).")
+      stop(strwrap("Data contain NA. Install \"mice\" package and rerun this
+                   function to automatically impute the missing value(s).",
+                   prefix = "\n", initial = ""))
   }
+
+  if (!is.null(ncores)){
+    if (!is.numeric(ncores)) {
+      stop("\"ncores\" should be either NULL or a positive integer")
+    }
+    if (ncores < 1) {
+      stop("\"ncores\" should be > 1")
+    }
+  }
+
+  if (is.null(ncores))
+    ncores <- parallel::detectCores() - 1
 
   bestcircsplit <- NULL
   if (!is.null(cir.var)) {
@@ -171,7 +172,8 @@ MonoClust <- function(toclust,
                 variables = 1,
                 minsplit = minsplit,
                 minbucket = minbucket,
-                split_order = 0)
+                split_order = 0,
+                ncores = ncores)
 
       cut <- out$frame$cut[1]
       inertia <- sum(out$frame[out$frame$var == "<leaf>", "inertia"])
@@ -240,7 +242,7 @@ MonoClust <- function(toclust,
 
     checkem_ret <- checkem(toclust, cuts, cluster_frame, c_loc, distmat,
                            variables,
-                           minsplit, minbucket, split_order)
+                           minsplit, minbucket, split_order, ncores)
     split_order <- split_order + 1L
 
     # Use cl_oc because it is only ran in splitter
@@ -386,7 +388,7 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
 #'   not supposed to return anything.
 #' @keywords internal
 find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
-                       minbucket) {
+                       minbucket, ncores) {
 
   node_number <- frame_row$number
   mems <- which(cloc == node_number)
@@ -419,13 +421,24 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
     return(new_inertia)
   }
 
-  `%op%` <- get_oper(foreach::getDoParWorkers() > 1)
+  # Initiate processes
+  `%op%` <- foreach::`%do%`
+
+  if (ncores > 1) {
+    cl <- parallel::makeCluster(ncores)
+    doParallel::registerDoParallel(cl)
+    `%op%` <- foreach::`%dopar%`
+  }
 
   bycol <-
     foreach::foreach(
       i = seq_len(ncol(datamems)),
       .combine = cbind) %op%
     mult_inertia(i, datamems, cutsmems, dist, mems)
+
+  if (ncores > 1)
+    # Stop processes
+    parallel::stopCluster(cl)
 
   # Difference between current cluster and the possible splits
   vals <- inertiap - bycol
@@ -501,16 +514,15 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
 #' @param minsplit The minimum number of observations that must exist in a node
 #'   in order for a split to be attempted.
 #' @param split_order The control argument to see how many split has been done.
+#' @param ncores Number of CPU cores on the current host.
 #' @inheritParams MonoClust
 #'
 #' @return It is not supposed to return anything because global environment was
 #'   used. However, if there is nothing left to split, it returns 0 to tell the
 #'   caller to stop running the loop.
 #' @keywords internal
-checkem <- function(data, cuts, frame, cloc, dist, variables,
-                    # weights,
-                    minsplit,
-                    minbucket, split_order) {
+checkem <- function(data, cuts, frame, cloc, dist, variables, minsplit,
+                    minbucket, split_order, ncores) {
 
   # Current terminal nodes
   candidates <- which(frame$var == "<leaf>" &
@@ -519,7 +531,7 @@ checkem <- function(data, cuts, frame, cloc, dist, variables,
   frame[candidates, ] <-
     purrr::map_dfr(candidates,
                    ~ find_split(data, cuts, frame[.x, ], cloc, dist, variables,
-                                minsplit, minbucket))
+                                minsplit, minbucket, ncores))
 
 
   # See which ones are left.

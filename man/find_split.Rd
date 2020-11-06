@@ -4,7 +4,17 @@
 \alias{find_split}
 \title{Find the Best Split}
 \usage{
-find_split(data, cuts, frame_row, cloc, dist, variables, minsplit, minbucket)
+find_split(
+  data,
+  cuts,
+  frame_row,
+  cloc,
+  dist,
+  variables,
+  minsplit,
+  minbucket,
+  ncores
+)
 }
 \arguments{
 \item{data}{Original data set.}
@@ -27,6 +37,8 @@ in order for a split to be attempted.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
 node. Default is minsplit/3.}
+
+\item{ncores}{Number of CPU cores on the current host.}
 }
 \value{
 This function changes the frame in global environment, it's

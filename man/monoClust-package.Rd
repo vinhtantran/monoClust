@@ -6,25 +6,13 @@
 \alias{monoClust-package}
 \title{monoClust: Perform Monothetic Clustering with Extensions to Circular}
 \description{
-Implementation of the Monothetic Clustering algorithm on continuous 
-  data set. A lot of extensions are included in the package, including applying
-  Monothetic clustering on data set with circular variables, visualizations with
-  the results, and permutation and cross-validation based tests to support the
-  decision on the number of clusters.
-}
-\details{
-The package performs Monothetic clustering on numerical variables only data.
-The extended features include clustering on one circular variable, limiting
-the sets of splitting variables. There are also S3 functions such as print
-and plot that works for MonoClust output object.
-}
-\references{
-\enumerate{
-\item Chavent, M. (1998). A monothetic clustering method. Pattern Recognition
-Letters, 19(11), 989–996. https://doi.org/10.1016/S0167-8655(98)00087-7
-\item Tran, T. V. (2019). Monothetic Cluster Analysis with Extensions to
-Circular and Functional Data. Montana State University - Bozeman.
-}
+Implementation of the Monothetic Clustering
+    algorithm (Chavent, 1998 <doi:10.1016/S0167-8655(98)00087-7>) on
+    continuous data sets. A lot of extensions are included in the package,
+    including applying Monothetic clustering on data sets with circular
+    variables, visualizations with the results, and permutation and
+    cross-validation based tests to support the decision on the number of
+    clusters.
 }
 \seealso{
 Useful links:
@@ -39,7 +27,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Brian McGuire \email{briancolliganmcguire@gmail.com}
+  \item Brian McGuire \email{mcguirebc@gmail.com}
   \item Mark Greenwood \email{greenwood@montana.edu} (\href{https://orcid.org/0000-0001-6933-1201}{ORCID})
 }
 

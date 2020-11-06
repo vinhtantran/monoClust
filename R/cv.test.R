@@ -8,6 +8,7 @@
 #' function performs a Leave-One-Out Cross-Validation (LOOCV).
 #' @param minnodes Minimum number of clusters to be checked.
 #' @param maxnodes Maximum number of clusters to be checked.
+#' @param ncores Number of CPU cores on the current host.
 #' @param ... Other parameters transferred to [MonoClust()].
 #'
 #' @details
@@ -51,43 +52,45 @@
 #' # 5-fold cross-validation
 #' cv.test(ruspini, fold = 5, minnodes = 2, maxnodes = 4)
 #' }
-#'
-#' \dontrun{
-#' # Multiple processing via doParallel for each MonoClust run
-#' library(doParallel)
-#'
-#' cl <- makePSOCKcluster(5)
-#' registerDoParallel(cl)
-#'
-#' # 10-fold cross-validation
-#' cv.test(ruspini, minnodes = 2, maxnodes = 4)
-#'
-#' stopCluster(cl)
-#' }
-cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
+cv.test <- function(data, fold = 10L, minnodes = 2L, maxnodes = 10L,
+                    ncores = 1L, ...) {
 
   if (!is.data.frame(data)) {
     stop("\"data\" must be a data frame.")
   }
 
-  `%op%` <- get_oper(foreach::getDoParWorkers() > 1)
+  if (!is.null(ncores)){
+    if (!is.numeric(ncores)) {
+      stop("\"ncores\" should be either NULL or a positive integer")
+    }
+    if (ncores < 1) {
+      stop("\"ncores\" should be > 1")
+    }
+  }
+
+  if (is.null(ncores))
+    ncores <- parallel::detectCores() - 1
+
+  # Initiate processes
+  cl <- parallel::makeCluster(ncores)
+  doParallel::registerDoParallel(cl)
+
+  `%dopar%` <- foreach::`%dopar%`
+
   num_obs <- nrow(data)
   sse_t <- vector("list", maxnodes - minnodes + 1)
   # LOOCV
   if (fold == 1) {
     for (k in minnodes:maxnodes) {
-      # sse_i <- vector("double", num_obs)
-      # fullc <- MonoClust(data, nclusters = k)
       sse_i <-
         foreach::foreach(iter = seq_len(num_obs),
                          .combine = "c",
                          .inorder = FALSE,
-                         .packages = c("monoClust")) %op% {
+                         .packages = c("monoClust")) %dopar% {
                            out <- MonoClust(data[-iter, ], nclusters = k, ...)
                            pred <- predict.MonoClust(out,
                                                      newdata = data[iter, ],
                                                      type = "centroid")
-                           # predict.MonoClust(out, newdata = data[i, ])
                            return(sum((data[iter, ] - pred[, -1])^2))
                          }
       sse_t[[k - minnodes + 1]] <- c(ncluster = k,
@@ -104,12 +107,11 @@ cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
     random_list <- sample(index, num_obs, replace = FALSE)
 
     for (k in minnodes:maxnodes) {
-      # sse_i <- vector("double", fold)
       sse_i <-
         foreach::foreach(iter = 1:fold,
                          .combine = "c",
                          .inorder = FALSE,
-                         .packages = c("monoClust")) %op% {
+                         .packages = c("monoClust")) %dopar% {
                            train_set <- data[-which(random_list == iter), ]
                            test_set <- data[which(random_list == iter), ]
                            train_tree <- MonoClust(train_set, nclusters = k)
@@ -125,6 +127,9 @@ cv.test <- function(data, fold = 10, minnodes = 2, maxnodes = 10, ...) {
     ret <- list(cv = dplyr::bind_rows(sse_t),
                 cv.type = paste0(fold, "-fold Cross-validation"))
   }
+
+  # Stop processes
+  parallel::stopCluster(cl)
 
   class(ret) <- "cv.MonoClust"
   return(ret)

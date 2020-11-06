@@ -15,10 +15,9 @@
 Print MonoClust Cross-Validation Result
 }
 \examples{
-\donttest{
 library(cluster)
 data(ruspini)
-
+\donttest{
 # 10-fold cross-validation
 cp_table <- cv.test(ruspini, minnodes = 2, maxnodes = 4)
 print(cp_table)

@@ -1,8 +1,8 @@
 ---
-title: "Monothetic Clustering `monoClust` Package"
+title: "Monothetic Clustering 'monoClust' Package"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Monothetic Clustering `monoClust` Package}
+  %\VignetteIndexEntry{Monothetic Clustering 'monoClust' Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -171,7 +171,7 @@ ggpcp(data = wind_reduced_2008,
 * Hinton, G. (2008). "Visualizing Data using t-SNE". In: *Journal of Machine Learning Research* 9.Nov, pp. 2579{2605. issn: 02545330. doi: `10.1007/s10479-011-0841-3`.
 * Hothorn, T., K. Hornik, and A. Zeileis (2006). "Unbiased Recursive Partitioning: A Conditional Inference Framework". en. In: *Journal of Computational and Graphical Statistics* 15.3, pp. 651--674. issn: 1061-8600. doi: `10.1198/106186006X133933.33`
 * Inselberg, A. and B. Dimsdale (1987). "Parallel Coordinates for Visualizing Multi-Dimensional Geometry". In: *Computer Graphics 1987*. Tokyo: Springer Japan, pp. 25{44. doi: `10.1007/978-4-431-68057-4_3`.
-* James, G., D. Witten, T. Hasite, and R. Tibshirani (2013). *An Introduction to Statistical Learning: with Applications in R*. 1st. Springer, p. 426. isbn: 1461471370.
+* James, G., D. Witten, T. Hastie, and R. Tibshirani (2013). *An Introduction to Statistical Learning: with Applications in R*. 1st. Springer, p. 426. isbn: 1461471370.
 * Jammalamadaka, S. R. and A. SenGupta (2001). *Topics in Circular Statistics*. Vol. 5. isbn: 9789812779267. doi: `10.1142/9789812779267`.
 * Kaufman, L. and P. J. Rousseeuw (1990). *Finding Groups in Data: An Introduction to Cluster Analysis*. 1st ed. Wiley-Interscience, p. 368. isbn: 978-0471735786.
 * MacNaughton-Smith, P., W. T. Williams, M. B. Dale, and L. G. Mockett (1964). "Dissimilarity Analysis: a new Technique of Hierarchical Sub-division". In: *Nature* 202.4936, pp. 1034{1035. issn: 0028-0836. doi: `10.1038/2021034a0`.

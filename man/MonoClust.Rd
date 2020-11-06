@@ -12,7 +12,8 @@ MonoClust(
   digits = getOption("digits"),
   nclusters = 2L,
   minsplit = 5L,
-  minbucket = round(minsplit/3)
+  minbucket = round(minsplit/3),
+  ncores = 1L
 )
 }
 \arguments{
@@ -36,6 +37,10 @@ in order for a split to be attempted. Default is 5.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
 node. Default is minsplit/3.}
+
+\item{ncores}{Number of CPU cores on the current host. If greater than 1,
+parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}} is used to distribute cut
+search on variables to processes.}
 }
 \value{
 MonoClust object.
@@ -43,10 +48,6 @@ MonoClust object.
 \description{
 Creates a MonoClust object after partitioning the data set using Monothetic
 Clustering.
-}
-\note{
-This function supports parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}}. It
-distributes optimal cut search on variables to processes.
 }
 \examples{
 # Very simple data set
@@ -64,19 +65,6 @@ set.seed(12345)
 wind_reduced <- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 10), ]
 circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
 circular_wind
-
-\dontrun{
-# Multiple processing via doParallel
-library(doParallel)
-
-cl <- makePSOCKcluster(5)
-registerDoParallel(cl)
-
-# Searching for the best cut is run parallel for each variable
-circular_wind <- MonoClust(wind_reduced, cir.var = 3, nclusters = 2)
-
-stopCluster(cl)
-}
 }
 \references{
 \enumerate{
