@@ -4,7 +4,7 @@
 \alias{to_deg_rad}
 \alias{torad}
 \alias{todeg}
-\title{Transform Degree to Radian}
+\title{Transform Between Degree and Radian}
 \usage{
 torad(x)
 
@@ -17,7 +17,8 @@ todeg(x)
 A radian value if \code{torad} or degree value if \code{todeg}.
 }
 \description{
-This function transforms a circular angle from degree to radian.
+This function transforms a circular angle from degree to radian or from
+radian to degree.
 }
 \examples{
 torad(90)

@@ -46,3 +46,6 @@ cptable <- cv.test(ruspini, minnodes = 2, maxnodes = 4)
 ggcv(cptable)
 }
 }
+\seealso{
+Plot using base R \code{\link[=plot.cv.MonoClust]{plot.cv.MonoClust()}}
+}

@@ -1,5 +1,7 @@
 # monoClust (development version)
 
+* Fix some typos and clarify some documentation
+
 # monoClust 1.0.0
 
 * Package is now fully working with all features intended.

@@ -20,7 +20,7 @@ find_closest <- function(col) {
 #' Add/subtract two circular variables in degrees (`%cd+%` and `%cd-%`) and
 #' radian (`%cr+%` and `%cr-%`).
 #'
-#' @param x,y Circular values in degrees.
+#' @param x,y Circular values in degrees/radians.
 #'
 #' @return A value between [0, 360) in degrees or [0, 2*pi) in radian.
 #' @name circ_arith
@@ -214,31 +214,4 @@ centroid <- function(data, frame, cloc) {
 tree_depth <- function(nodes) {
   depth <- floor(log2(nodes) + 1e-07)
   return(depth - min(depth))
-}
-
-#' What to Use with ForEach
-#'
-#' @param ncores Number of CPU cores on the current host.
-#'
-#' @return Appropriate operator depending on whether parallel processing is
-#'   activated or not.
-#' @importFrom foreach `%dopar%`
-#' @importFrom foreach `%do%`
-#' @keywords internal
-get_oper <- function(ncores) {
-
-  op <- NULL
-
-  if (ncores == 1) {
-    foreach::registerDoSEQ()
-    op <- `%do%`
-  }  else {
-    if (foreach::getDoParWorkers() != ncores){
-      cl <-  suppressWarnings(parallel::makePSOCKcluster(ncores))
-      doParallel::registerDoParallel(cl)
-    }
-    op <- `%dopar%`
-  }
-
-  return(op)
 }

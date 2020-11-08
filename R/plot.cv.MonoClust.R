@@ -11,6 +11,7 @@
 #' @param err.width Width of the bars.
 #'
 #' @return A line plot with error bars.
+#' @seealso Plot using ggplot2 [ggcv()]
 #' @export
 #'
 #' @examples

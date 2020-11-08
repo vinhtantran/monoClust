@@ -51,3 +51,6 @@ cptable <- cv.test(ruspini, minnodes = 2, maxnodes = 4)
 plot(cptable)
 }
 }
+\seealso{
+Plot using ggplot2 \code{\link[=ggcv]{ggcv()}}
+}

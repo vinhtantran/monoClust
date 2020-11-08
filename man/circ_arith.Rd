@@ -17,7 +17,7 @@ x \%cr+\% y
 x \%cr-\% y
 }
 \arguments{
-\item{x, y}{Circular values in degrees.}
+\item{x, y}{Circular values in degrees/radians.}
 }
 \value{
 A value between [0, 360) in degrees or [0, 2*pi) in radian.
