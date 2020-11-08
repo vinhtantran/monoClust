@@ -30,7 +30,7 @@ arguments for this function.}
 
 \item{digits}{Number of significant digits to print.}
 
-\item{...}{Optional arguments to \code{\link[=abbreviate]{abbreviate()}}}
+\item{...}{Optional arguments to \code{\link[=abbreviate]{abbreviate()}}.}
 }
 \value{
 A nicely displayed MonoClust split tree.
