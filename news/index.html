@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monoClust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0.9000</span>
       </span>
     </div>
 
@@ -126,6 +126,15 @@
       <small>Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="monoclust-development-version" class="section level1">
+<h1 class="page-header" data-toc-text="development version">
+<a href="#monoclust-development-version" class="anchor"></a>monoClust (development version)<small> Unreleased </small>
+</h1>
+<ul>
+<li>Fix some typos and clarify some documentation</li>
+<li>Min version of dependency <code><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble()</a></code> is 3.0.0 because <code><a href="https://tibble.tidyverse.org/reference/add_row.html">tibble::add_row()</a></code> is used with the new behavior.</li>
+</ul>
+</div>
     <div id="monoclust-100" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.0">
 <a href="#monoclust-100" class="anchor"></a>monoClust 1.0.0<small> 2020-11-06 </small>
@@ -153,7 +162,7 @@
 </ul>
 </li>
 <li>
-<code><a href="../reference/plot.MonoClust.html">plot.MonoClust()</a></code> added <code>uniform</code>, <code>branch</code>, <code>minbranch</code>, <code>stats</code>, <code>cols.type</code>, and `show.pval.</li>
+<code><a href="../reference/plot.MonoClust.html">plot.MonoClust()</a></code> added <code>uniform</code>, <code>branch</code>, <code>minbranch</code>, <code>stats</code>, <code>cols.type</code>, and <code>show.pval</code>.</li>
 <li>
 <code><a href="../reference/cv.test.html">cv.test()</a></code> now returns unified output for both LOOCV and k-fold. It includes MSE and SE table and a note with the type of cross-validation.</li>
 <li>
