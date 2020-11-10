@@ -269,9 +269,10 @@ ggpcp <- function(data, circ.var = NULL, is.degree = TRUE, rotate = 0,
   return(p)
 }
 
-#' Transform Degree to Radian
+#' Transform Between Degree and Radian
 #'
-#' This function transforms a circular angle from degree to radian.
+#' This function transforms a circular angle from degree to radian or from
+#' radian to degree.
 #'
 #' @param x A degree value if `torad` or radian value if `todeg`.
 #'

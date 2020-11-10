@@ -85,7 +85,7 @@ coordinate of the leaves. Default is TRUE.}
 whether to show p-value on the tree.}
 
 \item{...}{Arguments to be passed to \code{\link[graphics:plot.default]{graphics::plot.default()}} and
-\code{\link[graphics:lines]{graphics::lines()}}}
+\code{\link[graphics:lines]{graphics::lines()}}.}
 }
 \value{
 A plot of splitting rule.

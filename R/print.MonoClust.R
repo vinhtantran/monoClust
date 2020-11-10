@@ -16,7 +16,7 @@
 #'   arguments for this function.
 #' @param spaces Spaces indent between 2 tree levels.
 #' @param digits Number of significant digits to print.
-#' @param ... Optional arguments to [abbreviate()]
+#' @param ... Optional arguments to [abbreviate()].
 #'
 #' @return A nicely displayed MonoClust split tree.
 #' @seealso [abbreviate()]

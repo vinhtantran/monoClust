@@ -1,3 +1,9 @@
+# monoClust (development version)
+
+* Fix some typos and clarify some documentation
+* Min version of dependency `tibble()` is 3.0.0 because `tibble::add_row()` is
+  used with the new behavior.
+
 # monoClust 1.0.0
 
 * Package is now fully working with all features intended.
@@ -18,7 +24,7 @@
   * `Membership` and `Dist` outputs of `MonoClust()` are now `membership` and 
     `dist`, respectively.
 * `plot.MonoClust()` added `uniform`, `branch`, `minbranch`, `stats`, 
-  `cols.type`, and `show.pval.
+  `cols.type`, and `show.pval`.
 * `cv.test()` now returns unified output for both LOOCV and k-fold. It includes 
   MSE and SE table and a note with the type of cross-validation. 
 * `abbrev` argument in `plot.MonoClust()` and `print.MonoClust()` now accepts 

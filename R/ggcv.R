@@ -12,6 +12,7 @@
 #'
 #' @import dplyr
 #' @importFrom rlang .data
+#' @seealso Plot using base R [plot.cv.MonoClust()]
 #' @export
 #'
 #' @examples
