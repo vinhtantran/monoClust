@@ -1,6 +1,8 @@
 # monoClust (development version)
 
 * Fix some typos and clarify some documentation
+* Min version of dependency `tibble()` is 3.0.0 because `tibble::add_row()` is
+  used with the new behavior.
 
 # monoClust 1.0.0
 

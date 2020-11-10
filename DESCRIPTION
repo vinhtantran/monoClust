@@ -42,7 +42,7 @@ Imports:
     rlang (>= 0.3.0),
     stats,
     stringr,
-    tibble,
+    tibble (>= 3.0.0),
     tidyr
 Suggests: 
     knitr,
