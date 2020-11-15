@@ -1,3 +1,9 @@
+# monoClust (development version)
+
+* Add documentation for `MonoClust.object` to explain its structure.
+* Remove `bipartvar` column from `frame` object of MonoClust object. `var` 
+  column should be sufficient for showing splitting variable names.
+
 # monoClust 1.0.1
 
 * Fix some typos and clarify some documentation
