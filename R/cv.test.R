@@ -8,7 +8,8 @@
 #' function performs a Leave-One-Out Cross-Validation (LOOCV).
 #' @param minnodes Minimum number of clusters to be checked.
 #' @param maxnodes Maximum number of clusters to be checked.
-#' @param ncores Number of CPU cores on the current host.
+#' @param ncores Number of CPU cores on the current host. When set to NULL,
+#'   all available cores are used.
 #' @param ... Other parameters transferred to [MonoClust()].
 #'
 #' @details

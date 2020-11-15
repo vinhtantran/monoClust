@@ -23,7 +23,8 @@
 #'   by Rousseeuw (1987)).
 #' @param bon.adj Whether to adjust for multiple testing problem using
 #'   Bonferroni correction.
-#' @param ncores Number of CPU cores on the current host.
+#' @param ncores Number of CPU cores on the current host. When set to NULL,
+#'   all available cores are used.
 #'
 #' @return The same `MonoClust` object with an extra column (p-value), as well
 #' as the `numofclusters` object if `auto.pick = TRUE`.

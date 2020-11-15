@@ -16,7 +16,8 @@ function performs a Leave-One-Out Cross-Validation (LOOCV).}
 
 \item{maxnodes}{Maximum number of clusters to be checked.}
 
-\item{ncores}{Number of CPU cores on the current host.}
+\item{ncores}{Number of CPU cores on the current host. When set to NULL,
+all available cores are used.}
 
 \item{...}{Other parameters transferred to \code{\link[=MonoClust]{MonoClust()}}.}
 }

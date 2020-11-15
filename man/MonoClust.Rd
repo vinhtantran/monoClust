@@ -40,7 +40,8 @@ node. Default is minsplit/3.}
 
 \item{ncores}{Number of CPU cores on the current host. If greater than 1,
 parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}} is used to distribute cut
-search on variables to processes.}
+search on variables to processes. When set to NULL, all available cores are
+used.}
 }
 \value{
 A \code{MonoClust} object. See \code{\link{MonoClust.object}}

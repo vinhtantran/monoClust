@@ -41,7 +41,8 @@ by Rousseeuw (1987)).}
 \item{bon.adj}{Whether to adjust for multiple testing problem using
 Bonferroni correction.}
 
-\item{ncores}{Number of CPU cores on the current host.}
+\item{ncores}{Number of CPU cores on the current host. When set to NULL,
+all available cores are used.}
 }
 \value{
 The same \code{MonoClust} object with an extra column (p-value), as well

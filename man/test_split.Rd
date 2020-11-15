@@ -23,7 +23,8 @@ are members of the left child node and the right child node, respectively.}
 pseudo-F (Calinski and Harabasz, 1974)) or \code{"aw"} (Average silhoutte width
 by Rousseeuw (1987)).}
 
-\item{ncores}{Number of CPU cores on the current host.}
+\item{ncores}{Number of CPU cores on the current host. When set to NULL,
+all available cores are used.}
 }
 \value{
 p-value of the test

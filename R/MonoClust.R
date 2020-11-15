@@ -18,7 +18,8 @@
 #'   node. Default is minsplit/3.
 #' @param ncores Number of CPU cores on the current host. If greater than 1,
 #'   parallel processing with [foreach::foreach()] is used to distribute cut
-#'   search on variables to processes.
+#'   search on variables to processes. When set to NULL, all available cores are
+#'   used.
 #'
 #' @return A `MonoClust` object. See [`MonoClust.object`]
 #' @export
