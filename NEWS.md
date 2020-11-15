@@ -17,7 +17,7 @@
 * Added ggplot2 versions of CV plot.
 * PCP plot for circular data is now named `ggpcp` and uses ggplot2.
 * New circular add/subtract operators: `%cd+%`, `%cd-%` (in degree), `%cr+%`, 
-  and `%cr-%` (in radian)
+  and `%cr-%` (in radian).
 * Added `wind_sensit_2008` data set.
 * Added a vignette using R Markdown.
 * Updated documentation.
