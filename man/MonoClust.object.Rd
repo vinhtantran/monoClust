@@ -29,7 +29,7 @@ its cluster.}
 on the tree. See \code{\link[=plot.MonoClust]{plot.MonoClust()}} for details.}
 \item{split.order}{Order of the splits with root is 0.}
 \item{inertia_explained}{Percent inertia explained as described in
-Chavent (2007).}
+Chavent (2007). It is \eqn{1 - (sum(current inertia)/inertial[1])}.}
 \item{alt}{Indicator of an alternative cut yielding the same reduction
 in inertia at that split.}
 }}

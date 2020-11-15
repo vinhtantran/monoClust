@@ -69,7 +69,7 @@ circular_wind
 \references{
 \enumerate{
 \item Chavent, M. (1998). A monothetic clustering method. Pattern Recognition
-Letters, 19(11), 989–996. https://doi.org/10.1016/S0167-8655(98)00087-7
+Letters, 19(11), 989-996. \url{doi:10.1016/S0167-8655(98)00087-7}
 \item Tran, T. V. (2019). Monothetic Cluster Analysis with Extensions to
 Circular and Functional Data. Montana State University - Bozeman.
 }
