@@ -36,7 +36,7 @@ could be a vector of variable indexes, or a vector of variable names.}
 in order for a split to be attempted.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
-node. Default is minsplit/3.}
+node. Default is \code{minsplit/3}.}
 
 \item{ncores}{Number of CPU cores on the current host.}
 }

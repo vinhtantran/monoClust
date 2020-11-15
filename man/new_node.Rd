@@ -17,7 +17,7 @@ new_node(
   medoid,
   loc,
   split.order = -99L,
-  alt = FALSE
+  alt = list(tibble::tibble(bipartsplitrow = numeric(), bipartsplitcol = numeric()))
 )
 }
 \arguments{

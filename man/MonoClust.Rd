@@ -36,7 +36,7 @@ variable (\code{cir.var} is specified). Transfer to \code{\link[cluster:daisy]{c
 in order for a split to be attempted. Default is 5.}
 
 \item{minbucket}{The minimum number of observations in any terminal leaf
-node. Default is minsplit/3.}
+node. Default is \code{minsplit/3}.}
 
 \item{ncores}{Number of CPU cores on the current host. If greater than 1,
 parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}} is used to distribute cut
@@ -44,7 +44,7 @@ search on variables to processes. When set to NULL, all available cores are
 used.}
 }
 \value{
-A \code{MonoClust} object. See \code{\link{MonoClust.object}}
+A \code{MonoClust} object. See \code{\link{MonoClust.object}}.
 }
 \description{
 Creates a MonoClust object after partitioning the data set using Monothetic

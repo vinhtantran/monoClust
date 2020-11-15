@@ -3,6 +3,10 @@
 * Add documentation for `MonoClust.object` to explain its structure.
 * Remove `bipartvar` column from `frame` object of MonoClust object. `var` 
   column should be sufficient for showing splitting variable names.
+* `alt` column in `frame` object of MonoClust is now a nested tibble containing
+  alternate split details. However, the package does not support specifying an
+  alternate splitting route so users may have to run step-by-step by indicating
+  `nclusters = 2` in `MonoClust()` and then on each branch.
 
 # monoClust 1.0.1
 

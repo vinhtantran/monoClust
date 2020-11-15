@@ -29,9 +29,13 @@ its cluster.}
 on the tree. See \code{\link[=plot.MonoClust]{plot.MonoClust()}} for details.}
 \item{split.order}{Order of the splits with root is 0.}
 \item{inertia_explained}{Percent inertia explained as described in
-Chavent (2007). It is \eqn{1 - (sum(current inertia)/inertial[1])}.}
-\item{alt}{Indicator of an alternative cut yielding the same reduction
-in inertia at that split.}
+Chavent (2007). It is \verb{1 - (sum(current inertia)/inertial[1])}.}
+\item{alt}{A nested tibble of alternate splits at a node. It contains
+\code{bipartsplitrow} and \code{bipartsplitcol} with the same meaning above.
+Note that this is only for information purpose. Currently \code{monoClust}
+does not support choosing an alternate splitting route. Running
+\code{\link[=MonoClust]{MonoClust()}} with \code{nclusters = 2} step-by-step can be run if
+needed.}
 }}
 \item{membership}{Vector of the same length as the number of rows in the
 data, containing the value of \code{frame$number} corresponding to the leaf
@@ -58,7 +62,7 @@ package.
 \itemize{
 \item Chavent, M., Lechevallier, Y., & Briant, O. (2007). DIVCLUS-T: A monothetic
 divisive hierarchical clustering method. Computational Statistics & Data
-Analysis, 52(2), 687–701. \url{doi:10.1016/j.csda.2007.03.013}.
+Analysis, 52(2), 687-701. \url{doi:10.1016/j.csda.2007.03.013}.
 }
 }
 \seealso{
