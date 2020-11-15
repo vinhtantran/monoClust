@@ -71,16 +71,16 @@ predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid"),
 
 #' Create Jump Table
 #'
-#' Create jump table from the MonoClust's frame object. `number` and `bipartvar`
-#' will be used to create the table.
+#' Create jump table from the MonoClust's frame object. `number` and `var` will
+#' be used to create the table.
 #'
 #' @param frame MonoClust's frame object
 #'
-#' @return Jump table with `number`, `bipartvar`, and two new columns `left` and
+#' @return Jump table with `number`, `var`, and two new columns `left` and
 #'   `right` indicate the left and right number at split.
 #' @keywords internal
 make_jump_table <- function(frame) {
-  jump_table <- frame[, c("number", "bipartvar", "cut")]
+  jump_table <- frame[, c("number", "var", "cut")]
   jump_table <- tibble::add_column(jump_table, left = NA, right = NA)
 
   if (nrow(jump_table) >= 2) {
@@ -88,7 +88,7 @@ make_jump_table <- function(frame) {
     jump_table$right <- match(jump_table$number * 2 + 1, jump_table$number)
   } else
     # Special case when tree didn't split, ncluster = 1
-    jump_table[, "bipartvar"] <- NA
+    jump_table[, "var"] <- NA
 
   return(jump_table)
 }
@@ -106,7 +106,7 @@ tree_walk <- function(new_point, jump_table) {
   current_node <- 1
   while (!is.na(jump_table$cut[current_node])) {
     # If it's not a leaf node, trace
-    var <- jump_table$bipartvar[current_node]
+    var <- jump_table$var[current_node]
     value <- new_point[var]
 
     current_node <- dplyr::if_else(value < jump_table$cut[current_node],

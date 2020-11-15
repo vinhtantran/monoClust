@@ -43,7 +43,7 @@ parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}} is us
 search on variables to processes.}
 }
 \value{
-MonoClust object.
+A \code{MonoClust} object. See \code{\link{MonoClust.object}}
 }
 \description{
 Creates a MonoClust object after partitioning the data set using Monothetic

@@ -10,7 +10,6 @@ new_node(
   cut = -99L,
   n,
   inertia,
-  bipartvar = "",
   bipartsplitrow = -99L,
   bipartsplitcol = -99L,
   inertiadel = 0,
@@ -26,15 +25,12 @@ new_node(
 
 \item{var}{Whether it is a leaf, or the name of the next split variable.}
 
-\item{cut}{The splitting value, so values (of \code{bipartvar}) smaller than that
+\item{cut}{The splitting value, so values (of \code{var}) smaller than that
 go to left branch while values greater than that go to right branch.}
 
 \item{n}{Cluster size. Number of observations in that cluster.}
 
 \item{inertia}{Inertia value of the cluster at that node.}
-
-\item{bipartvar}{Name of the next split variable, match \code{var} if \code{var} is not
-a leaf.}
 
 \item{bipartsplitrow}{Position of the next split row in the data set (that
 position will belong to left node (smaller)).}

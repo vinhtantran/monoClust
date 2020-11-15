@@ -20,7 +20,7 @@
 #'   parallel processing with [foreach::foreach()] is used to distribute cut
 #'   search on variables to processes.
 #'
-#' @return MonoClust object.
+#' @return A `MonoClust` object. See [`MonoClust.object`]
 #' @export
 #'
 #' @references
@@ -329,7 +329,6 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
 
   frame$var[split_row]         <- variable_name
   frame$cut[split_row]         <- mid_cutpoint
-  frame$bipartvar[split_row]   <- variable_name
   frame$split.order[split_row] <- split_order
 
   # New cluster 1

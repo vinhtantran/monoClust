@@ -10,11 +10,11 @@ make_jump_table(frame)
 \item{frame}{MonoClust's frame object}
 }
 \value{
-Jump table with \code{number}, \code{bipartvar}, and two new columns \code{left} and
+Jump table with \code{number}, \code{var}, and two new columns \code{left} and
 \code{right} indicate the left and right number at split.
 }
 \description{
-Create jump table from the MonoClust's frame object. \code{number} and \code{bipartvar}
-will be used to create the table.
+Create jump table from the MonoClust's frame object. \code{number} and \code{var} will
+be used to create the table.
 }
 \keyword{internal}

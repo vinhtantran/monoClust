@@ -115,7 +115,7 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
     current <- which(jump_table$split.order == i)
 
     # Node
-    split_var <- jump_table$bipartvar[current]
+    split_var <- jump_table$var[current]
     split_value <- jump_table$cut[current]
 
     members <- as.numeric(strsplit(jump_table$members[current], ",")[[1]])
