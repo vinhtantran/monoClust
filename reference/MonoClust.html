@@ -73,7 +73,7 @@ Clustering." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monoClust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1.9000</span>
       </span>
     </div>
 
@@ -184,25 +184,26 @@ in order for a split to be attempted. Default is 5.</p></td>
     <tr>
       <th>minbucket</th>
       <td><p>The minimum number of observations in any terminal leaf
-node. Default is minsplit/3.</p></td>
+node. Default is <code>minsplit/3</code>.</p></td>
     </tr>
     <tr>
       <th>ncores</th>
       <td><p>Number of CPU cores on the current host. If greater than 1,
 parallel processing with <code><a href='https://rdrr.io/pkg/foreach/man/foreach.html'>foreach::foreach()</a></code> is used to distribute cut
-search on variables to processes.</p></td>
+search on variables to processes. When set to NULL, all available cores are
+used.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MonoClust object.</p>
+    <p>A <code>MonoClust</code> object. See <code><a href='MonoClust.object.html'>MonoClust.object</a></code>.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     
 <ol>
 <li><p>Chavent, M. (1998). A monothetic clustering method. Pattern Recognition
-Letters, 19(11), 989–996. https://doi.org/10.1016/S0167-8655(98)00087-7</p></li>
+Letters, 19(11), 989-996. <a href='doi:10.1016/S0167-8655(98)00087-7'>doi:10.1016/S0167-8655(98)00087-7</a></p></li>
 <li><p>Tran, T. V. (2019). Monothetic Cluster Analysis with Extensions to
 Circular and Functional Data. Montana State University - Bozeman.</p></li>
 </ol>

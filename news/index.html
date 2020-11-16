@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monoClust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1.9000</span>
       </span>
     </div>
 
@@ -126,6 +126,17 @@
       <small>Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="monoclust-development-version" class="section level1">
+<h1 class="page-header" data-toc-text="development version">
+<a href="#monoclust-development-version" class="anchor"></a>monoClust (development version)<small> Unreleased </small>
+</h1>
+<ul>
+<li>Add documentation for <code>MonoClust.object</code> to explain its structure.</li>
+<li>Remove <code>bipartvar</code> column from <code>frame</code> object of MonoClust object. <code>var</code> column should be sufficient for showing splitting variable names.</li>
+<li>
+<code>alt</code> column in <code>frame</code> object of MonoClust is now a nested tibble containing alternate split details. However, the package does not support specifying an alternate splitting route so users may have to run step-by-step by indicating <code>nclusters = 2</code> in <code><a href="../reference/MonoClust.html">MonoClust()</a></code> and then on each branch.</li>
+</ul>
+</div>
     <div id="monoclust-101" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.1">
 <a href="#monoclust-101" class="anchor"></a>monoClust 1.0.1<small> Unreleased </small>
@@ -144,7 +155,7 @@
 <li>Rewrote a lot of internal functions to clean up unnecessary codes.</li>
 <li>Added ggplot2 versions of CV plot.</li>
 <li>PCP plot for circular data is now named <code>ggpcp</code> and uses ggplot2.</li>
-<li>New circular add/subtract operators: <code><a href="../reference/circ_arith.html">%cd+%</a></code>, <code><a href="../reference/circ_arith.html">%cd-%</a></code> (in degree), <code><a href="../reference/circ_arith.html">%cr+%</a></code>, and <code><a href="../reference/circ_arith.html">%cr-%</a></code> (in radian)</li>
+<li>New circular add/subtract operators: <code><a href="../reference/circ_arith.html">%cd+%</a></code>, <code><a href="../reference/circ_arith.html">%cd-%</a></code> (in degree), <code><a href="../reference/circ_arith.html">%cr+%</a></code>, and <code><a href="../reference/circ_arith.html">%cr-%</a></code> (in radian).</li>
 <li>Added <code>wind_sensit_2008</code> data set.</li>
 <li>Added a vignette using R Markdown.</li>
 <li>Updated documentation.</li>
