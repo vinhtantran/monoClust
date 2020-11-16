@@ -7,6 +7,7 @@
   alternate split details. However, the package does not support specifying an
   alternate splitting route so users may have to run step-by-step by indicating
   `nclusters = 2` in `MonoClust()` and then on each branch.
+* Remove `arctic_2019` data set. It was not used anywhere in the examples.
 
 # monoClust 1.0.1
 
