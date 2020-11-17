@@ -21,7 +21,7 @@
 #' @source Sabacka, M., Priscu, J. C., Basagic, H. J., Fountain, A. G., Wall, D.
 #' H., Virginia, R. A., and Greenwood, M. C. (2012). "Aeolian flux of biotic and
 #' abiotic material in Taylor Valley, Antarctica". In: Geomorphology 155-156,
-#' pp. 102-111. issn: 0169555X. <doi:10.1016/j.geomorph.2011.12.009>.
+#' pp. 102-111. issn: 0169555X. \doi{10.1016/j.geomorph.2011.12.009}.
 "wind_sensit_2007"
 
 #' Existence of Microorganisms Carried in Wind
@@ -47,5 +47,5 @@
 #' @source Sabacka, M., Priscu, J. C., Basagic, H. J., Fountain, A. G., Wall, D.
 #' H., Virginia, R. A., and Greenwood, M. C. (2012). "Aeolian flux of biotic and
 #' abiotic material in Taylor Valley, Antarctica". In: Geomorphology 155-156,
-#' pp. 102-111. issn: 0169555X. <doi:10.1016/j.geomorph.2011.12.009>.
+#' pp. 102-111. issn: 0169555X. \doi{10.1016/j.geomorph.2011.12.009}.
 "wind_sensit_2008"

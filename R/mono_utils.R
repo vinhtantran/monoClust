@@ -58,7 +58,7 @@
 #' @references
 #' * Chavent, M., Lechevallier, Y., & Briant, O. (2007). DIVCLUS-T: A monothetic
 #' divisive hierarchical clustering method. Computational Statistics & Data
-#' Analysis, 52(2), 687-701. <doi:10.1016/j.csda.2007.03.013>.
+#' Analysis, 52(2), 687-701. \doi{10.1016/j.csda.2007.03.013}.
 #' @seealso [MonoClust()].
 NULL
 

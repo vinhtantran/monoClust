@@ -4,7 +4,8 @@
 \name{monoClust-package}
 \alias{monoClust}
 \alias{monoClust-package}
-\title{monoClust: Perform Monothetic Clustering with Extensions to Circular}
+\title{monoClust: Perform Monothetic Clustering with Extensions to Circular
+    Data}
 \description{
 Implementation of the Monothetic Clustering
     algorithm (Chavent, 1998 <doi:10.1016/S0167-8655(98)00087-7>) on

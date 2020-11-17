@@ -1,6 +1,6 @@
-# monoClust (development version)
+# monoClust 1.1.0
 
-* Add documentation for `MonoClust.object` to explain its structure.
+## Changes to functions
 * Remove `bipartvar` column from `frame` object of MonoClust object. `var` 
   column should be sufficient for showing splitting variable names.
 * `alt` column in `frame` object of MonoClust is now a nested tibble containing
@@ -9,11 +9,13 @@
   `nclusters = 2` in `MonoClust()` and then on each branch.
 * Remove `arctic_2019` data set. It was not used anywhere in the examples.
 
-# monoClust 1.0.1
+## Improvements
+* Add documentation for `MonoClust.object` to explain its structure.
 
-* Fix some typos and clarify some documentation
+## Fix bugs
 * Min version of dependency `tibble()` is 3.0.0 because `tibble::add_row()` is
   used with the new behavior.
+* Fix some typos and clarify some documentation
 
 # monoClust 1.0.0
 
