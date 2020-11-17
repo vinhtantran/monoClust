@@ -84,6 +84,7 @@ CV\_K = \\overline{MSE} = \\frac{1}{M} \\sum\_{m=1}\^M MSE\_m.
 The purpose of the cross-validation is to find a cluster solution that achieves the "best" prediction error for new observations. There are several ways one can decide from the output of `MonoClust`. A naive approach is to pick the solution that has the smallest $CV_K$ (*minCV* rule). However, in many cases, it can result in a very high number of clusters if the error rate keeps decreasing even though there is often a small change after a few large drops. To avoid this problem, Breiman et al. (1984) suggested picking the solution that is simplest within 1 or 2 standard errors (SE) from the minimum error estimate (*CV1SE* or *CV2SE* rules), with the standard error is defined as $$SE(\overline{MSE}) = \sqrt{\frac{1}{M} \sum_{m=1}^M (MSE_m - \overline{MSE})}.$$ The function `cv.test` with the data set and two arguments `minnodes` and `maxnodes` defining the range of nodes to test on will apply `MonoClust` and calculate both $\overline{MSE}$ (which is named MSE in the output) and its standard error (named Std. Dev.).
 
 ```{r cptable}
+set.seed(12345)
 cp.table <- cv.test(ruspini, fold = 5, minnodes = 1, maxnodes = 10)
 cp.table
 ```
