@@ -30,6 +30,7 @@ BugReports: https://github.com/vinhtantran/monoClust/issues
 Depends: 
     R (>= 3.3.0)
 Imports: 
+    cli (>= 2.0.0),
     cluster,
     doParallel,
     dplyr (>= 1.0.0),
