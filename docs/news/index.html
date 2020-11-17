@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monoClust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -126,6 +126,36 @@
       <small>Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="monoclust-110" class="section level1">
+<h1 class="page-header" data-toc-text="1.1.0">
+<a href="#monoclust-110" class="anchor"></a>monoClust 1.1.0<small> Unreleased </small>
+</h1>
+<div id="changes-to-functions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#changes-to-functions" class="anchor"></a>Changes to functions</h2>
+<ul>
+<li>Remove <code>bipartvar</code> column from <code>frame</code> object of MonoClust object. <code>var</code> column should be sufficient for showing splitting variable names.</li>
+<li>
+<code>alt</code> column in <code>frame</code> object of MonoClust is now a nested tibble containing alternate split details. However, the package does not support specifying an alternate splitting route so users may have to run step-by-step by indicating <code>nclusters = 2</code> in <code><a href="../reference/MonoClust.html">MonoClust()</a></code> and then on each branch.</li>
+<li>Remove <code>arctic_2019</code> data set. It was not used anywhere in the examples.</li>
+</ul>
+</div>
+<div id="improvements" class="section level2">
+<h2 class="hasAnchor">
+<a href="#improvements" class="anchor"></a>Improvements</h2>
+<ul>
+<li>Add documentation for <code>MonoClust.object</code> to explain its structure.</li>
+</ul>
+</div>
+<div id="fix-bugs" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fix-bugs" class="anchor"></a>Fix bugs</h2>
+<ul>
+<li>Min version of dependency <code><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble()</a></code> is 3.0.0 because <code><a href="https://tibble.tidyverse.org/reference/add_row.html">tibble::add_row()</a></code> is used with the new behavior.</li>
+<li>Fix some typos and clarify some documentation</li>
+</ul>
+</div>
+</div>
     <div id="monoclust-100" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.0">
 <a href="#monoclust-100" class="anchor"></a>monoClust 1.0.0<small> 2020-11-06 </small>
@@ -135,14 +165,14 @@
 <li>Rewrote a lot of internal functions to clean up unnecessary codes.</li>
 <li>Added ggplot2 versions of CV plot.</li>
 <li>PCP plot for circular data is now named <code>ggpcp</code> and uses ggplot2.</li>
-<li>New circular add/subtract operators: <code><a href="../reference/circ_arith.html">%cd+%</a></code>, <code><a href="../reference/circ_arith.html">%cd-%</a></code> (in degree), <code><a href="../reference/circ_arith.html">%cr+%</a></code>, and <code><a href="../reference/circ_arith.html">%cr-%</a></code> (in radian)</li>
+<li>New circular add/subtract operators: <code><a href="../reference/circ_arith.html">%cd+%</a></code>, <code><a href="../reference/circ_arith.html">%cd-%</a></code> (in degree), <code><a href="../reference/circ_arith.html">%cr+%</a></code>, and <code><a href="../reference/circ_arith.html">%cr-%</a></code> (in radian).</li>
 <li>Added <code>wind_sensit_2008</code> data set.</li>
 <li>Added a vignette using R Markdown.</li>
 <li>Updated documentation.</li>
 </ul>
-<div id="changes-to-functions" class="section level2">
+<div id="changes-to-functions-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-functions" class="anchor"></a>Changes to functions</h2>
+<a href="#changes-to-functions-1" class="anchor"></a>Changes to functions</h2>
 <ul>
 <li>
 <code><a href="../reference/MonoClust.html">MonoClust()</a></code> removed <code>perm.test</code> and <code>alpha</code> arguments. Users now need to run <code><a href="../reference/perm.test.html">perm.test()</a></code> separately to perform permutation test on a MonoClust.
@@ -153,7 +183,7 @@
 </ul>
 </li>
 <li>
-<code><a href="../reference/plot.MonoClust.html">plot.MonoClust()</a></code> added <code>uniform</code>, <code>branch</code>, <code>minbranch</code>, <code>stats</code>, <code>cols.type</code>, and `show.pval.</li>
+<code><a href="../reference/plot.MonoClust.html">plot.MonoClust()</a></code> added <code>uniform</code>, <code>branch</code>, <code>minbranch</code>, <code>stats</code>, <code>cols.type</code>, and <code>show.pval</code>.</li>
 <li>
 <code><a href="../reference/cv.test.html">cv.test()</a></code> now returns unified output for both LOOCV and k-fold. It includes MSE and SE table and a note with the type of cross-validation.</li>
 <li>
