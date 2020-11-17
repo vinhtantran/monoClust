@@ -21,7 +21,7 @@ number of clusters.}
 }
 }
 \description{
-Calinski-Harabaz's pseudo-F (Calinski and Harabasz, 1974) and Average
+Calinski-Harabasz's pseudo-F (Calinski and Harabasz, 1974) and Average
 silhoutte width (Rousseeuw, 1987) calculation.
 }
 \references{
