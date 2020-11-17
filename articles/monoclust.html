@@ -165,23 +165,24 @@ Binary partitioning tree with three splits, four clusters for <em>ruspini</em> d
 <p>The <span class="math inline">\(M\)</span>-fold cross-validation randomly partitions data into <span class="math inline">\(M\)</span> subsets with equal (or close to equal) sizes. <span class="math inline">\(M - 1\)</span> subsets are used as the training data set to create a tree with a desired number of leaves and the other subset is used as validation data set to evaluate the predictive performance of the trained tree. The process repeats for each subset as the validating set (<span class="math inline">\(m = 1, \ldots, M\)</span>) and the mean squared difference, \begin{equation} MSE_m=\frac{1}{n_m} \sum_{q=1}^Q\sum_{i \in m} d^2_{euc}(y_{iq}, \hat{y}_{(-i)q}), \end{equation} is calculated, where <span class="math inline">\(\hat{y}_{(-i)q}\)</span> is the cluster mean on the variable <span class="math inline">\(q\)</span> of the cluster created by the training data where the observed value, <span class="math inline">\(y_{iq}\)</span>, of the validation data set will fall into, and <span class="math inline">\(d^2_{euc}(y_{iq}, \hat{y}_{(-i)q})\)</span> is the squared Euclidean distance (dissimilarity) between two observations at variable <span class="math inline">\(q\)</span>. This process is repeated for the <span class="math inline">\(M\)</span> subsets of the data set and the average of these test errors is the cross-validation-based estimate of the mean squared error of predicting a new observation, \begin{equation} CV_K = \overline{MSE} = \frac{1}{M} \sum_{m=1}^M MSE_m. \end{equation}</p>
 <p>The purpose of the cross-validation is to find a cluster solution that achieves the “best” prediction error for new observations. There are several ways one can decide from the output of <code>MonoClust</code>. A naive approach is to pick the solution that has the smallest <span class="math inline">\(CV_K\)</span> (<em>minCV</em> rule). However, in many cases, it can result in a very high number of clusters if the error rate keeps decreasing even though there is often a small change after a few large drops. To avoid this problem, Breiman et al. (1984) suggested picking the solution that is simplest within 1 or 2 standard errors (SE) from the minimum error estimate (<em>CV1SE</em> or <em>CV2SE</em> rules), with the standard error is defined as <span class="math display">\[SE(\overline{MSE}) = \sqrt{\frac{1}{M} \sum_{m=1}^M (MSE_m - \overline{MSE})}.\]</span> The function <code>cv.test</code> with the data set and two arguments <code>minnodes</code> and <code>maxnodes</code> defining the range of nodes to test on will apply <code>MonoClust</code> and calculate both <span class="math inline">\(\overline{MSE}\)</span> (which is named MSE in the output) and its standard error (named Std. Dev.).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cp.table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.test.html">cv.test</a></span><span class="op">(</span><span class="va">ruspini</span>, fold <span class="op">=</span> <span class="fl">5</span>, minnodes <span class="op">=</span> <span class="fl">1</span>, maxnodes <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span>
+<span class="va">cp.table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.test.html">cv.test</a></span><span class="op">(</span><span class="va">ruspini</span>, fold <span class="op">=</span> <span class="fl">5</span>, minnodes <span class="op">=</span> <span class="fl">1</span>, maxnodes <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
 <span class="va">cp.table</span>
 <span class="co">#&gt; 5-fold Cross-validation on a MonoClust object </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; # A tibble: 10 x 3</span>
 <span class="co">#&gt;    ncluster    MSE `Std. Dev.`</span>
 <span class="co">#&gt;       &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;</span>
-<span class="co">#&gt;  1        1 49804.       6462.</span>
-<span class="co">#&gt;  2        2 19462.       1766.</span>
-<span class="co">#&gt;  3        3 14084.       2561.</span>
-<span class="co">#&gt;  4        4  4668.       2702.</span>
-<span class="co">#&gt;  5        5  4256.       2199.</span>
-<span class="co">#&gt;  6        6  4223.       2140.</span>
-<span class="co">#&gt;  7        7  3937.       2068.</span>
-<span class="co">#&gt;  8        8  3870.       2031.</span>
-<span class="co">#&gt;  9        9  3869.       2291.</span>
-<span class="co">#&gt; 10       10  3805.       2233.</span></code></pre></div>
+<span class="co">#&gt;  1        1 51192.       4436.</span>
+<span class="co">#&gt;  2        2 19170.       2996.</span>
+<span class="co">#&gt;  3        3 14209.       4395.</span>
+<span class="co">#&gt;  4        4  4572.       2905.</span>
+<span class="co">#&gt;  5        5  4083.       2598.</span>
+<span class="co">#&gt;  6        6  4048.       2540.</span>
+<span class="co">#&gt;  7        7  3788.       2554.</span>
+<span class="co">#&gt;  8        8  3696.       2603.</span>
+<span class="co">#&gt;  9        9  3598.       2681.</span>
+<span class="co">#&gt; 10       10  3500.       2689.</span></code></pre></div>
 <p>A plot with error bars for one standard error, similar to Figure @ref(fig:cvv), can be made from the output table using standard plotting functions to assist in assessing these results.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
