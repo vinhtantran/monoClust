@@ -5,6 +5,9 @@ A minor release with some changes in function output and documentation.
 * local Windows 10 installation, R 4.0.3
 * ubuntu 16.04 (on travis-ci), R 4.0.2
 * win-builder (devel)
+* R-hub windows-x86_64-devel (r-devel)
+* R-hub ubuntu-gcc-release (r-release)
+* R-hub fedora-clang-devel (r-devel)
 
 ## R CMD check results
 
