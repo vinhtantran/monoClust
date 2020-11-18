@@ -49,7 +49,7 @@
 #'
 #' # MonoClust tree
 #' ruspini4sol <- MonoClust(ruspini, nclusters = 4)
-#' plot(ruspini4sol)#'
+#' plot(ruspini4sol)
 #' \donttest{
 #' # MonoClust tree after permutation test is run
 #' ruspini6sol <- MonoClust(ruspini, nclusters = 6)
@@ -74,9 +74,13 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
     stop("\"which\" has to be a value between 1 and 4.")
   abbrev <- match.arg(abbrev)
   if (!is.null(cols)) {
-    if (length(cols) > 1 & length(cols) != sum(x$frame$var == "<leaf>"))
-      stop("When set, \"col\" has to contain 1 color or number of colors equal
-      to the number of leaves.")
+    if (length(cols) > 1) {
+      if (length(cols) < sum(x$frame$var == "<leaf>"))
+        stop("When set, \"col\" has to contain 1 color or the number of colors
+        is greater or equal to the number of leaves.")
+      cols <- cols[1:sum(x$frame$var == "<leaf>")]
+    }
+
     col.type <- match.arg(col.type)
   }
 

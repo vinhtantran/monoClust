@@ -99,7 +99,7 @@ data(ruspini)
 
 # MonoClust tree
 ruspini4sol <- MonoClust(ruspini, nclusters = 4)
-plot(ruspini4sol)#'
+plot(ruspini4sol)
 \donttest{
 # MonoClust tree after permutation test is run
 ruspini6sol <- MonoClust(ruspini, nclusters = 6)

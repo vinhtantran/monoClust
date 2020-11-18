@@ -1,3 +1,13 @@
+# monoClust (development version)
+
+## Changes to functions
+* `plot.MonoClust()` allows the `cols` argument to have the length greater
+  than the number of leaves. In that case, function will not throw error and 
+  only a subset of it will be used.
+  
+## Fix bugs
+* Fix some typos.
+
 # monoClust 1.1.0
 
 ## Changes to functions
@@ -15,7 +25,7 @@
 ## Fix bugs
 * Min version of dependency `tibble()` is 3.0.0 because `tibble::add_row()` is
   used with the new behavior.
-* Fix some typos and clarify some documentation
+* Fix some typos and clarify some documentation.
 
 # monoClust 1.0.0
 
