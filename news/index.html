@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monoClust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0.9000</span>
       </span>
     </div>
 
@@ -126,13 +126,33 @@
       <small>Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="monoclust-110" class="section level1">
-<h1 class="page-header" data-toc-text="1.1.0">
-<a href="#monoclust-110" class="anchor"></a>monoClust 1.1.0<small> 2020-11-17 </small>
+    <div id="monoclust-development-version" class="section level1">
+<h1 class="page-header" data-toc-text="development version">
+<a href="#monoclust-development-version" class="anchor"></a>monoClust (development version)<small> Unreleased </small>
 </h1>
 <div id="changes-to-functions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#changes-to-functions" class="anchor"></a>Changes to functions</h2>
+<ul>
+<li>
+<code><a href="../reference/plot.MonoClust.html">plot.MonoClust()</a></code> allows the <code>cols</code> argument to have the length greater than the number of leaves. In that case, function will not throw error and only a subset of it will be used.</li>
+</ul>
+</div>
+<div id="fix-bugs" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fix-bugs" class="anchor"></a>Fix bugs</h2>
+<ul>
+<li>Fix some typos.</li>
+</ul>
+</div>
+</div>
+    <div id="monoclust-110" class="section level1">
+<h1 class="page-header" data-toc-text="1.1.0">
+<a href="#monoclust-110" class="anchor"></a>monoClust 1.1.0<small> 2020-11-17 </small>
+</h1>
+<div id="changes-to-functions-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#changes-to-functions-1" class="anchor"></a>Changes to functions</h2>
 <ul>
 <li>Remove <code>bipartvar</code> column from <code>frame</code> object of MonoClust object. <code>var</code> column should be sufficient for showing splitting variable names.</li>
 <li>
@@ -147,12 +167,12 @@
 <li>Add documentation for <code>MonoClust.object</code> to explain its structure.</li>
 </ul>
 </div>
-<div id="fix-bugs" class="section level2">
+<div id="fix-bugs-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#fix-bugs" class="anchor"></a>Fix bugs</h2>
+<a href="#fix-bugs-1" class="anchor"></a>Fix bugs</h2>
 <ul>
 <li>Min version of dependency <code><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble()</a></code> is 3.0.0 because <code><a href="https://tibble.tidyverse.org/reference/add_row.html">tibble::add_row()</a></code> is used with the new behavior.</li>
-<li>Fix some typos and clarify some documentation</li>
+<li>Fix some typos and clarify some documentation.</li>
 </ul>
 </div>
 </div>
@@ -170,9 +190,9 @@
 <li>Added a vignette using R Markdown.</li>
 <li>Updated documentation.</li>
 </ul>
-<div id="changes-to-functions-1" class="section level2">
+<div id="changes-to-functions-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-functions-1" class="anchor"></a>Changes to functions</h2>
+<a href="#changes-to-functions-2" class="anchor"></a>Changes to functions</h2>
 <ul>
 <li>
 <code><a href="../reference/MonoClust.html">MonoClust()</a></code> removed <code>perm.test</code> and <code>alpha</code> arguments. Users now need to run <code><a href="../reference/perm.test.html">perm.test()</a></code> separately to perform permutation test on a MonoClust.
