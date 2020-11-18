@@ -31,7 +31,7 @@ Depends:
     R (>= 3.3.0)
 Imports: 
     cli (>= 2.0.0),
-    cluster,
+    cluster (>= 2.0.5),
     doParallel,
     dplyr (>= 1.0.0),
     foreach,
