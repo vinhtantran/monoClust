@@ -41,15 +41,8 @@
 
 <meta property="og:title" content="Find the Best Split — find_split" />
 <meta property="og:description" content="Find the best split in terms of reduction in inertia for the transferred
-node, indicate by row. We are keeping all of the information regarding which
-clusters we have in. At this point, we want to find the terminal node with
-the greatest change in inertia and bi-partition it. The way this is done is
-incredibly inefficient. We check every single possible split. This should be
-done much better since there is a single local maximum with respect to
-inertia so we should use this property to not do an exhaustive check, but to
-check the center the 25% and 75% and then search more selectively from there.
-This is a fairly simple discrete optimization problem and could reduce
-computation time ." />
+node, indicate by row. Find the terminal node with the greatest change in
+inertia and bi-partition it." />
 
 
 
@@ -139,15 +132,8 @@ computation time ." />
 
     <div class="ref-description">
     <p>Find the best split in terms of reduction in inertia for the transferred
-node, indicate by row. We are keeping all of the information regarding which
-clusters we have in. At this point, we want to find the terminal node with
-the greatest change in inertia and bi-partition it. The way this is done is
-incredibly inefficient. We check every single possible split. This should be
-done much better since there is a single local maximum with respect to
-inertia so we should use this property to not do an exhaustive check, but to
-check the center the 25% and 75% and then search more selectively from there.
-This is a fairly simple discrete optimization problem and could reduce
-computation time .</p>
+node, indicate by row. Find the terminal node with the greatest change in
+inertia and bi-partition it.</p>
     </div>
 
     <pre class="usage"><span class='fu'>find_split</span><span class='op'>(</span>
@@ -210,8 +196,7 @@ node. Default is <code>minsplit/3</code>.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>This function changes the frame in global environment, it's
-not supposed to return anything.</p>
+    <p>The updated <code>frame_row</code> with the next split updated.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Find Tree Depth Based on Node Indices — tree_depth • monoClust</title>
+<title>Find Tree Depth Based on Node Indexes — tree_depth • monoClust</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Find Tree Depth Based on Node Indices — tree_depth" />
-<meta property="og:description" content="Find Tree Depth Based on Node Indices" />
+<meta property="og:title" content="Find Tree Depth Based on Node Indexes — tree_depth" />
+<meta property="og:description" content="Find Tree Depth Based on Node Indexes" />
 
 
 
@@ -123,13 +123,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Find Tree Depth Based on Node Indices</h1>
-    <small class="dont-index">Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/R/mono_utils.R'><code>R/mono_utils.R</code></a></small>
+    <h1>Find Tree Depth Based on Node Indexes</h1>
+    <small class="dont-index">Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/R/common_utils.R'><code>R/common_utils.R</code></a></small>
     <div class="hidden name"><code>tree_depth.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Find Tree Depth Based on Node Indices</p>
+    <p>Find Tree Depth Based on Node Indexes</p>
     </div>
 
     <pre class="usage"><span class='fu'>tree_depth</span><span class='op'>(</span><span class='va'>nodes</span><span class='op'>)</span></pre>
@@ -139,7 +139,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>nodes</th>
-      <td><p>Vector of node indices in the tree.</p></td>
+      <td><p>Vector of node indexes in the tree.</p></td>
     </tr>
     </table>
 
@@ -149,7 +149,7 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>When building MonoClust tree, the node index was created with the rule that
-new node indices are the split node times 2 plus 0 (left) and 1 (right).
+new node indexes are the split node times 2 plus 0 (left) and 1 (right).
 Therefore, this function is just a back-transform, taking a log base 2.</p>
 
   </div>
