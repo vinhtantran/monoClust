@@ -41,19 +41,11 @@ node. Default is \code{minsplit/3}.}
 \item{ncores}{Number of CPU cores on the current host.}
 }
 \value{
-This function changes the frame in global environment, it's
-not supposed to return anything.
+The updated \code{frame_row} with the next split updated.
 }
 \description{
 Find the best split in terms of reduction in inertia for the transferred
-node, indicate by row. We are keeping all of the information regarding which
-clusters we have in. At this point, we want to find the terminal node with
-the greatest change in inertia and bi-partition it. The way this is done is
-incredibly inefficient. We check every single possible split. This should be
-done much better since there is a single local maximum with respect to
-inertia so we should use this property to not do an exhaustive check, but to
-check the center the 25\% and 75\% and then search more selectively from there.
-This is a fairly simple discrete optimization problem and could reduce
-computation time .
+node, indicate by row. Find the terminal node with the greatest change in
+inertia and bi-partition it.
 }
 \keyword{internal}

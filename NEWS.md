@@ -4,9 +4,10 @@
 * `plot.MonoClust()` allows the `cols` argument to have the length greater
   than the number of leaves. In that case, function will not throw error and 
   only a subset of it will be used.
+* `inertia_calc()`, `tree_depth()`, and `medoid()` are now exported functions.
   
 ## Fix bugs
-* Fix some typos.
+* Fix typos.
 
 # monoClust 1.1.0
 

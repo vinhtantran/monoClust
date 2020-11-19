@@ -247,7 +247,7 @@ MonoClust <- function(toclust,
                            minsplit, minbucket, split_order, ncores)
     split_order <- split_order + 1L
 
-    # Use cl_oc because it is only ran in splitter
+    # Use c_loc because it is only ran in splitter
     if (!identical(c_loc, checkem_ret$cloc)) {
       cluster_frame <- checkem_ret$frame
     } else {
@@ -371,13 +371,13 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
     )
 
   # Insert two new rows right after split row
-  frame <- dplyr::add_row(frame,
-                          dplyr::add_row(node_a, node_b),
-                          .after = split_row)
+  frame <- tibble::add_row(frame,
+                           tibble::add_row(node_a, node_b),
+                           .after = split_row)
 
   # This has to be updated last because it needs leaf nodes list
   # See Chavent (2007) for definition. Basically,
-  # 1 - (sum(current inertia)/inertial[1])
+  # 1 - (sum(current inertia)/inertia[1])
   frame$inertia_explained[split_row] <-
     1 - sum(frame$inertia[frame$var == "<leaf>"]) / frame$inertia[1]
 
@@ -387,21 +387,13 @@ splitter <- function(data, cuts, split_row, frame, cloc, dist,
 #' Find the Best Split
 #'
 #' Find the best split in terms of reduction in inertia for the transferred
-#' node, indicate by row. We are keeping all of the information regarding which
-#' clusters we have in. At this point, we want to find the terminal node with
-#' the greatest change in inertia and bi-partition it. The way this is done is
-#' incredibly inefficient. We check every single possible split. This should be
-#' done much better since there is a single local maximum with respect to
-#' inertia so we should use this property to not do an exhaustive check, but to
-#' check the center the 25% and 75% and then search more selectively from there.
-#' This is a fairly simple discrete optimization problem and could reduce
-#' computation time .
+#' node, indicate by row. Find the terminal node with the greatest change in
+#' inertia and bi-partition it.
 #'
 #' @param frame_row One row of the split tree as data frame.
 #' @inheritParams checkem
 #'
-#' @return This function changes the frame in global environment, it's
-#'   not supposed to return anything.
+#' @return The updated `frame_row` with the next split updated.
 #' @keywords internal
 find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
                        minbucket, ncores) {
@@ -410,7 +402,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   mems <- which(cloc == node_number)
   inertiap <- frame_row$inertia
 
-  if (inertiap == 0L | frame_row$n < minsplit | frame_row$n == 1L) {
+  if (inertiap == 0L || frame_row$n < minsplit || frame_row$n == 1L) {
     frame_row$bipartsplitrow <- 0L
     return(frame_row)
   }
@@ -462,7 +454,7 @@ find_split <- function(data, cuts, frame_row, cloc, dist, variables, minsplit,
   # possible)
   vals[!is.finite(vals) | is.na(vals)] <- 0L
 
-  # This is the best split.
+  # This is the best split
   maxval <- max(vals)
 
   # This is the maximum inertia change index
@@ -546,14 +538,14 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, minsplit,
   # Current terminal nodes
   candidates <- which(frame$var == "<leaf>" &
                         frame$bipartsplitrow == -99L)
-  # Split the best one. Return to nada which never gets output.
+  # Split the best one. Return to nada which never gets output
   frame[candidates, ] <-
     purrr::map_dfr(candidates,
                    ~ find_split(data, cuts, frame[.x, ], cloc, dist, variables,
                                 minsplit, minbucket, ncores))
 
 
-  # See which ones are left.
+  # See which ones are left
   candidates2 <- which(frame$var == "<leaf>" & frame$bipartsplitrow != 0L)
 
   # if there is something, run. Otherwise, frame and cloc are not updated, cloc
@@ -569,7 +561,6 @@ checkem <- function(data, cuts, frame, cloc, dist, variables, minsplit,
     frame <- splitter_ret$frame
     cloc <- splitter_ret$cloc
   }
-
 
   return(list(frame = frame, cloc = cloc))
 }
