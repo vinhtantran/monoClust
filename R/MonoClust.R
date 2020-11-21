@@ -287,6 +287,9 @@ MonoClust <- function(toclust,
                   cluster_frame$var == "<leaf>",
                   ~ slice(.x, 0))
 
+  # Whether there exists an alternate splitting route
+  alt <- sum(purrr::map_int(frame$alt, nrow)) > 0
+
   MonoClust_obj <-
     list(frame = cluster_frame,
          membership = c_loc,
@@ -296,6 +299,7 @@ MonoClust <- function(toclust,
          # Centroids info, for prediction
          centroids = centroid(toclust, cluster_frame, c_loc),
          medoids = medoids,
+         alt = alt,
          circularroot = list(var = cir.var, cut = bestcircsplit$hour)
     )
 

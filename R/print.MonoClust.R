@@ -71,7 +71,8 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
     }
   }
 
-  if (sum(purrr::map_int(frame$alt, nrow)) > 0)
+  # Alternate route notice
+  if (x$alt)
     cat("\nNote: One or more of the splits chosen had an alternative split that
         reduced inertia by the same amount. See \"alt\" column of \"frame\"
         object for details.")

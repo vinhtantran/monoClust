@@ -47,6 +47,8 @@ node that an observation falls into.}
 cluster.}
 \item{medoids}{Named vector of positions of the data points regarded as
 medoids of clusters.}
+\item{alt}{Indicator of having an alternate splitting route occurred when
+splitting.}
 \item{circularroot}{List of values designed for circular variable in the
 data set. \code{var} is the name of circular variable and \code{cut} is its first
 best split value. If circular variable is not available, both objects are
