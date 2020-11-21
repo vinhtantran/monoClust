@@ -1,5 +1,5 @@
 ## Release summary
-A minor release with some changes in function output and documentation.
+A minor release with some changes in package API and documentation.
 
 ## Test environments
 * local Windows 10 installation, R 4.0.3

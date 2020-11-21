@@ -30,8 +30,8 @@
 print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
                             spaces = 2L, digits = getOption("digits"), ...) {
 
-  if (!inherits(x, "MonoClust"))
-    stop("Not a legitimate \"MonoClust\" object")
+  if (!is_MonoClust(x))
+    stop("Not a legitimate \"MonoClust\" object.")
 
   abbrev <- match.arg(abbrev)
 
@@ -73,68 +73,9 @@ print.MonoClust <- function(x, abbrev = c("no", "short", "abbreviate"),
 
   # Alternate route notice
   if (x$alt)
-    cat("\nNote: One or more of the splits chosen had an alternative split that
-        reduced inertia by the same amount. See \"alt\" column of \"frame\"
-        object for details.")
+    cat(paste("\nNote: One or more of the splits chosen had an alternative",
+              "split that reduced inertia by the same amount. See \"alt\"",
+              "column of \"frame\" object for details."))
 
   return(invisible(x))
-}
-
-#' Create Labels for Split Variables
-#'
-#' This function prints variable's labels for a `MonoClust` tree.
-#'
-#' @inheritParams print.MonoClust
-#'
-#' @return A list containing two elements:
-#'   * `varnames`: A named vector of labels corresponding to variable's names
-#'   (at vector names).
-#'   * `labels`: Vector of labels of splitting rules to be displayed.
-#' @seealso [abbreviate()]
-#' @keywords internal
-create_labels <- function(x, abbrev, digits = getOption("digits"), ...) {
-
-  frame <- x$frame
-
-  # Rename variable as indicated in abbrev
-  vars <- frame$var
-  uvars <- unique(vars)
-  names <- uvars[uvars != "<leaf>"]
-
-  if (abbrev == "short") {
-    varnames <- stringr::str_c("V", seq_len(length(names)))
-  } else if (abbrev == "abbreviate") {
-    varnames <- purrr::map_chr(names, abbreviate, ...)
-  } else {
-    varnames <- names
-  }
-
-  names(varnames) <- names
-
-  # Create split labels
-  split_index <- which(frame$var != "<leaf>")
-  lsplit <- rsplit <- character(length(split_index))
-
-  label <- varnames[frame$var[split_index]]
-  level <- frame$cut[split_index]
-
-  # In case there is no cut information, don't show less or greater signs
-  # For generalize and reuse function purposes
-  if (all(is.na(level))) {
-    lsplit <- rsplit <- label
-  } else {
-    lsplit <- paste(label, "<", round(level, digits), sep = " ")
-    rsplit <- paste(label, ">=", round(level, digits), sep = " ")
-  }
-
-  node <- frame$number
-  parent <- match(node %/% 2, node[split_index])
-  odd <- as.logical(node %% 2)
-
-  labels <- character(nrow(frame))
-  labels[odd] <- rsplit[parent[odd]]
-  labels[!odd] <- lsplit[parent[!odd]]
-  labels[1] <- "root"
-
-  return(list(varnames = varnames, labels = labels))
 }

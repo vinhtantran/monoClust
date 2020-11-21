@@ -14,7 +14,6 @@
 #'
 #' @return Object of class "dist".
 #'
-#' @importFrom stats as.dist
 #' @seealso [stats::dist()]
 #'
 #' @references
@@ -49,5 +48,5 @@ circ_dist <- function(frame) {
 
   ret <- matrix(purrr::pmap_dbl(list_dist, sum) / length(list_dist),
                 ncol = nrow(frame))
-  return(as.dist(ret))
+  return(stats::as.dist(ret))
 }

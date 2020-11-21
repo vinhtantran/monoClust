@@ -285,7 +285,7 @@ MonoClust <- function(toclust,
   cluster_frame$alt <-
     purrr::map_if(cluster_frame$alt,
                   cluster_frame$var == "<leaf>",
-                  ~ slice(.x, 0))
+                  ~ dplyr::slice(.x, 0))
 
   # Whether there exists an alternate splitting route
   alt <- sum(purrr::map_int(cluster_frame$alt, nrow)) > 0

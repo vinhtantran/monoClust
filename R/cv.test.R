@@ -40,8 +40,6 @@
 #' @seealso [plot.cv.MonoClust()], [MonoClust()], [predict.MonoClust()]
 #' @export
 #'
-#' @importFrom stats sd
-#'
 #' @examples
 #' \donttest{
 #' library(cluster)
@@ -96,7 +94,7 @@ cv.test <- function(data, fold = 10L, minnodes = 2L, maxnodes = 10L,
                          }
       sse_t[[k - minnodes + 1]] <- c(ncluster = k,
                                      MSE = mean(sse_i),
-                                     `Std. Dev.` = sd(sse_i))
+                                     `Std. Dev.` = stats::sd(sse_i))
     }
 
     ret <- list(cv = dplyr::bind_rows(sse_t),
@@ -123,7 +121,7 @@ cv.test <- function(data, fold = 10L, minnodes = 2L, maxnodes = 10L,
                          }
       sse_t[[k - minnodes + 1]] <- c(ncluster = k,
                                      MSE = mean(sse_i),
-                                     `Std. Dev.` = sd(sse_i))
+                                     `Std. Dev.` = stats::sd(sse_i))
     }
     ret <- list(cv = dplyr::bind_rows(sse_t),
                 cv.type = paste0(fold, "-fold Cross-validation"))

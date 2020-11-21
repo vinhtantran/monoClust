@@ -11,7 +11,7 @@
 #' @param err.width Width of the bars.
 #'
 #' @return A ggplot2 object.
-#' @import dplyr
+#' @importFrom dplyr `%>%`
 #' @importFrom rlang .data
 #' @seealso Plot using base R [plot.cv.MonoClust()]
 #' @export
@@ -44,8 +44,8 @@ ggcv <- function(cv.obj,
 
   p <-
     cv_table %>%
-    mutate(upper1SD = .data$MSE + .data$`Std. Dev.`,
-           lower1SD = .data$MSE - .data$`Std. Dev.`) %>%
+    dplyr::mutate(upper1SD = .data$MSE + .data$`Std. Dev.`,
+                  lower1SD = .data$MSE - .data$`Std. Dev.`) %>%
     ggplot2::ggplot(ggplot2::aes(x = .data$ncluster, y = .data$MSE)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$lower1SD,
                                         ymax = .data$upper1SD),

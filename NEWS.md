@@ -1,15 +1,18 @@
 # monoClust 1.2.0
-
+  
+## New functions
+* `inertia_calc()`, `tree_depth()`, and `medoid()` are now exported functions.
+* `is_MonoClust()` to check if an object is an inherited class of `MonoClust`.
+* Create a S3 function `as_MonoClust()` so other packages (such as `PULS`) to be
+  able to reuse print and plot functions. However, no implementation is done in
+  this package.
+  
 ## Changes to functions
 * `plot.MonoClust()` allows the `cols` argument to have the length greater
   than the number of leaves. In that case, function will not throw error and 
   only a subset of it will be used.
-* `inertia_calc()`, `tree_depth()`, and `medoid()` are now exported functions.
 * `MonoClust.object` gains `alt` object as an indicator of whether an alternate
   route is available.
-* Create a S3 function `as_MonoClust()` so other packages (such as `PULS`) to be
-  able to reuse print and plot functions. However, no implementation is done in
-  this package.
   
 ## Fix bugs
 * Fix typos.

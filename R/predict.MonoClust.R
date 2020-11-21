@@ -13,10 +13,7 @@
 #' @return A tibble of cluster index in `cname` and either centroid values or
 #'   medoid observations index based on the value of `type` argument.
 #'
-#' @seealso [predict]
 #' @export
-#'
-#' @importFrom stats na.pass
 #'
 #' @examples
 #' library(cluster)
@@ -33,8 +30,8 @@
 predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid"),
                               ...) {
 
-  if (!inherits(object, "MonoClust"))
-    stop("Not a legitimate \"MonoClust\" object")
+  if (!is_MonoClust(object))
+    stop("Not a legitimate \"MonoClust\" object.")
 
   type <- match.arg(type)
 
@@ -48,8 +45,8 @@ predict.MonoClust <- function(object, newdata, type = c("centroid", "medoid"),
     terms <- object$terms
     new_terms <- colnames(new_data)
     if (!length(intersect(terms, new_terms)) == length(terms))
-      stop("The new data set does not have the same variables as the original
-           data set")
+      stop(paste("The new data set does not have the same variables as the",
+                 "original data set."))
 
     # It would be better to create a jump table for reference of tree walking
     jump_table <- make_jump_table(frame)

@@ -1,3 +1,108 @@
+#' Find the Closest Cut
+#'
+#' Find the cuts for a quantitative variable. These cuts are what we are
+#' going to consider when thinking about bi-partitioning the data. For a
+#' quantitative column, find the next larger value of each value, if it is the
+#' largest, that value + 1
+#'
+#' @param col a quantitative vector.
+#'
+#' @return a quantitative vector which contains the closest higher cut.
+#' @keywords internal
+find_closest <- function(col) {
+  purrr::map_dbl(col, ~ ifelse(.x == max(col),
+                               .x + 1,
+                               min(col[which(col - .x > 0)])))
+}
+
+#' Create A New Node for Split Data Frame
+#'
+#' This function is just a helper to make sure that the default values of the
+#' split data frame is correct when unspecified. It helps reduce type error,
+#' especially when moving to use dplyr which is stricter in data types.
+#'
+#' @param number Row index of the data frame.
+#' @param var Whether it is a leaf, or the name of the next split variable.
+#' @param cut The splitting value, so values (of `var`) smaller than that
+#'   go to left branch while values greater than that go to right branch.
+#' @param n Cluster size. Number of observations in that cluster.
+#' @param inertia Inertia value of the cluster at that node.
+#' @param bipartsplitrow Position of the next split row in the data set (that
+#'   position will belong to left node (smaller)).
+#' @param bipartsplitcol Position of the next split variable in the data set.
+#' @param inertiadel The proportion of inertia value of the cluster at that node
+#'   to the inertia of the root.
+#' @param medoid Position of the data point regarded as the medoid of its
+#'   cluster.
+#' @param loc y-coordinate of the splitting node to facilitate showing on the
+#'   tree. See [plot.MonoClust()] for details.
+#' @param split.order Order of the splits. Root is 0, and increasing.
+#' @param inertia_explained Percent inertia explained as described in Chavent
+#'   (2007)
+#' @param alt Indicator of an alternative cut yielding the same reduction in
+#'   inertia at that split.
+#'
+#' @references
+#' * Chavent, M., Lechevallier, Y., & Briant, O. (2007). DIVCLUS-T: A monothetic
+#' divisive hierarchical clustering method. Computational Statistics & Data
+#' Analysis, 52(2), 687–701. https://doi.org/10.1016/j.csda.2007.03.013
+#'
+#' @return A tibble with only one row and correct default data type for even an
+#'   unspecified variables.
+#' @keywords internal
+new_node <- function(number,
+                     var,
+                     cut = -99L,
+                     n,
+                     inertia,
+                     bipartsplitrow = -99L,
+                     bipartsplitcol = -99L,
+                     inertiadel = 0,
+                     inertia_explained = -99,
+                     medoid,
+                     loc,
+                     split.order = -99L,
+                     alt = list(
+                       tibble::tibble(bipartsplitrow = numeric(),
+                                      bipartsplitcol = numeric()))) {
+
+  one_row_table <- tibble::tibble(
+    number, var, cut, n,
+    inertia, bipartsplitrow,
+    bipartsplitcol, inertiadel,
+    inertia_explained, medoid,
+    loc,
+    split.order,
+    alt)
+
+  return(one_row_table)
+}
+
+#' Find Centroid of the Cluster
+#'
+#' Centroid is point whose coordinates are the means of their cluster values.
+#'
+#' @inheritParams checkem
+#'
+#' @return A data frame with coordinates of centroids
+#' @keywords internal
+centroid <- function(data, frame, cloc) {
+
+  leaves <- frame$number[frame$var == "<leaf>"]
+  names(leaves) <- leaves
+  centroid_list <- vector("list", length(leaves))
+
+  centroid_list <-
+    purrr::map_dfr(leaves, function(x) {
+      cluster <- data[cloc == x, ]
+      centroid <- purrr::map_dbl(cluster, mean)
+      return(centroid)
+    },
+    .id = "cname")
+
+  return(centroid_list)
+}
+
 #' Plot the monoClust Tree.
 #'
 #' This function plots the MonoClust tree. It is partially inspired by rpart
@@ -224,4 +329,63 @@ text_tree <- function(x,
     graphics::legend(mean(xy$x), 0.9,
                      paste(varnames, names, sep   = " = "), bty = "n")
   }
+}
+
+#' Create Labels for Split Variables
+#'
+#' This function prints variable's labels for a `MonoClust` tree.
+#'
+#' @inheritParams print.MonoClust
+#'
+#' @return A list containing two elements:
+#'   * `varnames`: A named vector of labels corresponding to variable's names
+#'   (at vector names).
+#'   * `labels`: Vector of labels of splitting rules to be displayed.
+#' @seealso [abbreviate()]
+#' @keywords internal
+create_labels <- function(x, abbrev, digits = getOption("digits"), ...) {
+
+  frame <- x$frame
+
+  # Rename variable as indicated in abbrev
+  vars <- frame$var
+  uvars <- unique(vars)
+  names <- uvars[uvars != "<leaf>"]
+
+  if (abbrev == "short") {
+    varnames <- stringr::str_c("V", seq_len(length(names)))
+  } else if (abbrev == "abbreviate") {
+    varnames <- purrr::map_chr(names, abbreviate, ...)
+  } else {
+    varnames <- names
+  }
+
+  names(varnames) <- names
+
+  # Create split labels
+  split_index <- which(frame$var != "<leaf>")
+  lsplit <- rsplit <- character(length(split_index))
+
+  label <- varnames[frame$var[split_index]]
+  level <- frame$cut[split_index]
+
+  # In case there is no cut information, don't show less or greater signs
+  # For generalize and reuse function purposes
+  if (all(is.na(level))) {
+    lsplit <- rsplit <- label
+  } else {
+    lsplit <- paste(label, "<", round(level, digits), sep = " ")
+    rsplit <- paste(label, ">=", round(level, digits), sep = " ")
+  }
+
+  node <- frame$number
+  parent <- match(node %/% 2, node[split_index])
+  odd <- as.logical(node %% 2)
+
+  labels <- character(nrow(frame))
+  labels[odd] <- rsplit[parent[odd]]
+  labels[!odd] <- lsplit[parent[!odd]]
+  labels[1] <- "root"
+
+  return(list(varnames = varnames, labels = labels))
 }

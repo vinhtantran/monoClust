@@ -38,6 +38,3 @@ ruspini_test <- ruspini[test_index, ]
 ruspini_train_4sol <- MonoClust(ruspini_train, nclusters = 4)
 predict(ruspini_train_4sol, newdata = ruspini_test)
 }
-\seealso{
-\link{predict}
-}

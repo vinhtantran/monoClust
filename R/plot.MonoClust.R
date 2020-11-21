@@ -68,7 +68,7 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
                            cols = NULL, col.type = c("l", "p", "b"),
                            rel.loc.x = TRUE, show.pval = TRUE, ...) {
 
-  if (!inherits(x, "MonoClust"))
+  if (!is_MonoClust(x))
     stop("Not a MonoClust object.")
   if (!(which %in% 1:4))
     stop("\"which\" has to be a value between 1 and 4.")
