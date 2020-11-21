@@ -54,7 +54,7 @@ a vector of colors matching the number of leaves.}
 \item{rel.loc.x}{Whether to use the relative distance between clusters as x
 coordinate of the leaves. Default is TRUE.}
 
-\item{show.pval}{If MonClust object has been run through \code{\link[=perm.test]{perm.test()}},
+\item{show.pval}{If MonoClust object has been run through \code{\link[=perm.test]{perm.test()}},
 whether to show p-value on the tree.}
 
 \item{uniform}{If TRUE, uniform vertical spacing of the nodes is used; this

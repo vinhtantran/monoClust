@@ -34,7 +34,7 @@
 #'   (`"p"`), or both (`"b"`).
 #' @param rel.loc.x Whether to use the relative distance between clusters as x
 #'   coordinate of the leaves. Default is TRUE.
-#' @param show.pval If MonClust object has been run through [perm.test()],
+#' @param show.pval If MonoClust object has been run through [perm.test()],
 #'   whether to show p-value on the tree.
 #' @param ... Arguments to be passed to [graphics::plot.default()] and
 #'   [graphics::lines()].

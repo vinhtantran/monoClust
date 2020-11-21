@@ -81,7 +81,7 @@ shown in a form of solid lines below the leaves (\code{"l"}), or big points
 \item{rel.loc.x}{Whether to use the relative distance between clusters as x
 coordinate of the leaves. Default is TRUE.}
 
-\item{show.pval}{If MonClust object has been run through \code{\link[=perm.test]{perm.test()}},
+\item{show.pval}{If MonoClust object has been run through \code{\link[=perm.test]{perm.test()}},
 whether to show p-value on the tree.}
 
 \item{...}{Arguments to be passed to \code{\link[graphics:plot.default]{graphics::plot.default()}} and
