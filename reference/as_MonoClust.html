@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • monoClust</title>
+<title>Coerce Similar Object to MonoClust — as_MonoClust • monoClust</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,10 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Coerce Similar Object to MonoClust — as_MonoClust" />
+<meta property="og:description" content="The function turns a MonoClust-similar object into MonoClust object so it
+can use supported functions for MonoClust such as print.MonoClust() and
+plot.MonoClust()." />
 
 
 
@@ -58,7 +61,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -120,156 +123,41 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Coerce Similar Object to MonoClust</h1>
+    <small class="dont-index">Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/R/common_utils.R'><code>R/common_utils.R</code></a></small>
+    <div class="hidden name"><code>as_MonoClust.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>The function turns a MonoClust-similar object into MonoClust object so it
+can use supported functions for MonoClust such as <code><a href='print.MonoClust.html'>print.MonoClust()</a></code> and
+<code><a href='plot.MonoClust.html'>plot.MonoClust()</a></code>.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>as_MonoClust</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="MonoClust.html">MonoClust()</a></code> </p>
-        </td>
-        <td><p>Monothetic Clustering</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="MonoClust.object.html">MonoClust.object</a></code> </p>
-        </td>
-        <td><p>Monothetic Clustering Trees Object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="as_MonoClust.html">as_MonoClust()</a></code> </p>
-        </td>
-        <td><p>Coerce Similar Object to MonoClust</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="circ_arith.html">`%cd+%`</a></code> <code><a href="circ_arith.html">`%cd-%`</a></code> <code><a href="circ_arith.html">`%cr+%`</a></code> <code><a href="circ_arith.html">`%cr-%`</a></code> </p>
-        </td>
-        <td><p>Add/Subtract Circular Values in Degrees/Radian</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="circ_dist.html">circ_dist()</a></code> </p>
-        </td>
-        <td><p>Distance Matrix of Circular Variables</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cv.test.html">cv.test()</a></code> </p>
-        </td>
-        <td><p>Cross-Validation Test on MonoClust</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="ggcv.html">ggcv()</a></code> </p>
-        </td>
-        <td><p>GGPlot the Mean Square Error with Error Bar for +/- 1 Standard Error</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="ggpcp.html">ggpcp()</a></code> </p>
-        </td>
-        <td><p>Parallel Coordinates Plot with Circular Variables</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="inertia_calc.html">inertia_calc()</a></code> </p>
-        </td>
-        <td><p>Cluster Inertia Calculation</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="medoid.html">medoid()</a></code> </p>
-        </td>
-        <td><p>Find Medoid of the Cluster</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="perm.test.html">perm.test()</a></code> </p>
-        </td>
-        <td><p>Permutation Test on Monothetic Tree</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot.MonoClust.html">plot(<i>&lt;MonoClust&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Plot MonoClust Splitting Rule Tree</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot.cv.MonoClust.html">plot(<i>&lt;cv.MonoClust&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Plot the Mean Square Error with Error Bar for +/- 1 Standard Error</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="predict.MonoClust.html">predict(<i>&lt;MonoClust&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Predictions from a MonoClust Object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="print.MonoClust.html">print(<i>&lt;MonoClust&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Print Monothetic Clustering Results</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="print.cv.MonoClust.html">print(<i>&lt;cv.MonoClust&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Print MonoClust Cross-Validation Result</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="to_deg_rad.html">torad()</a></code> <code><a href="to_deg_rad.html">todeg()</a></code> </p>
-        </td>
-        <td><p>Transform Between Degree and Radian</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="tree_depth.html">tree_depth()</a></code> </p>
-        </td>
-        <td><p>Find Tree Depth Based on Node Indexes</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="wind_sensit_2007.html">wind_sensit_2007</a></code> </p>
-        </td>
-        <td><p>Existence of Microorganisms Carried in Wind</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="wind_sensit_2008.html">wind_sensit_2008</a></code> </p>
-        </td>
-        <td><p>Existence of Microorganisms Carried in Wind</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>An object that can be coerced to MonoClust object.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>For extensibility.</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p><code>as_MonoClust()</code> is an S3 generic. The function itself doesn't run unless
+it is implemented for another similar object. Currently, this function is not
+implemented within <code>monoClust</code> package.</p>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
