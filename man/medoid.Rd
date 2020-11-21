@@ -10,7 +10,8 @@ medoid(members, dist_mat)
 \item{members}{index vector indicating which observation belongs to the
 cluster.}
 
-\item{dist_mat}{distance matrix of the whole data set.}
+\item{dist_mat}{distance matrix of the whole data set. A class of \code{dist}
+object must be coerced to a matrix before using.}
 }
 \value{
 index of the medoid point in the members vector.
@@ -18,4 +19,17 @@ index of the medoid point in the members vector.
 \description{
 Medoid is the point that has minimum distance to all other points in the
 cluster.
+}
+\examples{
+\donttest{
+library(cluster)
+data(ruspini)
+ruspini4sol <- MonoClust(ruspini, nclusters = 4)
+ruspini4sol
+
+medoid(which(ruspini4sol$membership == 4), ruspini4sol$dist)
+
+# Check with the output with "4" label
+ruspini4sol$medoids
+}
 }

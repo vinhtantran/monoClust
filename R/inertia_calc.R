@@ -9,6 +9,12 @@
 #' @return Inertia value of the matrix, formula in Chavent (1998). If `x` is a
 #'   single number, return 0.
 #' @export
+#' @examples
+#' data(iris)
+#'
+#' # Euclidean distance on first 20 rows of the 4 continuous variables
+#' dist_mat <- as.matrix(dist(iris[1:20, 1:4]))
+#' inertia_calc(dist_mat)
 inertia_calc <- function(x) {
 
   if (!is.numeric(x) && !is.matrix(x))

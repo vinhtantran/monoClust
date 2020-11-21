@@ -20,3 +20,6 @@ When building MonoClust tree, the node index was created with the rule that
 new node indexes are the split node times 2 plus 0 (left) and 1 (right).
 Therefore, this function is just a back-transform, taking a log base 2.
 }
+\examples{
+tree_depth(1:5)
+}

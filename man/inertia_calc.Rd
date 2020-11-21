@@ -18,3 +18,10 @@ Calculate inertia for a given subset of the distance matrix from the original
 data set provided to \code{x}. Assumes that distance matrices are stored as
 matrices and not distance objects.
 }
+\examples{
+data(iris)
+
+# Euclidean distance on first 20 rows of the 4 continuous variables
+dist_mat <- as.matrix(dist(iris[1:20, 1:4]))
+inertia_calc(dist_mat)
+}

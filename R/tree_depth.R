@@ -10,6 +10,8 @@
 #' @return Depth of the node, with 0 is the root relative to the input.
 #'
 #' @export
+#' @examples
+#' tree_depth(1:5)
 tree_depth <- function(nodes) {
   if (!is.numeric(nodes))
     stop("\"node\" has to be a numerical value.")
