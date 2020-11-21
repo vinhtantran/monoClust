@@ -288,7 +288,7 @@ MonoClust <- function(toclust,
                   ~ slice(.x, 0))
 
   # Whether there exists an alternate splitting route
-  alt <- sum(purrr::map_int(frame$alt, nrow)) > 0
+  alt <- sum(purrr::map_int(cluster_frame$alt, nrow)) > 0
 
   MonoClust_obj <-
     list(frame = cluster_frame,
