@@ -2,9 +2,12 @@
 % Please edit documentation in R/common_utils.R
 \name{as_MonoClust}
 \alias{as_MonoClust}
+\alias{as_MonoClust.default}
 \title{Coerce Similar Object to MonoClust}
 \usage{
 as_MonoClust(x, ...)
+
+\method{as_MonoClust}{default}(x, ...)
 }
 \arguments{
 \item{x}{An object that can be coerced to MonoClust object.}

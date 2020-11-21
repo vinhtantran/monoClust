@@ -1,4 +1,4 @@
-#' Monothetic Clustering Trees Object
+#' Monothetic Clustering Tree Object
 #'
 #' The structure and objects contained in MonoClust, an object returned from
 #' the [MonoClust()] function and used as the input in other functions in the

@@ -10,6 +10,7 @@
 #' @param err.col Color of the error bars.
 #' @param err.width Width of the bars.
 #'
+#' @return A ggplot2 object.
 #' @import dplyr
 #' @importFrom rlang .data
 #' @seealso Plot using base R [plot.cv.MonoClust()]

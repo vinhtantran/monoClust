@@ -2,7 +2,7 @@
 % Please edit documentation in R/mono_utils.R
 \name{MonoClust.object}
 \alias{MonoClust.object}
-\title{Monothetic Clustering Trees Object}
+\title{Monothetic Clustering Tree Object}
 \value{
 \describe{
 \item{frame}{Data frame in the form of a \code{\link[tibble:tibble]{tibble::tibble()}} representing

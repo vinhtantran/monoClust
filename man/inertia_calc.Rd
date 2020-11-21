@@ -4,17 +4,17 @@
 \alias{inertia_calc}
 \title{Cluster Inertia Calculation}
 \usage{
-inertia_calc(X)
+inertia_calc(x)
 }
 \arguments{
-\item{X}{distance matrix, not an object of some distance measure}
+\item{x}{Distance matrix, not an object of some distance measure.}
 }
 \value{
-inertia value of the matrix, formula in Chavent (1998). If X is a
+Inertia value of the matrix, formula in Chavent (1998). If \code{x} is a
 single number, return 0.
 }
 \description{
 Calculate inertia for a given subset of the distance matrix from the original
-data set provided to X. Assumes that distance matrices are stored as matrices
-and not distance objects
+data set provided to \code{x}. Assumes that distance matrices are stored as
+matrices and not distance objects.
 }

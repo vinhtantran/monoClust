@@ -33,6 +33,9 @@ only), \code{"p"} (point only), and \code{"b"} (both line and point).}
 
 \item{err.width}{Width of the bars.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 GGPlot the Mean Square Error with Error Bar for +/- 1 Standard Error
 }
