@@ -118,8 +118,14 @@ create_labels <- function(x, abbrev, digits = getOption("digits"), ...) {
   label <- varnames[frame$var[split_index]]
   level <- frame$cut[split_index]
 
-  lsplit <- paste(label, "<", round(level, digits), sep = " ")
-  rsplit <- paste(label, ">=", round(level, digits), sep = " ")
+  # In case there is no cut information, don't show less or greater signs
+  # For generalize and reuse function purposes
+  if (all(is.na(level))) {
+    lsplit <- rsplit <- label
+  } else {
+    lsplit <- paste(label, "<", round(level, digits), sep = " ")
+    rsplit <- paste(label, ">=", round(level, digits), sep = " ")
+  }
 
   node <- frame$number
   parent <- match(node %/% 2, node[split_index])
