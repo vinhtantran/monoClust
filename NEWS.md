@@ -1,4 +1,4 @@
-# monoClust (development version)
+# monoClust 1.2.0
 
 ## Changes to functions
 * `plot.MonoClust()` allows the `cols` argument to have the length greater
