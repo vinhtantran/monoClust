@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monoClust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -126,9 +126,9 @@
       <small>Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="monoclust-development-version" class="section level1">
-<h1 class="page-header" data-toc-text="development version">
-<a href="#monoclust-development-version" class="anchor"></a>monoClust (development version)<small> Unreleased </small>
+    <div id="monoclust-120" class="section level1">
+<h1 class="page-header" data-toc-text="1.2.0">
+<a href="#monoclust-120" class="anchor"></a>monoClust 1.2.0<small> Unreleased </small>
 </h1>
 <div id="changes-to-functions" class="section level2">
 <h2 class="hasAnchor">
@@ -138,6 +138,9 @@
 <code><a href="../reference/plot.MonoClust.html">plot.MonoClust()</a></code> allows the <code>cols</code> argument to have the length greater than the number of leaves. In that case, function will not throw error and only a subset of it will be used.</li>
 <li>
 <code><a href="../reference/inertia_calc.html">inertia_calc()</a></code>, <code><a href="../reference/tree_depth.html">tree_depth()</a></code>, and <code><a href="../reference/medoid.html">medoid()</a></code> are now exported functions.</li>
+<li>
+<code>MonoClust.object</code> gains <code>alt</code> object as an indicator of whether an alternate route is available.</li>
+<li>Create a S3 function <code><a href="../reference/as_MonoClust.html">as_MonoClust()</a></code> so other packages (such as <code>PULS</code>) to be able to reuse print and plot functions. However, no implementation is done in this package.</li>
 </ul>
 </div>
 <div id="fix-bugs" class="section level2">

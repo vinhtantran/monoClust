@@ -41,8 +41,8 @@
 
 <meta property="og:title" content="Cluster Inertia Calculation — inertia_calc" />
 <meta property="og:description" content="Calculate inertia for a given subset of the distance matrix from the original
-data set provided to X. Assumes that distance matrices are stored as matrices
-and not distance objects" />
+data set provided to x. Assumes that distance matrices are stored as
+matrices and not distance objects." />
 
 
 
@@ -74,7 +74,7 @@ and not distance objects" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monoClust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -132,24 +132,24 @@ and not distance objects" />
 
     <div class="ref-description">
     <p>Calculate inertia for a given subset of the distance matrix from the original
-data set provided to X. Assumes that distance matrices are stored as matrices
-and not distance objects</p>
+data set provided to <code>x</code>. Assumes that distance matrices are stored as
+matrices and not distance objects.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>inertia_calc</span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>inertia_calc</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>X</th>
-      <td><p>distance matrix, not an object of some distance measure</p></td>
+      <th>x</th>
+      <td><p>Distance matrix, not an object of some distance measure.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>inertia value of the matrix, formula in Chavent (1998). If X is a
+    <p>Inertia value of the matrix, formula in Chavent (1998). If <code>x</code> is a
 single number, return 0.</p>
 
   </div>
