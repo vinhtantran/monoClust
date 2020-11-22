@@ -118,7 +118,7 @@
 </ul>
 <p>As a very simple example, monothetic clustering of the <em>ruspini</em> data set (Ruspini, 1970) available in the <strong>cluster</strong> package (Maechler et al., 2018) with 4 clusters can be performed as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/vinhtantran/monoClust">monoClust</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://vinhtantran.github.io/monoClust/">monoClust</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://svn.r-project.org/R-packages/trunk/cluster">cluster</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">ruspini</span><span class="op">)</span>
 <span class="va">ruspini4c</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/MonoClust.html">MonoClust</a></span><span class="op">(</span><span class="va">ruspini</span>, nclusters <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>
@@ -136,9 +136,7 @@
 <span class="co">#&gt;     6) x &lt; 63.5 23   3176.783   *</span>
 <span class="co">#&gt;     7) x &gt;= 63.5 17   4558.235   *</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Note: One or more of the splits chosen had an alternative split that</span>
-<span class="co">#&gt;         reduced inertia by the same amount. See "alt" column of "frame"</span>
-<span class="co">#&gt;         object for details.</span></code></pre></div>
+<span class="co">#&gt; Note: One or more of the splits chosen had an alternative split that reduced inertia by the same amount. See "alt" column of "frame" object for details.</span></code></pre></div>
 <p>The output (<code>print.MonoClust</code>) lists each split on one line together with the splitting rule as well as its inertia and is displayed with the hierarchical structure so the parent–child relationships between nodes can be easily seen. This function defines a <code>MonoClust</code> object to store the cluster solution with some useful components:</p>
 <ul>
 <li>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Find Tree Depth Based on Node Indexes — tree_depth • monoClust</title>
+<title>Test If The Object is A MonoClust — is_MonoClust • monoClust</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Find Tree Depth Based on Node Indexes — tree_depth" />
-<meta property="og:description" content="Find Tree Depth Based on Node Indexes" />
+<meta property="og:title" content="Test If The Object is A MonoClust — is_MonoClust" />
+<meta property="og:description" content="This function returns TRUE for MonoClust, and FALSE for all other objects." />
 
 
 
@@ -123,38 +123,30 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Find Tree Depth Based on Node Indexes</h1>
-    <small class="dont-index">Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/R/tree_depth.R'><code>R/tree_depth.R</code></a></small>
-    <div class="hidden name"><code>tree_depth.Rd</code></div>
+    <h1>Test If The Object is A MonoClust</h1>
+    <small class="dont-index">Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/R/is_MonoClust.R'><code>R/is_MonoClust.R</code></a></small>
+    <div class="hidden name"><code>is_MonoClust.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Find Tree Depth Based on Node Indexes</p>
+    <p>This function returns <code>TRUE</code> for MonoClust, and FALSE for all other objects.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>tree_depth</span><span class='op'>(</span><span class='va'>nodes</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>is_MonoClust</span><span class='op'>(</span><span class='va'>mono_obj</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>nodes</th>
-      <td><p>Vector of node indexes in the tree.</p></td>
+      <th>mono_obj</th>
+      <td><p>An object.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Depth of the node, with 0 is the root relative to the input.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <p><code>TRUE</code> if the object inherits from the <code>MonoClust</code> class.</p>
 
-    <p>When building MonoClust tree, the node index was created with the rule that
-new node indexes are the split node times 2 plus 0 (left) and 1 (right).
-Therefore, this function is just a back-transform, taking a log base 2.</p>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>tree_depth</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] 0 1 1 2 2</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

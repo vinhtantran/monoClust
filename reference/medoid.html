@@ -125,7 +125,7 @@ cluster." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Find Medoid of the Cluster</h1>
-    <small class="dont-index">Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/R/common_utils.R'><code>R/common_utils.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/vinhtantran/monoClust/blob/master/R/medoid.R'><code>R/medoid.R</code></a></small>
     <div class="hidden name"><code>medoid.Rd</code></div>
     </div>
 
@@ -146,7 +146,8 @@ cluster.</p></td>
     </tr>
     <tr>
       <th>dist_mat</th>
-      <td><p>distance matrix of the whole data set.</p></td>
+      <td><p>distance matrix of the whole data set. A class of <code>dist</code>
+object must be coerced to a matrix before using.</p></td>
     </tr>
     </table>
 
@@ -154,6 +155,33 @@ cluster.</p></td>
 
     <p>index of the medoid point in the members vector.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://svn.r-project.org/R-packages/trunk/cluster'>cluster</a></span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>ruspini</span><span class='op'>)</span>
+<span class='va'>ruspini4sol</span> <span class='op'>&lt;-</span> <span class='fu'><a href='MonoClust.html'>MonoClust</a></span><span class='op'>(</span><span class='va'>ruspini</span>, nclusters <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
+<span class='va'>ruspini4sol</span>
+</div><div class='output co'>#&gt; n = 75 
+#&gt; 
+#&gt; Node) Split, N, Cluster Inertia, Proportion Inertia Explained,  
+#&gt;       * denotes terminal node
+#&gt; 
+#&gt; 1) root 75 244373.900 0.6344215   
+#&gt;   2) y &lt; 91 35  43328.460 0.9472896   
+#&gt;     4) x &lt; 37 20   3689.500   *
+#&gt;     5) x &gt;= 37 15   1456.533   *
+#&gt;   3) y &gt;= 91 40  46009.380 0.7910436   
+#&gt;     6) x &lt; 63.5 23   3176.783   *
+#&gt;     7) x &gt;= 63.5 17   4558.235   *
+#&gt; 
+#&gt; Note: One or more of the splits chosen had an alternative split that reduced inertia by the same amount. See "alt" column of "frame" object for details.</div><div class='input'>
+<span class='fu'>medoid</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/which.html'>which</a></span><span class='op'>(</span><span class='va'>ruspini4sol</span><span class='op'>$</span><span class='va'>membership</span> <span class='op'>==</span> <span class='fl'>4</span><span class='op'>)</span>, <span class='va'>ruspini4sol</span><span class='op'>$</span><span class='va'>dist</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 10</div><div class='input'>
+<span class='co'># Check with the output with "4" label</span>
+<span class='va'>ruspini4sol</span><span class='op'>$</span><span class='va'>medoids</span>
+</div><div class='output co'>#&gt;  4  5  6  7 
+#&gt; 10 70 32 52 </div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

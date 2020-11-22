@@ -130,6 +130,17 @@
 <h1 class="page-header" data-toc-text="1.2.0">
 <a href="#monoclust-120" class="anchor"></a>monoClust 1.2.0<small> Unreleased </small>
 </h1>
+<div id="new-functions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-functions" class="anchor"></a>New functions</h2>
+<ul>
+<li>
+<code><a href="../reference/inertia_calc.html">inertia_calc()</a></code>, <code><a href="../reference/tree_depth.html">tree_depth()</a></code>, and <code><a href="../reference/medoid.html">medoid()</a></code> are now exported functions.</li>
+<li>
+<code><a href="../reference/is_MonoClust.html">is_MonoClust()</a></code> to check if an object is an inherited class of <code>MonoClust</code>.</li>
+<li>Create a S3 function <code><a href="../reference/as_MonoClust.html">as_MonoClust()</a></code> so other packages (such as <code>PULS</code>) to be able to reuse print and plot functions. However, no implementation is done in this package.</li>
+</ul>
+</div>
 <div id="changes-to-functions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#changes-to-functions" class="anchor"></a>Changes to functions</h2>
@@ -137,10 +148,7 @@
 <li>
 <code><a href="../reference/plot.MonoClust.html">plot.MonoClust()</a></code> allows the <code>cols</code> argument to have the length greater than the number of leaves. In that case, function will not throw error and only a subset of it will be used.</li>
 <li>
-<code><a href="../reference/inertia_calc.html">inertia_calc()</a></code>, <code><a href="../reference/tree_depth.html">tree_depth()</a></code>, and <code><a href="../reference/medoid.html">medoid()</a></code> are now exported functions.</li>
-<li>
 <code>MonoClust.object</code> gains <code>alt</code> object as an indicator of whether an alternate route is available.</li>
-<li>Create a S3 function <code><a href="../reference/as_MonoClust.html">as_MonoClust()</a></code> so other packages (such as <code>PULS</code>) to be able to reuse print and plot functions. However, no implementation is done in this package.</li>
 </ul>
 </div>
 <div id="fix-bugs" class="section level2">
