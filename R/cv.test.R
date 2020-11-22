@@ -60,10 +60,10 @@ cv.test <- function(data, fold = 10L, minnodes = 2L, maxnodes = 10L,
 
   if (!is.null(ncores)){
     if (!is.numeric(ncores)) {
-      stop("\"ncores\" should be either NULL or a positive integer")
+      stop("\"ncores\" should be either NULL or a positive integer.")
     }
     if (ncores < 1) {
-      stop("\"ncores\" should be > 1")
+      stop("\"ncores\" should be > 1.")
     }
   }
 

@@ -37,7 +37,7 @@ ggcv <- function(cv.obj,
   if (missing(cv.obj))
     stop("\"cv.obj\" is required.")
   if (!inherits(cv.obj, "cv.MonoClust"))
-    stop("Not a legitimate \"cv.MonoClust\" object")
+    stop("Not a legitimate \"cv.MonoClust\" object.")
   type <- match.arg(type)
 
   cv_table <- cv.obj$cv

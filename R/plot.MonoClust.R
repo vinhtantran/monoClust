@@ -76,8 +76,8 @@ plot.MonoClust <- function(x, uniform = FALSE, branch = 1,
   if (!is.null(cols)) {
     if (length(cols) > 1) {
       if (length(cols) < sum(x$frame$var == "<leaf>"))
-        stop("When set, \"col\" has to contain 1 color or the number of colors
-        is greater or equal to the number of leaves.")
+        stop(paste("When set, \"col\" has to contain 1 color or the number of",
+                   "colors is greater or equal to the number of leaves."))
       cols <- cols[1:sum(x$frame$var == "<leaf>")]
     }
 

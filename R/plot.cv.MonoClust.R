@@ -36,7 +36,7 @@ plot.cv.MonoClust <- function(x,
   if (missing(x))
     stop("\"x\" is required.")
   if (!inherits(x, "cv.MonoClust"))
-    stop("Not a legitimate \"cv.MonoClust\" object")
+    stop("Not a legitimate \"cv.MonoClust\" object.")
 
   graphics::plot(x$cv$ncluster, x$cv$MSE, type = type, lty = lty,
                  ylim = c(0, max(x$cv$MSE + x$cv$`Std. Dev.`)),
@@ -62,7 +62,7 @@ plot.cv.MonoClust <- function(x,
 error_bar <- function(x, y, upper, lower = upper, length = 0.1, ...) {
   if (length(x) != length(y) |
       length(y) != length(lower) |
-      length(lower) != length(upper)) stop("vectors must be same length")
+      length(lower) != length(upper)) stop("Vectors must be same length.")
   graphics::arrows(x, y + upper,
                    x, y - lower,
                    angle = 90, code = 3, length = length, ...)

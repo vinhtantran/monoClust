@@ -18,7 +18,7 @@
 inertia_calc <- function(x) {
 
   if (!is.numeric(x) && !is.matrix(x))
-    stop("x has to be a numerical value or matrix.")
+    stop("\"x\" has to be a numerical value or matrix.")
 
   # If singleton cluster, inertia is 0
   inertia_value <- ifelse(length(x) == 1 && is.numeric(x),

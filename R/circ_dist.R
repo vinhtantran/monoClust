@@ -28,7 +28,7 @@
 circ_dist <- function(frame) {
 
   if (missing(frame))
-    stop("frame has to be a data set with all columns are circular.")
+    stop("\"frame\" has to be a data set with all columns are circular.")
 
   frame <- frame %cd+% 0
 

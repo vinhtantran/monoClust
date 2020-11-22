@@ -100,8 +100,8 @@ MonoClust <- function(toclust,
   # Argument checking (circular variables)
   if (!is.null(cir.var)) {
     if (!is.vector(cir.var)) {
-      stop("Circular variables need to be a vector of variable names or
-           indices.")
+      stop(paste("Circular variables need to be a vector of variable names or",
+           "indices."))
     } else if (length(cir.var) > 1) {
       stop("MonoClust supports only one circular variable in the data set.")
     }
@@ -128,10 +128,10 @@ MonoClust <- function(toclust,
 
   if (!is.null(ncores)){
     if (!is.numeric(ncores)) {
-      stop("\"ncores\" should be either NULL or a positive integer")
+      stop("\"ncores\" should be either NULL or a positive integer.")
     }
     if (ncores < 1) {
-      stop("\"ncores\" should be > 1")
+      stop("\"ncores\" should be > 1.")
     }
   }
 

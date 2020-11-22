@@ -84,16 +84,16 @@ perm.test <- function(object, data, auto.pick = FALSE, sig.val = 0.05,
                       ncores = 1L) {
 
   if (!is_MonoClust(object))
-    stop("Not a legitimate \"MonoClust\" object")
+    stop("Not a legitimate \"MonoClust\" object.")
   method <- match.arg(method)
   stat <- match.arg(stat)
 
   if (!is.null(ncores)){
     if (!is.numeric(ncores)) {
-      stop("\"ncores\" should be either NULL or a positive integer")
+      stop("\"ncores\" should be either NULL or a positive integer.")
     }
     if (ncores < 1) {
-      stop("\"ncores\" should be > 1")
+      stop("\"ncores\" should be > 1.")
     }
   }
 
