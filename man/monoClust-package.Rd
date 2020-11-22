@@ -18,8 +18,8 @@ Implementation of the Monothetic Clustering
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://vinhtantran.github.io/monoClust/
-    https://github.com/vinhtantran/monoClust}
+  \item \url{https://vinhtantran.github.io/monoClust/}
+  \item \url{https://github.com/vinhtantran/monoClust}
   \item Report bugs at \url{https://github.com/vinhtantran/monoClust/issues}
 }
 

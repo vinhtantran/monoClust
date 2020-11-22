@@ -25,7 +25,7 @@ Description: Implementation of the Monothetic Clustering
     cross-validation based tests to support the decision on the number of
     clusters.
 License: GPL (>= 2)
-URL: https://vinhtantran.github.io/monoClust/
+URL: https://vinhtantran.github.io/monoClust/,
     https://github.com/vinhtantran/monoClust
 BugReports: https://github.com/vinhtantran/monoClust/issues
 Depends: 
