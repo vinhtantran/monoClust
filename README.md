@@ -13,6 +13,7 @@ status](https://www.r-pkg.org/badges/version/monoClust)](https://CRAN.R-project.
 downloads](https://cranlogs.r-pkg.org/badges/monoClust)](https://cran.r-project.org/package=monoClust)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
+[![R-CMD-check](https://github.com/vinhtantran/monoClust/workflows/R-CMD-check/badge.svg)](https://github.com/vinhtantran/monoClust/actions)
 <!-- badges: end -->
 
 Implementation of the Monothetic Clustering algorithm on continuous data
@@ -65,9 +66,7 @@ ruspini4sol
 #>     6) x < 63.5 23   3176.783   *
 #>     7) x >= 63.5 17   4558.235   *
 #> 
-#> Note: One or more of the splits chosen had an alternative split that
-#>         reduced inertia by the same amount. See "alt" column of "frame"
-#>         object for details.
+#> Note: One or more of the splits chosen had an alternative split that reduced inertia by the same amount. See "alt" column of "frame" object for details.
 ```
 
 Plotting MonoClust tree:
