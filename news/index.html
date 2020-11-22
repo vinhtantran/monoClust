@@ -135,10 +135,10 @@
 <a href="#new-functions" class="anchor"></a>New functions</h2>
 <ul>
 <li>
-<code><a href="../reference/inertia_calc.html">inertia_calc()</a></code>, <code><a href="../reference/tree_depth.html">tree_depth()</a></code>, and <code><a href="../reference/medoid.html">medoid()</a></code> are now exported functions.</li>
+<code><a href="../reference/inertia_calc.html">inertia_calc()</a></code> and <code><a href="../reference/medoid.html">medoid()</a></code> are now exported functions.</li>
 <li>
 <code><a href="../reference/is_MonoClust.html">is_MonoClust()</a></code> to check if an object is an inherited class of <code>MonoClust</code>.</li>
-<li>Create a S3 function <code><a href="../reference/as_MonoClust.html">as_MonoClust()</a></code> so other packages (such as <code>PULS</code>) to be able to reuse print and plot functions. However, no implementation is done in this package.</li>
+<li>Create a S3 function <code><a href="../reference/as_MonoClust.html">as_MonoClust()</a></code> so other packages (such as <code>PULS</code>) can reuse print and plot functions. However, no implementation is done in this package.</li>
 </ul>
 </div>
 <div id="changes-to-functions" class="section level2">
@@ -151,11 +151,12 @@
 <code>MonoClust.object</code> gains <code>alt</code> object as an indicator of whether an alternate route is available.</li>
 </ul>
 </div>
-<div id="fix-bugs" class="section level2">
+<div id="bugs-and-improvements" class="section level2">
 <h2 class="hasAnchor">
-<a href="#fix-bugs" class="anchor"></a>Fix bugs</h2>
+<a href="#bugs-and-improvements" class="anchor"></a>Bugs and Improvements</h2>
 <ul>
 <li>Fix typos.</li>
+<li>More minimum version requirements for other dependencies.</li>
 </ul>
 </div>
 </div>
@@ -180,9 +181,9 @@
 <li>Add documentation for <code>MonoClust.object</code> to explain its structure.</li>
 </ul>
 </div>
-<div id="fix-bugs-1" class="section level2">
+<div id="fix-bugs" class="section level2">
 <h2 class="hasAnchor">
-<a href="#fix-bugs-1" class="anchor"></a>Fix bugs</h2>
+<a href="#fix-bugs" class="anchor"></a>Fix bugs</h2>
 <ul>
 <li>Min version of dependency <code><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble()</a></code> is 3.0.0 because <code><a href="https://tibble.tidyverse.org/reference/add_row.html">tibble::add_row()</a></code> is used with the new behavior.</li>
 <li>Fix some typos and clarify some documentation.</li>
