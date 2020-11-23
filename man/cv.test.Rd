@@ -50,8 +50,8 @@ predicting a new observation,
 \deqn{CV_K = \overline{MSE} = \frac{1}{M} \sum_{m=1}^M MSE_m.}
 }
 \note{
-This function supports parallel processing with \link[foreach:foreach]{foreach::foreach}. It
-distributes MonoClust calls to processes.
+This function supports parallel processing with \code{\link[foreach:foreach]{foreach::foreach()}}.
+It distributes MonoClust calls to processes.
 }
 \examples{
 \donttest{
