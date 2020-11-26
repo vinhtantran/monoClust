@@ -1,7 +1,7 @@
 Package: monoClust
 Title: Perform Monothetic Clustering with Extensions to Circular
     Data
-Version: 1.2.0
+Version: 1.2.0.9000
 Authors@R: 
     c(person(given = "Tan",
              family = "Tran",

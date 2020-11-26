@@ -1,3 +1,8 @@
+# monoClust (development version)
+
+### Bugs and Improvements
+* Fix typos.
+
 # monoClust 1.2.0
   
 ## New functions
