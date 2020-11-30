@@ -2,6 +2,10 @@
 
 ### Bugs and Improvements
 * Fix typos.
+* Small improvement in how `ncores` argument is processed in `perm.test()` and
+  `cv.test()`. It did not have a problem before but the improvement helps remove
+  errors in Github Actions CI in Windows environment.
+* `\@fig` tags in the vignette is removed.
 
 # monoClust 1.2.0
   
