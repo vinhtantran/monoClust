@@ -70,11 +70,16 @@ cv.test <- function(data, fold = 10L, minnodes = 2L, maxnodes = 10L,
   if (is.null(ncores))
     ncores <- parallel::detectCores() - 1
 
-  # Initiate processes
-  cl <- parallel::makeCluster(ncores)
-  doParallel::registerDoParallel(cl)
+  if (ncores > 1) {
+    # Initiate processes
+    cl <- parallel::makeCluster(ncores)
+    doParallel::registerDoParallel(cl)
 
-  `%dopar%` <- foreach::`%dopar%`
+    `%dodo%` <- foreach::`%dopar%`
+  } else {
+    `%dodo%` <- foreach::`%do%`
+  }
+
 
   num_obs <- nrow(data)
   sse_t <- vector("list", maxnodes - minnodes + 1)
@@ -85,7 +90,7 @@ cv.test <- function(data, fold = 10L, minnodes = 2L, maxnodes = 10L,
         foreach::foreach(iter = seq_len(num_obs),
                          .combine = "c",
                          .inorder = FALSE,
-                         .packages = c("monoClust")) %dopar% {
+                         .packages = c("monoClust")) %dodo% {
                            out <- MonoClust(data[-iter, ], nclusters = k, ...)
                            pred <- predict.MonoClust(out,
                                                      newdata = data[iter, ],
@@ -110,7 +115,7 @@ cv.test <- function(data, fold = 10L, minnodes = 2L, maxnodes = 10L,
         foreach::foreach(iter = 1:fold,
                          .combine = "c",
                          .inorder = FALSE,
-                         .packages = c("monoClust")) %dopar% {
+                         .packages = c("monoClust")) %dodo% {
                            train_set <- data[-which(random_list == iter), ]
                            test_set <- data[which(random_list == iter), ]
                            train_tree <- MonoClust(train_set, nclusters = k)
@@ -127,8 +132,10 @@ cv.test <- function(data, fold = 10L, minnodes = 2L, maxnodes = 10L,
                 cv.type = paste0(fold, "-fold Cross-validation"))
   }
 
-  # Stop processes
-  parallel::stopCluster(cl)
+  if (ncores > 1) {
+    # Stop processes
+    parallel::stopCluster(cl)
+  }
 
   class(ret) <- "cv.MonoClust"
   return(ret)
