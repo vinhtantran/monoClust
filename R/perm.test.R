@@ -173,11 +173,16 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
   # with members_l and members_r put next to each other.
   fmem2 <- c(rep(1, length(members_l)), rep(2, length(members_r)))
 
-  # Initiate processes
-  cl <- parallel::makeCluster(ncores)
-  doParallel::registerDoParallel(cl)
+  if (ncores > 1) {
+    # Initiate processes
+    cl <- parallel::makeCluster(ncores)
+    doParallel::registerDoParallel(cl)
 
-  `%dopar%` <- foreach::`%dopar%`
+    `%dodo%` <- foreach::`%dopar%`
+  } else {
+    `%dodo%` <- foreach::`%do%`
+  }
+
 
   if (method == "sw") {
     # Simple-withhold: shuffling the membership, not used splitting variable
@@ -203,14 +208,14 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
   stat_rep_l <-
     if (method == "sw") {
       foreach::foreach(k = 1:permutations,
-                       .inorder = FALSE) %dopar% {
+                       .inorder = FALSE) %dodo% {
                          distmat_rep <- distmat_twogroup[perm[k, ], perm[k, ]]
                          return(cluster_stats(distmat_rep, fmem2))
                        }
     } else if (method == "rl") {
       foreach::foreach(k = 1:permutations,
                        .inorder = FALSE,
-                       .packages = c("monoClust")) %dopar% {
+                       .packages = c("monoClust")) %dodo% {
                          current_data[, split_var] <- current_data[perm[k, ],
                                                                    split_var]
                          # Resplit-limit: limit the splitting variables
@@ -224,7 +229,7 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
     } else if (method == "rn") {
       foreach::foreach(k = 1:permutations,
                        .inorder = FALSE,
-                       .packages = c("monoClust")) %dopar% {
+                       .packages = c("monoClust")) %dodo% {
                          current_data[, split_var] <- current_data[perm[k, ],
                                                                    split_var]
                          # Resplit-nolimit: splitting all variables
@@ -236,8 +241,10 @@ test_split <- function(members_l, members_r, method, data, split_var, rep,
                        }
     }
 
-  # Stop processes
-  parallel::stopCluster(cl)
+  if (ncores > 1) {
+    # Stop processes
+    parallel::stopCluster(cl)
+  }
 
   stat_rep_tbl <- dplyr::bind_rows(stat_rep_l)
 
