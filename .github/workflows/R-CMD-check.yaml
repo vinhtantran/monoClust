@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - master
+      - fixncores
   pull_request:
     branches:
       - main
       - master
+      - fixncores
 
 name: R-CMD-check
 
