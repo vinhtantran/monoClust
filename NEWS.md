@@ -1,4 +1,4 @@
-# monoClust (development version)
+# monoClust 1.2.1
 
 ## Bugs and Improvements
 * `MonoClus()`: default value for `distmethod` argument is now `NULL` so that
