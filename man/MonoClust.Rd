@@ -8,7 +8,7 @@ MonoClust(
   toclust,
   cir.var = NULL,
   variables = NULL,
-  distmethod = c("euclidean", "manhattan", "gower"),
+  distmethod = NULL,
   digits = getOption("digits"),
   nclusters = 2L,
   minsplit = 5L,
@@ -24,9 +24,11 @@ MonoClust(
 \item{variables}{List of variables selected for clustering procedure. It
 could be a vector of variable indexes, or a vector of variable names.}
 
-\item{distmethod}{Distance method to use with the data set. The default value
-is the Euclidean distance but Gower will be used if there is circular
-variable (\code{cir.var} is specified). Transfer to \code{\link[cluster:daisy]{cluster::daisy()}}.}
+\item{distmethod}{Distance method to use with the data set. Can be chosen
+from "euclidean" (for Euclidean distance), "mahattan" (for Manhattan
+distance), or "gower" (for Gower distance). If not set, Euclidean distance
+is used unless \code{cir.var} is set, then it is Gower distance is used by
+default. Abbreviations can be used.}
 
 \item{digits}{Significant decimal number printed in the output.}
 

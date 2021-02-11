@@ -1,6 +1,9 @@
 # monoClust (development version)
 
-### Bugs and Improvements
+## Bugs and Improvements
+* `MonoClus()`: default value for `distmethod` argument is now `NULL` so that
+  the it can be set to Euclidean (when `cir.var` is not set) or Gower distance 
+  (when `cir.var` is set).
 * Fix typos.
 * Small improvement in how `ncores` argument is processed in `perm.test()` and
   `cv.test()`. It did not have a problem before but the improvement helps remove

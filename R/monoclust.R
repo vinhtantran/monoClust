@@ -7,9 +7,11 @@
 #' @param cir.var Index or name of the circular variable in the data set.
 #' @param variables List of variables selected for clustering procedure. It
 #'   could be a vector of variable indexes, or a vector of variable names.
-#' @param distmethod Distance method to use with the data set. The default value
-#'   is the Euclidean distance but Gower will be used if there is circular
-#'   variable (`cir.var` is specified). Transfer to [cluster::daisy()].
+#' @param distmethod Distance method to use with the data set. Can be chosen
+#'   from "euclidean" (for Euclidean distance), "mahattan" (for Manhattan
+#'   distance), or "gower" (for Gower distance). If not set, Euclidean distance
+#'   is used unless `cir.var` is set, then it is Gower distance is used by
+#'   default. Abbreviations can be used.
 #' @param digits Significant decimal number printed in the output.
 #' @param nclusters Number of clusters created. Default is 2.
 #' @param minsplit The minimum number of observations that must exist in a node
@@ -50,7 +52,7 @@
 MonoClust <- function(toclust,
                       cir.var = NULL,
                       variables = NULL,
-                      distmethod = c("euclidean", "manhattan", "gower"),
+                      distmethod = NULL,
                       digits = getOption("digits"),
                       nclusters = 2L,
                       minsplit = 5L,
@@ -94,7 +96,7 @@ MonoClust <- function(toclust,
     # distance unless otherwise specified.
     distmethod <- ifelse(!is.null(cir.var), "gower", "euclidean")
   } else {
-    distmethod <- match.arg(distmethod)
+    distmethod <- match.arg(distmethod, c("euclidean", "manhattan", "gower"))
   }
 
   # Argument checking (circular variables)
