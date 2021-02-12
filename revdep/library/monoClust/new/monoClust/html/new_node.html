@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create A New Node for Split Data Frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new_node {monoClust}"><tr><td>new_node {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create A New Node for Split Data Frame</h2>
+
+<h3>Description</h3>
+
+<p>This function is just a helper to make sure that the default values of the
+split data frame is correct when unspecified. It helps reduce type error,
+especially when moving to use dplyr which is stricter in data types.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_node(
+  number,
+  var,
+  cut = -99L,
+  n,
+  inertia,
+  bipartsplitrow = -99L,
+  bipartsplitcol = -99L,
+  inertiadel = 0,
+  inertia_explained = -99,
+  medoid,
+  loc,
+  split.order = -99L,
+  alt = list(tibble::tibble(bipartsplitrow = numeric(), bipartsplitcol = numeric()))
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>number</code></td>
+<td>
+<p>Row index of the data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>var</code></td>
+<td>
+<p>Whether it is a leaf, or the name of the next split variable.</p>
+</td></tr>
+<tr valign="top"><td><code>cut</code></td>
+<td>
+<p>The splitting value, so values (of <code>var</code>) smaller than that
+go to left branch while values greater than that go to right branch.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Cluster size. Number of observations in that cluster.</p>
+</td></tr>
+<tr valign="top"><td><code>inertia</code></td>
+<td>
+<p>Inertia value of the cluster at that node.</p>
+</td></tr>
+<tr valign="top"><td><code>bipartsplitrow</code></td>
+<td>
+<p>Position of the next split row in the data set (that
+position will belong to left node (smaller)).</p>
+</td></tr>
+<tr valign="top"><td><code>bipartsplitcol</code></td>
+<td>
+<p>Position of the next split variable in the data set.</p>
+</td></tr>
+<tr valign="top"><td><code>inertiadel</code></td>
+<td>
+<p>The proportion of inertia value of the cluster at that node
+to the inertia of the root.</p>
+</td></tr>
+<tr valign="top"><td><code>inertia_explained</code></td>
+<td>
+<p>Percent inertia explained as described in Chavent
+(2007)</p>
+</td></tr>
+<tr valign="top"><td><code>medoid</code></td>
+<td>
+<p>Position of the data point regarded as the medoid of its
+cluster.</p>
+</td></tr>
+<tr valign="top"><td><code>loc</code></td>
+<td>
+<p>y-coordinate of the splitting node to facilitate showing on the
+tree. See <code><a href="plot.MonoClust.html">plot.MonoClust()</a></code> for details.</p>
+</td></tr>
+<tr valign="top"><td><code>split.order</code></td>
+<td>
+<p>Order of the splits. Root is 0, and increasing.</p>
+</td></tr>
+<tr valign="top"><td><code>alt</code></td>
+<td>
+<p>Indicator of an alternative cut yielding the same reduction in
+inertia at that split.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A tibble with only one row and correct default data type for even an
+unspecified variables.
+</p>
+
+
+<h3>References</h3>
+
+
+<ul>
+<li><p> Chavent, M., Lechevallier, Y., &amp; Briant, O. (2007). DIVCLUS-T: A monothetic
+divisive hierarchical clustering method. Computational Statistics &amp; Data
+Analysis, 52(2), 687–701. https://doi.org/10.1016/j.csda.2007.03.013
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Permutation Test on Monothetic Tree</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for perm.test {monoClust}"><tr><td>perm.test {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Permutation Test on Monothetic Tree</h2>
+
+<h3>Description</h3>
+
+<p>Testing the significance of each monothetic clustering split by permutation
+methods. The &quot;simple-withhold&quot; method (<code>"sw"</code>) shuffles the observations
+between two groups without the splitting variable. The other two methods
+shuffle the values in the splitting variable to create a new data set, then
+it either splits again on that variable (&quot;resplit-limit&quot;, <code>"rl"</code>) or use all
+variables as the splitting candidates (&quot;resplit-nolimit&quot;, <code>"rn"</code>).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+perm.test(
+  object,
+  data,
+  auto.pick = FALSE,
+  sig.val = 0.05,
+  method = c("sw", "rl", "rn"),
+  rep = 1000L,
+  stat = c("f", "aw"),
+  bon.adj = TRUE,
+  ncores = 1L
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>The <code>MonoClust</code> object as the result of the clustering.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data set which is being clustered.</p>
+</td></tr>
+<tr valign="top"><td><code>auto.pick</code></td>
+<td>
+<p>Whether the algorithm stops when p-value becomes larger than
+<code>sig.val</code> or keeps testing and let the researcher pick the final splitting
+tree. Default value is <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sig.val</code></td>
+<td>
+<p>Significance value to decide when to stop splitting. This
+option is ignored if <code>auto.pick = FALSE</code>, and is 0.05 by default when
+<code>auto.pick = TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Can be chosen between <code>sw</code> (simple-withhold, default), <code>rl</code>
+(resplit-limit), or <code>rn</code> (resplit-nolimit). See Details.</p>
+</td></tr>
+<tr valign="top"><td><code>rep</code></td>
+<td>
+<p>Number of permutations required to calculate test statistic.</p>
+</td></tr>
+<tr valign="top"><td><code>stat</code></td>
+<td>
+<p>Statistic to use. Choosing between <code>"f"</code> (Calinski-Harabasz's
+pseudo-F (Calinski and Harabasz, 1974)) or <code>"aw"</code> (Average silhoutte width
+by Rousseeuw (1987)).</p>
+</td></tr>
+<tr valign="top"><td><code>bon.adj</code></td>
+<td>
+<p>Whether to adjust for multiple testing problem using
+Bonferroni correction.</p>
+</td></tr>
+<tr valign="top"><td><code>ncores</code></td>
+<td>
+<p>Number of CPU cores on the current host. When set to NULL,
+all available cores are used.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+
+<h4>Permutation Methods</h4>
+
+
+
+<h5>Simple-Withhold: Shuffle the observations between two proposed clusters</h5>
+
+<p>The <code>stat</code> calculated from the shuffles create the reference distribution
+to find the p-value. Because the splitting variable that was chosen is
+already the best in terms of reduction of inertia, that variable is withheld
+from the distance matrix used in the permutation test.
+</p>
+
+
+
+<h5>Resplit-Limit: Shuffle splitting variable, split again on that variable</h5>
+
+<p>This method shuffles the values of the splitting variables while keeping
+other variables fixed to create a new data set, then the chosen <code>stat</code> is
+calculated for each rep to compare with the observed <code>stat</code>.
+</p>
+
+
+
+<h5>Resplit-Nolimit: Shuffle splitting variable, split on all variables</h5>
+
+<p>Similar to Method 2 but all variables are splitting candidates.
+</p>
+
+
+
+
+<h4>Bonferroni Correction</h4>
+
+<p>A hypothesis test occurred lower in the monothetic clustering tree could have
+its p-value corrected for multiple tests happened before it in order to reach
+that node. The formula is
+</p>
+<p style="text-align: center;"><i>adj.p = unadj.p \times depth,</i></p>
+
+<p>with <i>depth</i> is 1 at the root node.
+</p>
+
+
+
+<h3>Value</h3>
+
+<p>The same <code>MonoClust</code> object with an extra column (p-value), as well
+as the <code>numofclusters</code> object if <code>auto.pick = TRUE</code>.
+</p>
+
+
+<h3>Note</h3>
+
+<p>This function uses <code><a href="../../foreach/html/foreach.html">foreach::foreach()</a></code> to facilitate parallel
+processing. It distributes reps to processes.
+</p>
+
+
+<h3>References</h3>
+
+<p>Calinski, T. and Harabasz, J (1974). &quot;A dendrite method for cluster
+analysis&quot;. en. In: <em>Communications in Statistics</em> 3.1, pp. 1-27.
+doi: <a href="https://doi.org/10.1080/03610927408827101">10.1080/03610927408827101</a>.
+</p>
+<p>Rousseeuw, P. J. (1987). &quot;Silhouettes: A graphical aid to the interpretation
+and validation of cluster analysis&quot;. In: <em>Journal of Computational and
+Applied Mathematics</em> 20, pp. 53-65. ISSN: 03770427.
+doi: <a href="https://doi.org/10.1016/0377-0427(87)90125-7">10.1016/0377-0427(87)90125-7</a>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(cluster)
+data(ruspini)
+
+ruspini6sol &lt;- MonoClust(ruspini, nclusters = 6)
+ruspini6.p_value &lt;- perm.test(ruspini6sol, data = ruspini, method = "sw",
+                              rep = 1000)
+ruspini6.p_value
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

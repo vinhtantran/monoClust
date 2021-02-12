@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: First Gate Function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for checkem {monoClust}"><tr><td>checkem {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>First Gate Function</h2>
+
+<h3>Description</h3>
+
+<p>This function checks what are available nodes to split and then call
+<code>find_split()</code> on each node, then decide which node creates best split, and
+call <code>splitter()</code> to perform the split.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+checkem(
+  data,
+  cuts,
+  frame,
+  cloc,
+  dist,
+  variables,
+  minsplit,
+  minbucket,
+  split_order,
+  ncores
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>Original data set.</p>
+</td></tr>
+<tr valign="top"><td><code>cuts</code></td>
+<td>
+<p>Cuts data set, which has the next higher value of each variable
+in the original data set.</p>
+</td></tr>
+<tr valign="top"><td><code>frame</code></td>
+<td>
+<p>The split tree transferred as data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>cloc</code></td>
+<td>
+<p>Vector of current cluster membership.</p>
+</td></tr>
+<tr valign="top"><td><code>dist</code></td>
+<td>
+<p>Distance matrix of all observations in the data.
+exported function yet. Vector of 1 for all observations.</p>
+</td></tr>
+<tr valign="top"><td><code>variables</code></td>
+<td>
+<p>List of variables selected for clustering procedure. It
+could be a vector of variable indexes, or a vector of variable names.</p>
+</td></tr>
+<tr valign="top"><td><code>minsplit</code></td>
+<td>
+<p>The minimum number of observations that must exist in a node
+in order for a split to be attempted.</p>
+</td></tr>
+<tr valign="top"><td><code>minbucket</code></td>
+<td>
+<p>The minimum number of observations in any terminal leaf
+node. Default is <code>minsplit/3</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>split_order</code></td>
+<td>
+<p>The control argument to see how many split has been done.</p>
+</td></tr>
+<tr valign="top"><td><code>ncores</code></td>
+<td>
+<p>Number of CPU cores on the current host.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>It is not supposed to return anything because global environment was
+used. However, if there is nothing left to split, it returns 0 to tell the
+caller to stop running the loop.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

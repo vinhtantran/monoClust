@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Predictions from a MonoClust Object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for predict.MonoClust {monoClust}"><tr><td>predict.MonoClust {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Predictions from a MonoClust Object</h2>
+
+<h3>Description</h3>
+
+<p>Predict the cluster memberships of a new data set from a <code>MonoClust</code> object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'MonoClust'
+predict(object, newdata, type = c("centroid", "medoid"), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>MonoClust result object.</p>
+</td></tr>
+<tr valign="top"><td><code>newdata</code></td>
+<td>
+<p>Data frame containing the values to be predicted. If missing,
+the memberships of the MonoClust object are returned.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Type of returned cluster representatives. Either <code>"centroid"</code> to
+return the centroid values of the terminal clusters, or <code>"medoid"</code> to
+return the index of the medoid observations in the clustered data set.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Further arguments passed to or from other methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A tibble of cluster index in <code>cname</code> and either centroid values or
+medoid observations index based on the value of <code>type</code> argument.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(cluster)
+data(ruspini)
+
+set.seed(1234)
+test_index &lt;- sample(1:nrow(ruspini), nrow(ruspini)/5)
+train_index &lt;- setdiff(1:nrow(ruspini), test_index)
+ruspini_train &lt;- ruspini[train_index, ]
+ruspini_test &lt;- ruspini[test_index, ]
+
+ruspini_train_4sol &lt;- MonoClust(ruspini_train, nclusters = 4)
+predict(ruspini_train_4sol, newdata = ruspini_test)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

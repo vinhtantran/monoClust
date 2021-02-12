@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot MonoClust Splitting Rule Tree</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plot.MonoClust {monoClust}"><tr><td>plot.MonoClust {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot MonoClust Splitting Rule Tree</h2>
+
+<h3>Description</h3>
+
+<p>Print the MonoClust tree in the form of dendrogram.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'MonoClust'
+plot(
+  x,
+  uniform = FALSE,
+  branch = 1,
+  margin = c(0.12, 0.02, 0, 0.05),
+  minbranch = 0.3,
+  text = TRUE,
+  which = 4,
+  stats = TRUE,
+  abbrev = c("no", "short", "abbreviate"),
+  digits = getOption("digits") - 2,
+  cols = NULL,
+  col.type = c("l", "p", "b"),
+  rel.loc.x = TRUE,
+  show.pval = TRUE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>MonoClust result object.</p>
+</td></tr>
+<tr valign="top"><td><code>uniform</code></td>
+<td>
+<p>If TRUE, uniform vertical spacing of the nodes is used; this
+may be less cluttered when fitting a large plot onto a page. The default is
+to use a non-uniform spacing proportional to the inertia in the fit.</p>
+</td></tr>
+<tr valign="top"><td><code>branch</code></td>
+<td>
+<p>Controls the shape of the branches from parent to child node.
+Any number from 0 to 1 is allowed. A value of 1 gives square shouldered
+branches, a value of 0 give V shaped branches, with other values being
+intermediate.</p>
+</td></tr>
+<tr valign="top"><td><code>margin</code></td>
+<td>
+<p>An extra fraction of white space to leave around the borders of
+the tree. (Long labels sometimes get cut off by the default computation).</p>
+</td></tr>
+<tr valign="top"><td><code>minbranch</code></td>
+<td>
+<p>Set the minimum length for a branch to <code>minbranch</code> times the
+average branch length. This parameter is ignored if <code>uniform = TRUE</code>.
+Sometimes a split will give very little improvement, or even no improvement
+at all. A tree with branch lengths strictly proportional to improvement
+leaves no room to squeeze in node labels.</p>
+</td></tr>
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>Whether to print the labels on the tree.</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>Labeling modes, which are:
+</p>
+
+<ul>
+<li><p> 1: only splitting variable names are shown, no splitting rules.
+</p>
+</li>
+<li><p> 2: only splitting rules to the left branches are shown.
+</p>
+</li>
+<li><p> 3: only splitting rules to the right branches are shown.
+</p>
+</li>
+<li><p> 4 (default): splitting rules are shown on both sides of branches.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>stats</code></td>
+<td>
+<p>Whether to show statistics (cluster sizes and medoid points) on
+the tree.</p>
+</td></tr>
+<tr valign="top"><td><code>abbrev</code></td>
+<td>
+<p>Whether to print the abbreviated versions of variable names.
+Can be either &quot;no&quot; (default), &quot;short&quot;, or &quot;abbreviate&quot;. Short forms of them
+can also be used.
+</p>
+<p>If &quot;no&quot;, the labels recorded in <code>x$labels</code> are used.
+</p>
+<p>If &quot;short&quot;, variable names will be turned into &quot;V1&quot;, &quot;V2&quot;, ...
+</p>
+<p>If &quot;abbreviate&quot;, <code><a href="../../base/html/abbreviate.html">abbreviate()</a></code> function will be used. Use the optional
+arguments for this function.</p>
+</td></tr>
+<tr valign="top"><td><code>digits</code></td>
+<td>
+<p>Number of significant digits to print.</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>Whether to shown color bars at leaves or not. It helps matching
+this tree plot with other plots whose cluster membership were colored. It
+only works when <code>text</code> is <code>TRUE</code>. Either <code>NULL</code>, a vector of one color, or
+a vector of colors matching the number of leaves.</p>
+</td></tr>
+<tr valign="top"><td><code>col.type</code></td>
+<td>
+<p>When <code>cols</code> is set, choose whether the color indicators are
+shown in a form of solid lines below the leaves (<code>"l"</code>), or big points
+(<code>"p"</code>), or both (<code>"b"</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>rel.loc.x</code></td>
+<td>
+<p>Whether to use the relative distance between clusters as x
+coordinate of the leaves. Default is TRUE.</p>
+</td></tr>
+<tr valign="top"><td><code>show.pval</code></td>
+<td>
+<p>If MonoClust object has been run through <code><a href="perm.test.html">perm.test()</a></code>,
+whether to show p-value on the tree.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to be passed to <code><a href="../../graphics/html/plot.default.html">graphics::plot.default()</a></code> and
+<code><a href="../../graphics/html/lines.html">graphics::lines()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A plot of splitting rule.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(cluster)
+data(ruspini)
+
+# MonoClust tree
+ruspini4sol &lt;- MonoClust(ruspini, nclusters = 4)
+plot(ruspini4sol)
+
+# MonoClust tree after permutation test is run
+ruspini6sol &lt;- MonoClust(ruspini, nclusters = 6)
+ruspini6_test &lt;- perm.test(ruspini6sol,
+                           data = ruspini,
+                           method = "sw",
+                           rep = 1000)
+plot(ruspini6_test, branch = 1, uniform = TRUE)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

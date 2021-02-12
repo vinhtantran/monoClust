@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Monothetic Clustering ‘monoClust’ Package</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Monothetic Clustering ‘monoClust’ Package</h1>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Cluster analysis (or clustering) attempts to group observations into clusters so that the observations within a cluster are similar to each other while different from those in other clusters. It is often used when dealing with the question of discovering structure in data where no known group labels exist or when there might be some question about whether the data contain groups that correspond to a measured grouping variable. Therefore, cluster analysis is considered a type of unsupervised learning. It is used in many fields including statistics, machine learning, and image analysis, to name just a few. For a general introduction to cluster analysis, see Everitt and Hothorn (2011, Chapter 6).</p>
+<p>Commonly used clustering methods are <span class="math inline">\(k\)</span>-means (MacQueen, 1967) and Ward’s hierarchical clustering (Murtagh and Legendre, 2014; Ward, 1963), which are both implemented in functions <code>kmeans</code> and <code>hclust</code>, respectively, in the <strong>stats</strong> package in R (R Core Team, 2019). They belong to a group of methods called <em>polythetic clustering</em> (MacNaughton-Smith et al., 1964) which use combined information of variables to partition data and generate groups of observations that are similar on average. Monothetic cluster analysis (Chavent, 1998; Piccarreta and Billari, 2007; Sneath and Sokal, 1973), on the other hand, is a clustering algorithm that provides a hierarchical, recursive partitioning of multivariate responses based on binary decision rules that are built from individual response variables. It creates clusters that contain shared characteristics that are defined by these rules.</p>
+<p>Given a clustering algorithm, the cluster analysis is heavily influenced by the choice of <span class="math inline">\(K\)</span>, the number of clusters. If <span class="math inline">\(K\)</span> is too small, it puts “different” observations together. On the other hand, if <span class="math inline">\(K\)</span> is too large, the algorithm might split observations into different clusters that share many characteristics or are similar. Therefore, picking a sufficient, or “correct”, <span class="math inline">\(K\)</span> is critical for any clustering algorithm. A survey of some techniques for estimating the number of clusters has been done by Milligan and Cooper (1985). The R package <strong>NbClust</strong> (Charrad et al., 2014) is dedicated to implementations of those techniques. However, none of them were designed to work with monothetic clustering or take advantage of its unique characteristics, where binary splits generate rules for predicting new observations and each split is essentially a decision about whether to continue growing the tree or not. <span class="math inline">\(M\)</span>-fold cross-validation (a brief introduction can be seen in Hastie et al., 2016) and permutation-based hypothesis test at each split similar to those in Hothorn et al. (2006) are the two techniques that have been shown to work well in the classification and regression tree setting and we have adapted them to work with monothetic clustering.</p>
+<p>Clustering data sets including circular variables, a type of variables measured in angles indicating the directions of an object or event (Fisher, 1993; Jammalamadaka and SenGupta, 2001) requires a different sets of statistical methods from conventional “linear” quantitative variables. An implementation of monothetic clustering modified to work on circular variables is discussed here. To assist in visualizing the resulting clusters and interpreting the shared features of clusters, a visualization of the results based on parallel coordinates plots (Inselberg and Dimsdale, 1987) are also implemented in the <strong>monoClust</strong> package. The package has been applied to the particle counts in föhn winds in Antarctica (<code>wind_sensit_2007</code> and <code>wind_sensit_2008</code> data sets from Šabacká et al., 2012).</p>
+<!-- In an application of clustering to Arctic sea ice extent data comprising daily measurements from 1978 to present (Fetterer et al., 2018), we faced a challenge choosing one splitting variable among multiple equally qualified variables in monothetic clustering when applied to functional data. This happens because there are very similar observations in small intervals of time when the observations are smooth curves. A new clustering algorithm called Partitioning Using Local Subregions (PULS) that provides a method of clustering functional data using subregion information (described in detail in Chapter \ref{CH:functional}) is implemented in the \proglang{R} package \pkg{PULS}. It is designed to complement the \pkg{fda} and \pkg{fda.usc} packages \parencite{Febrero-Bande2012, fda2018} in clustering functional data objects. -->
+</div>
+<div id="monothetic-clustering" class="section level2">
+<h2>Monothetic Clustering</h2>
+<p>Let <span class="math inline">\(y_{iq}\)</span> be the <span class="math inline">\(i^\mathrm{th}\)</span> observation (<span class="math inline">\(i = 1, \ldots, n\)</span>, the number of observations or sample size) on variable <span class="math inline">\(q\)</span> (<span class="math inline">\(q = 1, \ldots, Q\)</span>, the number of response variables) in a data set. In cluster analysis, <span class="math inline">\(Q\)</span> variables are considered “response” variables and the interest is in exploring potential groups in these responses. Occasionally other information in the data set is withheld from clustering to be able to understand clusters found based on the <span class="math inline">\(Q\)</span> variables used in clustering. Clustering algorithms then attempt to partition the <span class="math inline">\(n\)</span> observations into mutually exclusive clusters <span class="math inline">\(C_1, C_2, \ldots, C_K\)</span> in <span class="math inline">\(\Omega\)</span> where <span class="math inline">\(K\)</span> is the number of clusters, so that the observations within a cluster are “close” to each other and “far away” from those in other clusters.</p>
+<p>Inspired by regression trees (Breiman et al., 1984) and the <strong>rpart</strong> package (Therneau and Atkinson, 2018), the monothetic clustering algorithm searches for splits from each response variable that provide the best split of the multivariate responses in terms of a global criterion called inertia. To run successfully on a data set, the <code>MonoClust</code> function of the <strong>monoClust</strong> package only has one required argument, which is the data set name in the <code>toclust</code> option. By default, <code>MonoClust</code> will be performed by first calculating the squared Euclidean distance matrix between observations. The calculation of the distance matrix is very important to the algorithm because <em>inertia</em>, a within-cluster measure of variability when Euclidean distance is used, is calculated by \begin{equation} I(C_k) =\sum_{i \in C_k} d^2_{euc}(\mathbf{y_i}, \overline{y}_{C_k}), \end{equation} where <span class="math inline">\(\overline{y}_{C_k}\)</span> is the mean of all observations in cluster <span class="math inline">\(C_k\)</span>. This formula has been proved to be equivalent to the scaled sum of squared Euclidean distances among all observations in a cluster (James et al., 2013, p 388), \begin{equation} I(C_k) = \frac{1}{n_k} \sum_{(i, j) \in C_k, i &gt; j} d^2_{euc}(\mathbf{y_i},\mathbf{y_j}). \end{equation}</p>
+<p>A binary split, <span class="math inline">\(s(C_k)\)</span>, on a cluster <span class="math inline">\(C_k\)</span> divides its observations into two smaller clusters <span class="math inline">\(C_{kL}\)</span> and <span class="math inline">\(C_{kR}\)</span>. The inertia decrease between before and after the partition is defined as \begin{equation} \Delta (s, C_k) = I(C_k) - I(C_{kL}) - I(C_{kR}), \end{equation} and the best split, <span class="math inline">\(s^*(C_k)\)</span>, is the split that maximizes this decrease in inertia, \begin{equation} s^*(C_k) = \arg \max_s \Delta(s, C_k). \end{equation} The same algorithm is then recursively applied to each sub-partition, recording splitting rules on its way until it reaches the stopping criteria, which can be set in <code>MonoClust</code> by at least one of these arguments:</p>
+<ul>
+<li><code>nclusters</code>: the pre-defined number of resulting clusters;</li>
+<li><code>minsplit</code>: the minimum number of observations that must exist in a node in order for a split to be attempted (default is 5);</li>
+<li><code>minbucket</code>: the minimum number of observations allowed in a terminal leaf (default is <code>minsplit</code>/3).</li>
+</ul>
+<p>As a very simple example, monothetic clustering of the <em>ruspini</em> data set (Ruspini, 1970) available in the <strong>cluster</strong> package (Maechler et al., 2018) with 4 clusters can be performed as follows:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(monoClust)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(cluster)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">data</span>(ruspini)</span>
+<span id="cb1-4"><a href="#cb1-4"></a>ruspini4c &lt;-<span class="st"> </span><span class="kw">MonoClust</span>(ruspini, <span class="dt">nclusters =</span> <span class="dv">4</span>)</span>
+<span id="cb1-5"><a href="#cb1-5"></a>ruspini4c</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">#&gt; n = 75 </span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">#&gt; </span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">#&gt; Node) Split, N, Cluster Inertia, Proportion Inertia Explained,  </span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">#&gt;       * denotes terminal node</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">#&gt; </span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">#&gt; 1) root 75 244373.900 0.6344215   </span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">#&gt;   2) y &lt; 91 35  43328.460 0.9472896   </span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">#&gt;     4) x &lt; 37 20   3689.500   *</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">#&gt;     5) x &gt;= 37 15   1456.533   *</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">#&gt;   3) y &gt;= 91 40  46009.380 0.7910436   </span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">#&gt;     6) x &lt; 63.5 23   3176.783   *</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">#&gt;     7) x &gt;= 63.5 17   4558.235   *</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">#&gt; </span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">#&gt; Note: One or more of the splits chosen had an alternative split that reduced inertia by the same amount. See &quot;alt&quot; column of &quot;frame&quot; object for details.</span></span></code></pre></div>
+<p>The output (<code>print.MonoClust</code>) lists each split on one line together with the splitting rule as well as its inertia and is displayed with the hierarchical structure so the parent–child relationships between nodes can be easily seen. This function defines a <code>MonoClust</code> object to store the cluster solution with some useful components:</p>
+<ul>
+<li><code>frame</code>: a partitioning tracking table in the form of a <code>data.frame</code>;</li>
+<li><code>membership</code>: a vector of numerical cluster identification (incremented by new nodes) that observations belong to; and</li>
+<li><code>medoids</code>: the observation indices that are considered as representatives for the clusters (Kaufman and Rousseeuw, 1990), estimated as the observations that have minimum total distance to all observations in their clusters.</li>
+</ul>
+<p>Another visualization of the clustering results is the splitting rule tree created by the <code>plot.MonoClust</code> function of the <code>MonoClust</code> object.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">plot</span>(ruspini4c)</span></code></pre></div>
+<div class="figure">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkAAAAHgCAMAAAB6sCJ3AAAAb1BMVEUAAAAAADoAAGYAOpAAZmYAZrY6AAA6ADo6AGY6Ojo6OpA6kNtmAABmADpmAGZmZgBmZmZmkJBmtrZmtv+QOgCQOjqQZgCQ27aQ2/+2ZgC2/7a2/9u2///bkDrb/9vb////tmb/25D//7b//9v///82DKIkAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAO8UlEQVR4nO3d7WLbWBVGYbUlaUtcBkiAeKip4uj+rxF9HVuOJb3HZ6eztTvr+dEJJRJbx0uynAioGsCg8h4AsREQTAgIJgQEEwKCCQHBhIBgQkAwISCYEBBMCAgmBAQTAoIJAcGEgGBCQDAhIJgQEEwICCYEBBMCggkBwYSAYEJAMCEgmBAQTAgIJgQEEwKCCQHBhIBgQkAwISCYEBBMCAgmBAQTAoIJAcGEgGBCQDAhIJgQEEwICCYEBBMCggkBwYSAYEJAMCEgmBAQTAgIJgQEEwKCCQHBhIBgQkAwISCYEBBMCAgmBAQTAoIJAcGEgGBCQDAhIJgQEEwICCYEBBMCggkBwYSAYEJAMCEgmBAQTAgIJgQEEwKCCQHBhIBgQkAwISCYEBBMCGjFoao+PA9fvnz57ruXrSKgZfv2dX+5f+y+PO4+lr7077OXzSKgRcfdQ/vn4dOPpqmrqvSlf5+9bBcBNfu79o/D3fkvjt/6d5y6f+Pp/qyrh3rhpZ9s/PL5eeYbsvYSGAE13av6+vSY/uUhXSbGl756TN+kNj7uqu5q075hVZ0Pz9l7CYyA2tf98XT1aBs4XYqGG5fD+ks/3biZ1HeStZfACKh/G+rvUdKrffr7/vZXvPTnjQdXb2RZe4mLgPqXdf8wfDm9ArWvfXvX+/t4Q7T00k82buauQHl7iYuAupvm/3w7XzbeNDD+6GbxpZ9sPHsPlLeXuAioaW+Cv07fhNKnsMH4/rT40p83nv8UlreXuAio6S46DzN/e9zdpQ9Ray/9/Ma37iUsAmoWrx3tW9LpfejNSz9ZtrULj9jLr4CAWi9//aG/6cI0oJs3/qUQUOuw+iY0Z7Jst2/8SyGg9kPTp5uvIadlK9n4l0JARVi2hJUowrIlrEQRli2JshIV1ji+MH7/0TeJMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOApChz+iAgKcqcPghIijKnDwKSoszpg4CkKHP6ICApypw+CEiKMqcPApKizOmDgKQoc/ogICnKnD4ISIoypw8CkqLM6YOA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" alt />
+<p class="caption">Binary partitioning tree with three splits, four clusters for <em>ruspini</em> data.</p>
+</div>
+<p>The initial development of <strong>MonoClust</strong> was based on <strong>rpart</strong>. However, we steered away to develop our own algorithms to significantly enhance the structure to implement the various methods.</p>
+</div>
+<div id="testing-at-each-split-to-decide-the-number-of-clusters" class="section level2">
+<h2>Testing at Each Split to Decide the Number of Clusters</h2>
+<p>Deciding on the number of clusters to report and interpret is an important part of cluster analysis. Among many metrics mentioned in Milligan and Cooper (1985) and Hardy (1996), Caliński and Harabasz (CH)’s pseudo-<span class="math inline">\(F\)</span> (Caliński and Harabasz, 1974) is among the metrics that have typically good or even the best performance in the Milligan and Cooper (1985)’s simulation studies on selecting the optimal number of clusters. Additionally, average silhouette width (AW), a measure of how “comfortable” observations are in their clusters they reside in, has also been suggested to select an appropriate number of clusters (Rousseeuw, 1987). One limitation of both criteria is that they are unable to select a single cluster solution because their formula require at least two clusters to calculate the criteria. We have proposed two methods that can assist select the number of clusters in monothetic clustering. One is inspired by regression tree methods for pruning regression and classification trees, which is an adaption of <span class="math inline">\(M\)</span>-fold cross-validation technique. Another one is inspired by conditional inference trees (Hothorn et al., 2006). It is a formal hypothesis test at a split to determine if it should be performed using two different test statistics. Finally, we suggested a hybrid method that uses the hypothesis test with CH’s <span class="math inline">\(F\)</span> statistic at the first split and then uses the original CH’s <span class="math inline">\(F\)</span> for the further splits if the test suggests that there should be at least two clusters.</p>
+<p>The <span class="math inline">\(M\)</span>-fold cross-validation randomly partitions data into <span class="math inline">\(M\)</span> subsets with equal (or close to equal) sizes. <span class="math inline">\(M - 1\)</span> subsets are used as the training data set to create a tree with a desired number of leaves and the other subset is used as validation data set to evaluate the predictive performance of the trained tree. The process repeats for each subset as the validating set (<span class="math inline">\(m = 1, \ldots, M\)</span>) and the mean squared difference, \begin{equation} MSE_m=\frac{1}{n_m} \sum_{q=1}^Q\sum_{i \in m} d^2_{euc}(y_{iq}, \hat{y}_{(-i)q}), \end{equation} is calculated, where <span class="math inline">\(\hat{y}_{(-i)q}\)</span> is the cluster mean on the variable <span class="math inline">\(q\)</span> of the cluster created by the training data where the observed value, <span class="math inline">\(y_{iq}\)</span>, of the validation data set will fall into, and <span class="math inline">\(d^2_{euc}(y_{iq}, \hat{y}_{(-i)q})\)</span> is the squared Euclidean distance (dissimilarity) between two observations at variable <span class="math inline">\(q\)</span>. This process is repeated for the <span class="math inline">\(M\)</span> subsets of the data set and the average of these test errors is the cross-validation-based estimate of the mean squared error of predicting a new observation, \begin{equation} CV_K = \overline{MSE} = \frac{1}{M} \sum_{m=1}^M MSE_m. \end{equation}</p>
+<p>The purpose of the cross-validation is to find a cluster solution that achieves the “best” prediction error for new observations. There are several ways one can decide from the output of <code>MonoClust</code>. A naive approach is to pick the solution that has the smallest <span class="math inline">\(CV_K\)</span> (<em>minCV</em> rule). However, in many cases, it can result in a very high number of clusters if the error rate keeps decreasing even though there is often a small change after a few large drops. To avoid this problem, Breiman et al. (1984) suggested picking the solution that is simplest within 1 or 2 standard errors (SE) from the minimum error estimate (<em>CV1SE</em> or <em>CV2SE</em> rules), with the standard error is defined as <span class="math display">\[SE(\overline{MSE}) = \sqrt{\frac{1}{M} \sum_{m=1}^M (MSE_m - \overline{MSE})}.\]</span> The function <code>cv.test</code> with the data set and two arguments <code>minnodes</code> and <code>maxnodes</code> defining the range of nodes to test on will apply <code>MonoClust</code> and calculate both <span class="math inline">\(\overline{MSE}\)</span> (which is named MSE in the output) and its standard error (named Std. Dev.).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>cp.table &lt;-<span class="st"> </span><span class="kw">cv.test</span>(ruspini, <span class="dt">fold =</span> <span class="dv">5</span>, <span class="dt">minnodes =</span> <span class="dv">1</span>, <span class="dt">maxnodes =</span> <span class="dv">10</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>cp.table</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#&gt; 5-fold Cross-validation on a MonoClust object </span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt; </span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#&gt; # A tibble: 10 x 3</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt;    ncluster    MSE `Std. Dev.`</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt;       &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt;  1        1 51192.       4436.</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt;  2        2 19170.       2996.</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt;  3        3 14209.       4395.</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt;  4        4  4572.       2905.</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#&gt;  5        5  4083.       2598.</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co">#&gt;  6        6  4048.       2540.</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co">#&gt;  7        7  3788.       2554.</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co">#&gt;  8        8  3696.       2603.</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="co">#&gt;  9        9  3598.       2681.</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="co">#&gt; 10       10  3500.       2689.</span></span></code></pre></div>
+<p>A plot with error bars for one standard error, similar to Figure @ref(fig:cvv), can be made from the output table using standard plotting functions to assist in assessing these results.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">library</span>(dplyr)</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="kw">ggcv</span>(cp.table) <span class="op">+</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept =</span> <span class="kw">min</span>(lower1SD)), <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">linetype =</span> <span class="dv">2</span>) <span class="op">+</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept =</span> <span class="kw">min</span>(upper1SD)), <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">linetype =</span> <span class="dv">2</span>) <span class="op">+</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> ncluster[<span class="dv">4</span>], <span class="dt">y =</span> MSE[<span class="dv">4</span>]), <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> ncluster[<span class="dv">4</span>], <span class="dt">y =</span> MSE[<span class="dv">4</span>]), <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">size =</span> <span class="dv">5</span>, <span class="dt">shape =</span> <span class="dv">4</span>)</span></code></pre></div>
+<div class="figure">
+<img src="data:image/png;base64,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" alt />
+<p class="caption">The choice of clusters for Ruspini data made by 10-fold CV where <em>minCV</em> selects 10 clusters and <em>1SE</em> selects 4. The error bars are the <span class="math inline">\(\overline{MSE} \pm 1SE\)</span> and the choice of 4 clusters, the simplest solution within 1 standard error of the minimum error estimate (the dashed lines coincide with the bar at 10 clusters) is highlighted with a <span class="math inline">\(\times\)</span>.</p>
+</div>
+<p>Another approach involves doing a formal hypothesis test at each split on the tree and using the <span class="math inline">\(p\)</span>-values to decide on how many clusters should be used. This approach has been used in the context of conditional inference trees by Hothorn et al. (2006) although with a different test statistic and purpose. In that situation the test is used to test a null hypothesis of independence between the response and a selected predictor. For cluster analysis, at any cluster (or leaf on the decision tree), whether it will be partitioned or not is the result of a hypothesis test in which the pair of hypotheses can be abstractly stated as</p>
+<p><span class="math inline">\(H_0:\)</span> The two new clusters are identical to each other, and</p>
+<p><span class="math inline">\(H_A:\)</span> The two new clusters are different from each other.</p>
+<p>To allow applications with any dissimilarity measure, a nonparametric method based on permutation is used. Anderson (2001) developed a multivariate nonparametric testing approach called <em>perMANOVA</em> that involves calculating the pseudo-<span class="math inline">\(F\)</span>-ratio directly from any symmetric distance or dissimilarity matrix where the sum of squares are, in turn, calculated from the dissimilarities. The <span class="math inline">\(p\)</span>-value can then be calculated by tracking the pseudo-<span class="math inline">\(F\)</span> across permutations and comparing the results to the observed result and is available in the <strong>vegan</strong> package (Oksanen et al., 2019) in R. We considered two approaches for generating the permutation distribution under the previous null:</p>
+<ol style="list-style-type: decimal">
+<li>Shuffle the observations between two proposed clusters. The pseudo-<span class="math inline">\(F\)</span>’s calculated from the shuffles create the reference distribution to find the <span class="math inline">\(p\)</span>-value. Because the splitting variable that was chosen is already the best in terms of reduction of inertia, that variable is withheld from the distance matrix used in the permutation test. This method can be done with <code>method = &quot;sw&quot;</code> (default value) in the <code>perm.test</code> function.</li>
+<li>Shuffle the values of the splitting variables while keeping other variables fixed to create a new data set, then the average silhouette width (Kaufman and Rousseeuw, 1990) is used as the measure of separation between the two new clusters and is calculated to create the reference distribution. Specifying <code>method = &quot;rl&quot;</code> in <code>perm.test</code> will run this method.</li>
+<li>Similar to the previous method but pseudo-<span class="math inline">\(F\)</span> (as in the first approach) is used as the test statistic instead of the average silhouette width. This approach corresponds to <code>method = &quot;rn&quot;</code>.</li>
+</ol>
+<p>Applying the <code>perm.test</code> function to a <code>MonoClust</code> object will add permutation-based <span class="math inline">\(p\)</span>-values to the output of both <code>print</code> and <code>plot</code>. Users can specify the number of permutations with the <code>rep =</code> argument. An example of applying the cluster shuffling approach to the <em>ruspini</em> data set follows and the tree output is in Figure @ref(fig:hyptestv). Note that the Bonferroni-adjusted <span class="math inline">\(p\)</span>-values are used to account for the multiple hypothesis tests required when going deeper into the tree. The number of tests for the adjustment is based on the number of tests previously performed to get to a candidate split and the maximum value of a <span class="math inline">\(p\)</span>-value is always 1. A similar adjustment has been used in conditional inference trees and was also implemented in its accompanied <strong>party</strong> package (Hothorn et al., 2006).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>ruspini6c &lt;-<span class="st"> </span><span class="kw">MonoClust</span>(ruspini, <span class="dt">nclusters =</span> <span class="dv">6</span>)</span>
+<span id="cb5-2"><a href="#cb5-2"></a>ruspini6c.pvalue &lt;-<span class="st"> </span><span class="kw">perm.test</span>(ruspini6c, <span class="dt">data =</span> ruspini, <span class="dt">method =</span> <span class="st">&quot;sw&quot;</span>, <span class="dt">rep =</span> <span class="dv">1000</span>)</span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">plot</span>(ruspini6c.pvalue, <span class="dt">branch =</span> <span class="dv">1</span>, <span class="dt">uniform =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="figure">
+<img src="data:image/png;base64,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" alt />
+<p class="caption">Binary partitioning tree with five splits, six clusters, but one split should be pruned based on its p-value of 0.8.</p>
+</div>
+</div>
+<div id="clustering-on-circular-data" class="section level2">
+<h2>Clustering on Circular Data</h2>
+<p>In many applications, a variable can be measured in angles, indicating the directions of an object or event. Examples could be the times of day, aspects of the slope in mountainous terrain, directions of motion, or wind directions. Such variables are referred to as <em>circular variables</em> and are measured either in degrees or radians relative to a pre-chosen 0 degree position and meaning of a rotation direction. There are books dedicated to this topic (for example, Fisher, 1993; Jammalamadaka and SenGupta, 2001) that develop parametric models and analytic tools for circular variables. Here we demonstrate multivariate data analysis involving circular variables, such as visualization and clustering.</p>
+<p>Cluster analysis depends on the choice of distance or dissimilarity between multivariate data points. A (dis)similarity measure that often comes up in the literature when dealing with mixed data types is Gower’s distance (Gower, 1971). It is a similarity measure among observations from various types of variables, such as quantitative, categorical, and binary, can be a reasonable alternative to Euclidean distance when working with “mixed” data.</p>
+<p>Generally, the Gower’s dissimilarity in a simple form (without weights) for a data set with <span class="math inline">\(Q\)</span> variables is <span class="math display">\[d_{gow}(\mathbf{y_i},\mathbf{y_j}) = \frac{1}{Q} \sum_{q=1}^Q d_{gow}(y_{iq}, y_{jq}).\]</span> If <span class="math inline">\(q\)</span> is a linear quantitative variable, <span class="math display">\[d(y_{iq}, y_{jq}) = \frac{|y_{iq} - y_{jq}|}{\max_{i,j}|y_{iq} - y_{jq}|}.\]</span> It can also incorporate categorical variables, with <span class="math inline">\(d(y_{iq}, y_{jq})\)</span> equals to 0 if the two observations belong to the same category of <span class="math inline">\(q\)</span> and 1 otherwise. Details and examples can be seen in Everitt et al. (2011, Chapter 3). We extend the dissimilarity measure for a circular variable as <span class="math display">\[d(y_{iq},y_{jq}) = \frac{180 - \left| 180 - |y_{iq} - y_{jq}| \right|}{180},\]</span> where <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are the angles in degree. If radians are used, the constant 180 degrees will be replaced by <span class="math inline">\(\pi\)</span>. This distance can be mixed with other Gower’s distances both for monothetic clustering and in other distance-based clustering algorithms.</p>
+<p>We demonstrated an application of monothetic clustering to a data set from Šabacká et al. (2012). This data set is a part of a study on microorganisms carried in föhn winds at the Taylor Valley, an ice free area in the Antarctic continent. The examined subset of the data is during July 7–14, 2008, at the Bonney Riegel location with three variables: the existence of particles measured in 1 minute every 15 minutes (binary variable of presence or absence), average wind speed (m/s), and wind direction (degrees) recorded at a nearby meteorological station every 15 minutes. Wind direction is a circular variable in which winds blowing from the north to the south were chosen to be 0/360 degrees and winds blowing from the east to the west were chosen to be 90 degrees. <code>MonoClust</code> works on circular data by indicating the index or name of the circular variable (if there is more than one circular variable, a vector of them can be transferred) in the <code>cir.var</code> argument.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">data</span>(wind_sensit_<span class="dv">2008</span>)</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="co"># For the sake of speed in the example</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>wind_reduced_<span class="dv">2008</span> &lt;-<span class="st"> </span>wind_sensit_<span class="dv">2008</span>[<span class="kw">sample.int</span>(<span class="kw">nrow</span>(wind_sensit_<span class="dv">2008</span>), <span class="dv">50</span>), ]</span>
+<span id="cb6-4"><a href="#cb6-4"></a>sensit042008 &lt;-<span class="st"> </span><span class="kw">MonoClust</span>(wind_reduced_<span class="dv">2008</span>, <span class="dt">nclusters =</span> <span class="dv">4</span>, <span class="dt">cir.var =</span> <span class="dv">3</span>)</span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; Warning in cluster::daisy(toclust[, -cir.var], metric = distmethod): binary</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; variable(s) 1 treated as interval scaled</span></span></code></pre></div>
+<p>To perform monothetic clustering, a variable must generate a binary split. Because of special circular characteristics, a circle needs two cuts to create two separate arcs instead of one cut-point as in conventional linear variables. Therefore, the algorithm to search for the best split in a circular variable is actually done in two folds; first by fixing one cut value and then searching for the second cut. This process is repeated by changing the first cut until all possible pairs of cuts have been examined and the best two cuts are then picked based on the inertia. The splitting rule tree is also updated to add the second split value on the corner of the tree. After the first split on a circular variable, the arcs can be considered as two conventional quantitative variables and can be split further with only a single cut-point. Figure @ref(fig:sensit2008plot) shows the resulting four clusters created by applying monothetic clustering on the Antarctic data.</p>
+<p>When clustering a data set that has at least one circular variable in it, visualizing the cluster results to detect the underlying characteristics of the clusters is very crucial. Scatterplots are not very helpful for circular data because of the characteristics of those variables. Dimension reduction can be performed using techniques like multi-dimensional scaling (Chapter 14, Hastie et al., 2016) or more recent techniques such as t-SNE (Hinton, 2008), but the details of the original variables are lost in these projections. Parallel Coordinates Plots (PCPs, Inselberg and Dimsdale, 1987), which can display the original values of all of the multivariate data by putting them on equally spaced vertical x-axes, are a good choice due to its simplicity and its capability to retain the proximity of the data points (Härdle and Simar, 2015, Chapter 1). A modified PCP, inspired by Will (2016), is also implemented in <strong>monoClust</strong> using <strong>ggplot2</strong> (Wickham, 2016). The circular variable is displayed as an ellipse with the options to rotate and/or change the order of appearance of variables to help facilitate the detection of underlying properties of the clusters. Figure @ref(fig:PCPellipsev) is the PCP of the Antarctic data with the cluster memberships colored and matched to the tree in Figure @ref(fig:sensit2008plot) with the following code. There are other display options that can be modified such as the transparency of lines, whether the circular variable is in degrees or radians, etc. (see the function documentation for details).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">ggpcp</span>(<span class="dt">data =</span> wind_reduced_<span class="dv">2008</span>, </span>
+<span id="cb7-2"><a href="#cb7-2"></a>      <span class="dt">circ.var =</span> <span class="st">&quot;WDIR&quot;</span>,</span>
+<span id="cb7-3"><a href="#cb7-3"></a>      <span class="dt">rotate =</span> pi <span class="op">/</span><span class="st"> </span><span class="dv">4</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.6</span>,</span>
+<span id="cb7-4"><a href="#cb7-4"></a>      <span class="dt">order.appear =</span> <span class="kw">c</span>(<span class="st">&quot;WDIR&quot;</span>, <span class="st">&quot;has.sensit&quot;</span>, <span class="st">&quot;WS&quot;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5"></a>      <span class="dt">clustering =</span> sensit042008<span class="op">$</span>membership, </span>
+<span id="cb7-6"><a href="#cb7-6"></a>      <span class="dt">medoids =</span> sensit042008<span class="op">$</span>medoids,</span>
+<span id="cb7-7"><a href="#cb7-7"></a>      <span class="dt">alpha =</span> <span class="fl">0.5</span>,</span>
+<span id="cb7-8"><a href="#cb7-8"></a>      <span class="dt">cluster.col =</span> <span class="kw">c</span>(<span class="st">&quot;#e41a1c&quot;</span>, <span class="st">&quot;#377eb8&quot;</span>, <span class="st">&quot;#4daf4a&quot;</span>, <span class="st">&quot;#984ea3&quot;</span>),</span>
+<span id="cb7-9"><a href="#cb7-9"></a>      <span class="dt">show.medoids =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="figure">
+<img src="data:image/png;base64,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" alt />
+<p class="caption">PCP with the circular variable (<em>WDIR</em>) depicted as an ellipse. The geographical direction is noted and the ellipse is rotated to facilitate understanding of clusters.</p>
+</div>
+</div>
+<div id="bibliography" class="section level2">
+<h2>Bibliography</h2>
+<ul>
+<li>Anderson, M. J. (2001). “A new method for non-parametric multivariate analysis of variance”. In: <em>Austral Ecology</em> 26.1, pp. 32{46. issn: 14429985. doi: <code>10.1111/j.1442-9993.2001.01070.pp.x</code>.</li>
+<li>Breiman, L., J. Friedman, C. J. Stone, and R. Olshen (1984). <em>Classification and Regression Trees</em>. 1st ed. Chapman and Hall/CRC. isbn: 0412048418.</li>
+<li>Caliński, T. and J Harabasz (1974). “A dendrite method for cluster analysis”. en. In: <em>Communications in Statistics</em> 3.1, pp. 1-27.</li>
+<li>Charrad, M., N. Ghazzali, V. Boiteau, and A. Niknafs (2014). “NbClust: An R Package for Determining the”. In: <em>Journal of Statistical Software</em> 61.6.</li>
+<li>Chavent, M. (1998). “A monothetic clustering method”. In: <em>Pattern Recognition Letters</em> 19.11, pp. 989{996. issn: 01678655. doi: <code>10.1016/S0167-8655(98)00087-7</code>.</li>
+<li>Everitt, B. and T. Hothorn (2011). <em>An Introduction to Applied Multivariate Analysis with R</em>. 1st ed. Springer. isbn: 1441996494.</li>
+<li>Everitt, B. S., S. Landau, M. Leese, and D. Stahl (2011). <em>Cluster Analysis</em>. 5th ed. Wiley, p. 346. isbn: 0470749911.</li>
+<li>Fisher, N. I. (1993). <em>Statistical Analysis of Circular Data</em>. Cambridge: Cambridge University Press. isbn: 9780511564345. doi: <code>10.1017/CBO9780511564345</code>.</li>
+<li>Gower, J. C. (1971). “A General Coefficient of Similarity and Some of Its Properties”. In: <em>Biometrics</em> 27.4, p. 857. issn: 0006341X. doi: <code>10.2307/2528823</code>.</li>
+<li>Härdle , W. K. and L. Simar (2015). <em>Applied Multivariate Statistical Analysis</em>. Berlin, Heidelberg: Springer Berlin Heidelberg. isbn: 978-3-662-45170-0. doi: 10.1007/978-3-662-45171-7.</li>
+<li>Hardy, A. (1996). On the number of clusters&quot;. In: Computational Statistics &amp; Data Analysis 23.1, pp. 83{96. issn: 0167-9473. doi: <code>10.1016/S0167-9473(96)00022-9</code>.</li>
+<li>Hastie, T., R. Tibshirani, and J. Friedman (2016). <em>The Elements of Statistical Learning</em>. 2nd ed. Springer. isbn: 978-0387848570.</li>
+<li>Hinton, G. (2008). “Visualizing Data using t-SNE”. In: <em>Journal of Machine Learning Research</em> 9.Nov, pp. 2579{2605. issn: 02545330. doi: <code>10.1007/s10479-011-0841-3</code>.</li>
+<li>Hothorn, T., K. Hornik, and A. Zeileis (2006). “Unbiased Recursive Partitioning: A Conditional Inference Framework”. en. In: <em>Journal of Computational and Graphical Statistics</em> 15.3, pp. 651–674. issn: 1061-8600. doi: <code>10.1198/106186006X133933.33</code></li>
+<li>Inselberg, A. and B. Dimsdale (1987). “Parallel Coordinates for Visualizing Multi-Dimensional Geometry”. In: <em>Computer Graphics 1987</em>. Tokyo: Springer Japan, pp. 25{44. doi: <code>10.1007/978-4-431-68057-4_3</code>.</li>
+<li>James, G., D. Witten, T. Hastie, and R. Tibshirani (2013). <em>An Introduction to Statistical Learning: with Applications in R</em>. 1st. Springer, p. 426. isbn: 1461471370.</li>
+<li>Jammalamadaka, S. R. and A. SenGupta (2001). <em>Topics in Circular Statistics</em>. Vol. 5. isbn: 9789812779267. doi: <code>10.1142/9789812779267</code>.</li>
+<li>Kaufman, L. and P. J. Rousseeuw (1990). <em>Finding Groups in Data: An Introduction to Cluster Analysis</em>. 1st ed. Wiley-Interscience, p. 368. isbn: 978-0471735786.</li>
+<li>MacNaughton-Smith, P., W. T. Williams, M. B. Dale, and L. G. Mockett (1964). “Dissimilarity Analysis: a new Technique of Hierarchical Sub-division”. In: <em>Nature</em> 202.4936, pp. 1034{1035. issn: 0028-0836. doi: <code>10.1038/2021034a0</code>.</li>
+<li>MacQueen, J. (1967). <em>Some methods for classification and analysis of multivariate observations</em>. Berkeley, Calif.</li>
+<li>Maechler, M., P. Rousseeuw, A. Struyf, M. Hubert, and K. Hornik (2018). <em>cluster: Cluster Analysis Basics and Extensions</em>. R package version 2.0.7-1 — For new features, see the ‘Changelog’ file (in the package source).</li>
+<li>Milligan, G. W. and M. C. Cooper (1985). “An examination of procedures for determining the number of clusters in a data set”. In: <em>Psychometrika</em> 50.2, pp. 159–179. issn: 0033-3123. doi: <code>10.1007/BF02294245</code>.</li>
+<li>Murtagh, F. and P. Legendre (2014). “Ward’s Hierarchical Agglomerative Clustering Method: Which Algorithms Implement Ward’s Criterion?” In: <em>Journal of Classification</em> 31.3, pp. 274–295. issn: 0176-4268. doi: <code>10.1007/s00357-014-9161-z.34</code></li>
+<li>Piccarreta, R. and F. C. Billari (2007). “Clustering work and family trajectories by using a divisive algorithm”. In: <em>Journal of the Royal Statistical Society: Series A (Statistics in Society)</em> 170.4, pp. 1061–1078. issn: 0964-1998. doi: <code>10.1111/j.1467-985X.2007.00495.x.</code></li>
+<li>R Core Team (2020). <em>R: A Language and Environment for Statistical Computing</em>. R Foundation for Statistical Computing. Vienna, Austria. url: <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</li>
+<li>Rousseeuw, P. J. (1987). “Silhouettes: A graphical aid to the interpretation and validation of cluster analysis”. In: <em>Journal of Computational and Applied Mathematics</em> 20, pp. 53–65. issn: 03770427. doi: <code>10.1016/0377-0427(87)90125-7</code>.</li>
+<li>Ruspini, E. H. (1970). “Numerical methods for fuzzy clustering”. In: <em>Information Sciences</em> 2.3, pp. 319–350. issn: 00200255. doi: <code>10.1016/S0020-0255(70)80056-1</code>.</li>
+<li>Šabacká, M., J. C. Priscu, H. J. Basagic, A. G. Fountain, D. H. Wall, R. A. Virginia, and M. C. Greenwood (2012). “Aeolian ux of biotic and abiotic material in Taylor Valley, Antarctica”. In: <em>Geomorphology</em> 155-156, pp. 102–111. issn: 0169555X. doi: <code>10.1016/j.geomorph.2011.12.009.35</code></li>
+<li>Sneath, P. H. A. and R. R. Sokal (1973). <em>Numerical taxonomy: the principles and practice of numerical classification</em>. W.H. Freeman, p. 573. isbn: 0716706970.</li>
+<li>Therneau, T. and B. Atkinson (2018). <em>rpart: Recursive Partitioning and Regression Trees</em>. R package version 4.1-13.</li>
+<li>Ward, J. H. (1963). “Hierarchical Grouping to Optimize an Objective Function”. In: <em>Journal of the American Statistical Association</em> 58.301, pp. 236–244. issn: 0162-1459. doi: <code>10.1080/01621459.1963.10500845</code>.</li>
+<li>Wickham, H. (2016). <em>ggplot2: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. isbn: 978-3-319-24277-4. url: <a href="https://ggplot2.tidyverse.org" class="uri">https://ggplot2.tidyverse.org</a>.</li>
+<li>Will, G. (2016). “Visualizing and Clustering Data that Includes Circular Variables”. Writing Project. Montana State University.</li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

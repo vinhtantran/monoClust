@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot the Mean Square Error with Error Bar for +/- 1 Standard...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plot.cv.MonoClust {monoClust}"><tr><td>plot.cv.MonoClust {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot the Mean Square Error with Error Bar for +/- 1 Standard Error</h2>
+
+<h3>Description</h3>
+
+<p>Plot the Mean Square Error with Error Bar for +/- 1 Standard Error
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'cv.MonoClust'
+plot(
+  x,
+  main = "MSE for CV of monothetic clustering",
+  xlab = "Number of clusters",
+  ylab = "MSE +/- 1 SE",
+  type = "b",
+  lty = 2,
+  err.col = "red",
+  err.width = 0.1,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>cv.MonoClust</code> object (output of <code><a href="cv.test.html">cv.test()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p>Overall title for the plot.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p>Title for x axis.</p>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
+<p>Title for y axis.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>What type of plot should be drawn. See <code><a href="../../graphics/html/par.html">graphics::par()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>lty</code></td>
+<td>
+<p>The line type.</p>
+</td></tr>
+<tr valign="top"><td><code>err.col</code></td>
+<td>
+<p>Color of the error bars.</p>
+</td></tr>
+<tr valign="top"><td><code>err.width</code></td>
+<td>
+<p>Width of the bars.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to be passed to <code><a href="../../graphics/html/plot.default.html">graphics::plot.default()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A line plot with error bars.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Plot using ggplot2 <code><a href="ggcv.html">ggcv()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+library(cluster)
+data(ruspini)
+
+# 10-fold cross-validation
+cptable &lt;- cv.test(ruspini, minnodes = 2, maxnodes = 4)
+plot(cptable)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

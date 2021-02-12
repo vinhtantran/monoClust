@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parallel Coordinates Plot with Circular Variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ggpcp {monoClust}"><tr><td>ggpcp {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parallel Coordinates Plot with Circular Variables</h2>
+
+<h3>Description</h3>
+
+<p>Making a parallel coordinates plot with the circular variables are plotted
+as ellipses. The function currently works well with data with one circular
+variable.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ggpcp(
+  data,
+  circ.var = NULL,
+  is.degree = TRUE,
+  rotate = 0,
+  north = 0,
+  cw = FALSE,
+  order.appear = NULL,
+  linetype = 1,
+  size = 0.5,
+  alpha = 0.5,
+  clustering,
+  medoids = NULL,
+  cluster.col = NULL,
+  show.medoids = FALSE,
+  labelsize = 4,
+  xlab = "Variables",
+  ylab = NULL,
+  legend.cluster = "groups"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>Data set.</p>
+</td></tr>
+<tr valign="top"><td><code>circ.var</code></td>
+<td>
+<p>Circular variable(s) in the data set, indicated by names
+or index in the data set.</p>
+</td></tr>
+<tr valign="top"><td><code>is.degree</code></td>
+<td>
+<p>Whether the unit of the circular variables is degree or not
+(radian). Default is <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>rotate</code></td>
+<td>
+<p>The rotate (offset, shift) of the circular variable, in
+radians. Default is 0 (no rotation).</p>
+</td></tr>
+<tr valign="top"><td><code>north</code></td>
+<td>
+<p>What value of the circular variable is labeled North. Default is
+0 radian.</p>
+</td></tr>
+<tr valign="top"><td><code>cw</code></td>
+<td>
+<p>Which direction of the circular variable is considered increasing
+in value, clockwise (<code>TRUE</code>) or counter-clockwise (<code>FALSE</code>). Default is
+<code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>order.appear</code></td>
+<td>
+<p>The order of appearance of the variables, listed by a
+vector of names or index. If set, length has to be equal to the number of
+variables in the data set.</p>
+</td></tr>
+<tr valign="top"><td><code>linetype</code></td>
+<td>
+<p>Line type. Default is solid line. See details in
+<code>vignette("ggplot2-specs")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>size</code></td>
+<td>
+<p>Size of a line is its width in mm. Default is 0.5. See details in
+<code>vignette("ggplot2-specs")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>The transparency of the lines. Default is 0.1.</p>
+</td></tr>
+<tr valign="top"><td><code>clustering</code></td>
+<td>
+<p>Cluster membership.</p>
+</td></tr>
+<tr valign="top"><td><code>medoids</code></td>
+<td>
+<p>Vector of medoid observations of cluster. Only required when
+<code>show.medoids = TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>cluster.col</code></td>
+<td>
+<p>Color of clusters, indicating by a vector. If set, the
+length of this vector must be equal to the number of clusters in
+<code>clustering</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>show.medoids</code></td>
+<td>
+<p>Whether to highlight the median lines or not. Default is
+<code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>labelsize</code></td>
+<td>
+<p>The size of labels on the plot. Default is 4.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p>Labels for x-axis.</p>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
+<p>Labels for y-axis.</p>
+</td></tr>
+<tr valign="top"><td><code>legend.cluster</code></td>
+<td>
+<p>Labels for group membership. Implemented by setting
+label for ggplot <code>color</code> aesthetics.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A ggplot2 object.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Set color constant
+COLOR4 &lt;- c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")
+# Reduce the size of the data for for sake of example speed
+set.seed(12345)
+wind_reduced &lt;- wind_sensit_2007[sample.int(nrow(wind_sensit_2007), 50), ]
+
+sol42007 &lt;- MonoClust(wind_reduced, cir.var = 3, nclusters = 4)
+
+library(ggplot2)
+ggpcp(data = wind_reduced,
+      circ.var = "WDIR",
+      # To improve aesthetics
+      rotate = pi*3/4-0.3,
+      order.appear = c("WDIR", "has.sensit", "WS"),
+      alpha = 0.5,
+      clustering = sol42007$membership,
+      medoids = sol42007$medoids,
+      cluster.col = COLOR4,
+      show.medoids = TRUE) +
+  theme(panel.background = element_rect(color = "white"),
+        panel.border = element_rect(color = "white", fill = NA),
+        panel.grid.major = element_line(color = "#f0f0f0"),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        legend.key = element_rect(color = NA),
+        legend.position = "bottom",
+        legend.direction = "horizontal",
+        legend.title = element_text(face = "italic"),
+        legend.justification = "center")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

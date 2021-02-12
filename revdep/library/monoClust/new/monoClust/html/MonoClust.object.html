@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Monothetic Clustering Tree Object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for MonoClust.object {monoClust}"><tr><td>MonoClust.object {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Monothetic Clustering Tree Object</h2>
+
+<h3>Description</h3>
+
+<p>The structure and objects contained in MonoClust, an object returned from
+the <code><a href="MonoClust.html">MonoClust()</a></code> function and used as the input in other functions in the
+package.
+</p>
+
+
+<h3>Value</h3>
+
+
+<dl>
+<dt>frame</dt><dd><p>Data frame in the form of a <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> representing
+a tree structure with one row for each node. The columns include:
+</p>
+
+<dl>
+<dt>number</dt><dd><p>Index of the node. Depth of a node can be derived by
+<code>number %/% 2</code>.</p>
+</dd>
+<dt>var</dt><dd><p>Name of the variable used in the split at a node or
+<code>"&lt;leaf&gt;"</code> if it is a leaf node.</p>
+</dd>
+<dt>cut</dt><dd><p>Splitting value, so values of <code>var</code> that are smaller than
+that go to left branch while values greater than that go to the right
+branch.</p>
+</dd>
+<dt>n</dt><dd><p>Cluster size, the number of observations in that cluster.</p>
+</dd>
+<dt>inertia</dt><dd><p>Inertia value of the cluster at that node.</p>
+</dd>
+<dt>bipartsplitrow</dt><dd><p>Position of the next split row in the data set
+(that position will belong to left node (smaller)).</p>
+</dd>
+<dt>bipartsplitcol</dt><dd><p>Position of the next split variable in the data
+set.</p>
+</dd>
+<dt>inertiadel</dt><dd><p>Proportion of inertia value of the cluster at that
+node to the inertia of the root.</p>
+</dd>
+<dt>medoid</dt><dd><p>Position of the data point regarded as the medoid of
+its cluster.</p>
+</dd>
+<dt>loc</dt><dd><p>y-coordinate of the splitting node to facilitate showing
+on the tree. See <code><a href="plot.MonoClust.html">plot.MonoClust()</a></code> for details.</p>
+</dd>
+<dt>split.order</dt><dd><p>Order of the splits with root is 0.</p>
+</dd>
+<dt>inertia_explained</dt><dd><p>Percent inertia explained as described in
+Chavent (2007). It is <code style="white-space: pre;">1 - (sum(current inertia)/inertial[1])</code>.</p>
+</dd>
+<dt>alt</dt><dd><p>A nested tibble of alternate splits at a node. It contains
+<code>bipartsplitrow</code> and <code>bipartsplitcol</code> with the same meaning above.
+Note that this is only for information purpose. Currently <code>monoClust</code>
+does not support choosing an alternate splitting route. Running
+<code><a href="MonoClust.html">MonoClust()</a></code> with <code>nclusters = 2</code> step-by-step can be run if
+needed.</p>
+</dd>
+</dl>
+</dd>
+<dt>membership</dt><dd><p>Vector of the same length as the number of rows in the
+data, containing the value of <code>frame$number</code> corresponding to the leaf
+node that an observation falls into.</p>
+</dd>
+<dt>dist</dt><dd><p>Distance matrix calculated using the method indicated in
+<code>distmethod</code> argument of <code><a href="MonoClust.html">MonoClust()</a></code>.</p>
+</dd>
+<dt>terms</dt><dd><p>Vector of variable names in the data that were used to split.</p>
+</dd>
+<dt>centroids</dt><dd><p>Data frame with one row for centroid value of each
+cluster.</p>
+</dd>
+<dt>medoids</dt><dd><p>Named vector of positions of the data points regarded as
+medoids of clusters.</p>
+</dd>
+<dt>alt</dt><dd><p>Indicator of having an alternate splitting route occurred when
+splitting.</p>
+</dd>
+<dt>circularroot</dt><dd><p>List of values designed for circular variable in the
+data set. <code>var</code> is the name of circular variable and <code>cut</code> is its first
+best split value. If circular variable is not available, both objects are
+NULL.</p>
+</dd>
+</dl>
+
+
+
+<h3>References</h3>
+
+
+<ul>
+<li><p> Chavent, M., Lechevallier, Y., &amp; Briant, O. (2007). DIVCLUS-T: A monothetic
+divisive hierarchical clustering method. Computational Statistics &amp; Data
+Analysis, 52(2), 687-701. doi: <a href="https://doi.org/10.1016/j.csda.2007.03.013">10.1016/j.csda.2007.03.013</a>.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p><code><a href="MonoClust.html">MonoClust()</a></code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

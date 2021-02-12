@@ -1,0 +1,62 @@
+test_that("correct new node with default values", {
+  expect_equal(new_node(number = 1,
+                        var = "<leaf>",
+                        n = 30,
+                        wt = 10,
+                        inertia = 10000,
+                        medoid = 2,
+                        loc = 0.1,
+                        alt = FALSE),
+               tibble::tibble(number = 1,
+                              var = "<leaf>",
+                              n = 30,
+                              wt = 10,
+                              inertia = 10000,
+                              bipartsplitrow = -99L,
+                              bipartsplitcol = -99L,
+                              inertiadel = 0,
+                              inertia_explained = -99,
+                              medoid = 2,
+                              loc = 0.1,
+                              alt = FALSE))
+})
+
+test_that("correct new node with not default values", {
+  expect_equal(new_node(number = 1,
+                        var = "<leaf>",
+                        n = 30,
+                        wt = 10,
+                        bipartsplitrow = 5,
+                        bipartsplitcol = 10,
+                        inertia = 10000,
+                        inertia_explained = 0.5,
+                        medoid = 2,
+                        loc = 0.5,
+                        alt = FALSE),
+               tibble::tibble(number = 1,
+                              var = "<leaf>",
+                              n = 30,
+                              wt = 10,
+                              inertia = 10000,
+                              bipartsplitrow = 5,
+                              bipartsplitcol = 10,
+                              inertiadel = 0,
+                              inertia_explained = 0.5,
+                              medoid = 2,
+                              loc = 0.5,
+                              alt = FALSE))
+})
+
+test_that("incorrect new node when non default not declared", {
+  expect_error(new_node(number = 1,
+                        var = "<leaf>",
+                        n = 30,
+                        bipartsplitrow = 5,
+                        bipartsplitcol = 10,
+                        inertia = 10000,
+                        inertia_explained = 0.5,
+                        medoid = 2,
+                        loc = 0.5,
+                        alt = FALSE),
+               "argument \"wt\" is missing, with no default")
+})

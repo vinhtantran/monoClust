@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot the monoClust Tree.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plot_tree {monoClust}"><tr><td>plot_tree {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot the monoClust Tree.</h2>
+
+<h3>Description</h3>
+
+<p>This function plots the MonoClust tree. It is partially inspired by rpart
+package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+plot_tree(
+  x,
+  uniform = FALSE,
+  branch = 1,
+  margin = 0,
+  minbranch = 0.3,
+  rel.loc.x = TRUE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>MonoClust result object.</p>
+</td></tr>
+<tr valign="top"><td><code>uniform</code></td>
+<td>
+<p>If TRUE, uniform vertical spacing of the nodes is used; this
+may be less cluttered when fitting a large plot onto a page. The default is
+to use a non-uniform spacing proportional to the inertia in the fit.</p>
+</td></tr>
+<tr valign="top"><td><code>branch</code></td>
+<td>
+<p>Controls the shape of the branches from parent to child node.
+Any number from 0 to 1 is allowed. A value of 1 gives square shouldered
+branches, a value of 0 give V shaped branches, with other values being
+intermediate.</p>
+</td></tr>
+<tr valign="top"><td><code>margin</code></td>
+<td>
+<p>An extra fraction of white space to leave around the borders of
+the tree. (Long labels sometimes get cut off by the default computation).</p>
+</td></tr>
+<tr valign="top"><td><code>minbranch</code></td>
+<td>
+<p>Set the minimum length for a branch to <code>minbranch</code> times the
+average branch length. This parameter is ignored if <code>uniform = TRUE</code>.
+Sometimes a split will give very little improvement, or even no improvement
+at all. A tree with branch lengths strictly proportional to improvement
+leaves no room to squeeze in node labels.</p>
+</td></tr>
+<tr valign="top"><td><code>rel.loc.x</code></td>
+<td>
+<p>Whether to use the relative distance between clusters as x
+coordinate of the leaves. Default is TRUE.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to be passed to <code><a href="../../graphics/html/plot.default.html">graphics::plot.default()</a></code> and
+<code><a href="../../graphics/html/lines.html">graphics::lines()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Plot of tree
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

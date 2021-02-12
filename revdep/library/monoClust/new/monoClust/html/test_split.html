@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Hypothesis Test at Split</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for test_split {monoClust}"><tr><td>test_split {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Hypothesis Test at Split</h2>
+
+<h3>Description</h3>
+
+<p>Hypothesis Test at Split
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+test_split(members_l, members_r, method, data, split_var, rep, stat, ncores)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>members_l, members_r</code></td>
+<td>
+<p>Vector of the index of observations that
+are members of the left child node and the right child node, respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Can be chosen between <code>sw</code> (simple-withhold, default), <code>rl</code>
+(resplit-limit), or <code>rn</code> (resplit-nolimit). See Details.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data set which is being clustered.</p>
+</td></tr>
+<tr valign="top"><td><code>split_var</code></td>
+<td>
+<p>Splitting variable at current split.</p>
+</td></tr>
+<tr valign="top"><td><code>rep</code></td>
+<td>
+<p>Number of permutations required to calculate test statistic.</p>
+</td></tr>
+<tr valign="top"><td><code>stat</code></td>
+<td>
+<p>Statistic to use. Choosing between <code>"f"</code> (Calinski-Harabasz's
+pseudo-F (Calinski and Harabasz, 1974)) or <code>"aw"</code> (Average silhoutte width
+by Rousseeuw (1987)).</p>
+</td></tr>
+<tr valign="top"><td><code>ncores</code></td>
+<td>
+<p>Number of CPU cores on the current host. When set to NULL,
+all available cores are used.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>p-value of the test
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

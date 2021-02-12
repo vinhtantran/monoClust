@@ -1,0 +1,23 @@
+MonoClust               Monothetic Clustering
+MonoClust.object        Monothetic Clustering Tree Object
+as_MonoClust            Coerce Similar Object to MonoClust
+circ_arith              Add/Subtract Circular Values in Degrees/Radian
+circ_dist               Distance Matrix of Circular Variables
+cv.test                 Cross-Validation Test on MonoClust
+ggcv                    GGPlot the Mean Square Error with Error Bar for
+                        +/- 1 Standard Error
+ggpcp                   Parallel Coordinates Plot with Circular
+                        Variables
+inertia_calc            Cluster Inertia Calculation
+is_MonoClust            Test If The Object is A MonoClust
+medoid                  Find Medoid of the Cluster
+perm.test               Permutation Test on Monothetic Tree
+plot.MonoClust          Plot MonoClust Splitting Rule Tree
+plot.cv.MonoClust       Plot the Mean Square Error with Error Bar for
+                        +/- 1 Standard Error
+predict.MonoClust       Predictions from a MonoClust Object
+print.MonoClust         Print Monothetic Clustering Results
+print.cv.MonoClust      Print MonoClust Cross-Validation Result
+to_deg_rad              Transform Between Degree and Radian
+wind_sensit_2007        Existence of Microorganisms Carried in Wind
+wind_sensit_2008        Existence of Microorganisms Carried in Wind

@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Split Function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for splitter {monoClust}"><tr><td>splitter {monoClust}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Split Function</h2>
+
+<h3>Description</h3>
+
+<p>Given the Cluster's frame's row position to split at <code>split_row</code>, this
+function performs the split, calculate all necessary information for the
+splitting tree and cluster memberships.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+splitter(data, cuts, split_row, frame, cloc, dist, split_order = 0L)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>Original data set.</p>
+</td></tr>
+<tr valign="top"><td><code>cuts</code></td>
+<td>
+<p>Cuts data set, which has the next higher value of each variable
+in the original data set.</p>
+</td></tr>
+<tr valign="top"><td><code>split_row</code></td>
+<td>
+<p>The row index in frame that would be split on.</p>
+</td></tr>
+<tr valign="top"><td><code>frame</code></td>
+<td>
+<p>The split tree transferred as data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>cloc</code></td>
+<td>
+<p>Vector of current cluster membership.</p>
+</td></tr>
+<tr valign="top"><td><code>dist</code></td>
+<td>
+<p>Distance matrix of all observations in the data.
+exported function yet. Vector of 1 for all observations.</p>
+</td></tr>
+<tr valign="top"><td><code>split_order</code></td>
+<td>
+<p>The control argument to see how many split has been done.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Updated <code>frame</code> and <code>cloc</code> saved in a list.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>monoClust</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>
