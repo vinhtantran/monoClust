@@ -15,3 +15,7 @@ A minor release with some changes in package API and documentation.
 0 errors v | 0 warnings v | 0 notes v
 
 R CMD check succeeded
+
+## Further comments
+
+Fixed the lifecycle URL in README.md to avoid redirect.

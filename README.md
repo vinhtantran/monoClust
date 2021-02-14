@@ -12,7 +12,7 @@ status](https://www.r-pkg.org/badges/version/monoClust)](https://CRAN.R-project.
 [![metacran
 downloads](https://cranlogs.r-pkg.org/badges/monoClust)](https://cran.r-project.org/package=monoClust)
 [![Lifecycle:
-stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R-CMD-check](https://github.com/vinhtantran/monoClust/workflows/R-CMD-check/badge.svg)](https://github.com/vinhtantran/monoClust/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/vinhtantran/monoClust/branch/master/graph/badge.svg)](https://codecov.io/gh/vinhtantran/monoClust?branch=master)
