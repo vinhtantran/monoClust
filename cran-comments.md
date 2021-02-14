@@ -1,5 +1,5 @@
 ## Release summary
-A minor release with some changes in package API and documentation.
+A bug fix release with some changes in function argument and a warning message format.
 
 ## Test environments
 * local Windows 10 installation, R 4.0.3
@@ -19,3 +19,7 @@ R CMD check succeeded
 ## Further comments
 
 Fixed the lifecycle URL in README.md to avoid redirect.
+
+## Reverse Dependency
+
+There is one package, puls, that is reverse dependency on this package. It will fail in one unit test because of a very small change (remove a space before the end point in the message) in the warning message in as_MonoClust() function. **It is totally expected and I will push a fix to puls package very soon**.

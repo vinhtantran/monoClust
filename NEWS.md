@@ -4,11 +4,13 @@
 * `MonoClus()`: default value for `distmethod` argument is now `NULL` so that
   the it can be set to Euclidean (when `cir.var` is not set) or Gower distance 
   (when `cir.var` is set).
-* Fix typos.
+* Fix typos and a trailing space in the warning message of `as_MonoClust()` function.
 * Small improvement in how `ncores` argument is processed in `perm.test()` and
   `cv.test()`. It did not have a problem before but the improvement helps remove
   errors in Github Actions CI in Windows environment.
 * `\@fig` tags in the vignette is removed.
+* URL to lifecycle badge in README.md is updated.
+* Start unit test component with the first test is for `as_MonoClust()` function.
 
 # monoClust 1.2.0
   

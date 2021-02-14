@@ -19,6 +19,7 @@ as_MonoClust <- function(x, ...) {
 #' @export
 #' @rdname as_MonoClust
 as_MonoClust.default <- function(x, ...) {
-  warning(paste0("as_MonoClust does not know how to handle object of class ",
-                class(x), "."))
+  warning(
+    strwrap(c("as_MonoClust does not know how to handle object of class",
+                    paste0(class(x), ".")), prefix = " ", initial = ""))
 }
