@@ -22,4 +22,4 @@ Fixed the lifecycle URL in README.md to avoid redirect.
 
 ## Reverse Dependency
 
-There is one package, puls, that is reverse dependency on this package. It will fail in one unit test because of a very small change (remove a space before the end point in the message) in the warning message in as_MonoClust() function. **It is totally expected and I will push a fix to puls package very soon**.
+There is one package, puls, that is reverse dependency on this package. It will fail in one unit test because of a very small change (remove a space before the end point in the message) in the warning message in as_MonoClust() function. **It is totally expected and because I'm also the maintainer of puls, I will push a fix to that package very soon**.
