@@ -5,8 +5,6 @@
 
 <!-- badges: start -->
 
-[![Travis build
-status](https://travis-ci.org/vinhtantran/monoClust.svg?branch=master)](https://travis-ci.org/vinhtantran/monoClust)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/monoClust)](https://CRAN.R-project.org/package=monoClust)
 [![metacran
