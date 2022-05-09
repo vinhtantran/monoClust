@@ -135,8 +135,8 @@ ggpcp <- function(data, circ.var = NULL, is.degree = TRUE, rotate = 0,
     cluster.col <- seq_len(length(unique(clustering)))
   } else {
     if (length(cluster.col) != length(unique(clustering))) {
-      message(paste("The number of colors does not match the number of",
-                    "clusters. Default values will be used."))
+      message("The number of colors does not match the number of ",
+              "clusters. Default values will be used.")
       cluster.col <- seq_len(length(unique(clustering)))
     }
 
@@ -144,8 +144,8 @@ ggpcp <- function(data, circ.var = NULL, is.degree = TRUE, rotate = 0,
         !identical(sort(names(cluster.col)),
                    sort(as.character(unique(clustering))))) {
       if (!is.null(names(cluster.col)))
-        message(paste("Named \"cluster.col\" does not match cluster names.",
-                      "Default values will be used."))
+        message("Named \"cluster.col\" does not match cluster names. ",
+                "Default values will be used.")
       names(cluster.col) <- sort(unique(clustering))
     }
   }

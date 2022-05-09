@@ -11,8 +11,6 @@
 #' @param err.width Width of the bars.
 #'
 #' @return A ggplot2 object.
-#' @importFrom dplyr `%>%`
-#' @importFrom rlang .data
 #' @seealso Plot using base R [plot.cv.MonoClust()]
 #' @export
 #'
@@ -38,17 +36,20 @@ ggcv <- function(cv.obj,
     stop("\"cv.obj\" is required.")
   if (!inherits(cv.obj, "cv.MonoClust"))
     stop("Not a legitimate \"cv.MonoClust\" object.")
-  type <- match.arg(type)
 
   cv_table <- cv.obj$cv
+  if (!all(c("MSE", "ncluster", "Std. Dev.") %in% colnames(cv_table)))
+    stop("Not a legitimate \"cv.MonoClust\" object.")
+
+  type <- match.arg(type)
+
+  cv_table$upper1SD <- cv_table$MSE + cv_table$`Std. Dev.`
+  cv_table$lower1SD <- cv_table$MSE - cv_table$`Std. Dev.`
 
   p <-
-    cv_table %>%
-    dplyr::mutate(upper1SD = .data$MSE + .data$`Std. Dev.`,
-                  lower1SD = .data$MSE - .data$`Std. Dev.`) %>%
-    ggplot2::ggplot(ggplot2::aes(x = .data$ncluster, y = .data$MSE)) +
-    ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$lower1SD,
-                                        ymax = .data$upper1SD),
+    ggplot2::ggplot(cv_table, ggplot2::aes(x = ncluster, y = MSE)) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = lower1SD,
+                                        ymax = upper1SD),
                            color = err.col, width = err.width) +
     ggplot2::scale_x_continuous(breaks = seq_len(nrow(cv_table))) +
     ggplot2::labs(x = xlab,
